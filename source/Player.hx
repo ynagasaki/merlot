@@ -19,6 +19,7 @@ class Player extends FlxSprite
 		height = 30;
 		offset.x = 15;
 		offset.y = 5;
+		mass = 200;
 
 		frames = 5;
 		frameHeight = 35;

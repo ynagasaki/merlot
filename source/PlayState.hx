@@ -16,6 +16,7 @@ import org.flixel.FlxGroup;
 class PlayState extends FlxState
 {
 	var player : Player;
+	var duck : NonPlayable;
 	var platformsGroup : FlxGroup;
 	var statusText : FlxText;
 
@@ -58,6 +59,9 @@ class PlayState extends FlxState
 		add(statusText);
 
 		super.create();
+
+		duck = new NonPlayable(500, 60, 19, 19);
+		this.add(duck);
 	}
 	
 	/**
@@ -77,6 +81,8 @@ class PlayState extends FlxState
 	override public function update():Void
 	{
 		FlxG.collide(this.player, this.platformsGroup);
+		FlxG.collide(this.duck, this.platformsGroup);
+		FlxG.collide(this.player, this.duck);
 
 		elapsedTime += FlxG.elapsed;
 		if(elapsedTime >= 1.0) {
