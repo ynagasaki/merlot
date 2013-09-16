@@ -17,9 +17,6 @@ class NonPlayable extends FlxSprite
 		//tweak the bounding box for better feel
 		width = w;
 		height = h;
-		mass = 30;
-		//offset.x = 0;
-		//offset.y = 0;
 
 		frames = 1;
 		frameHeight = w;
@@ -32,8 +29,6 @@ class NonPlayable extends FlxSprite
 	
 	override public function update():Void
 	{
-		acceleration.x = -0.5;
-
 		facing = (velocity.x < 0) ? FlxObject.LEFT : FlxObject.RIGHT;
 
         super.update();
