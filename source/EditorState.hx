@@ -1,4 +1,4 @@
-package;
+package ;
 
 import haxe.Json;
 import org.flixel.FlxG;

@@ -1,4 +1,4 @@
-package;
+package ;
 
 import org.flixel.FlxG;
 import org.flixel.FlxObject;
@@ -7,6 +7,9 @@ import org.flixel.FlxState;
 
 class Player extends FlxSprite
 {
+	public static inline var GRAVITY : Float = 400;
+
+	var mSurfaceLine : Line = null;
 	var mDebugBoundarySprite : FlxSprite = null;
 	var mDebugOn : Bool = false;
 
@@ -15,7 +18,7 @@ class Player extends FlxSprite
 		super(X, Y);
 		loadGraphic("assets/pino-run.png", true, true, 40, 35);
 		maxVelocity.x = 100;			//walking speed
-		acceleration.y = 400;			//gravity
+		acceleration.y = GRAVITY;
 		drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
 		
 		//tweak the bounding box for better feel
@@ -50,8 +53,23 @@ class Player extends FlxSprite
 			state.remove(mDebugBoundarySprite);
 		}
 	}
-	
-	override public function update():Void
+
+	public function setSurfaceLine(surface : Line) : Void {
+		mSurfaceLine = surface;
+	}
+
+	public function isOnGround() : Bool {
+		return mSurfaceLine != null;
+	}
+
+	public function jump() : Void {
+		startNotBeingOnTheGround();
+		
+		velocity.y = -acceleration.y * 0.51;
+		play("jump");
+	}
+
+	override public function update() : Void
 	{
 		//Smooth slidey walking controls
 		acceleration.x = 0;
@@ -61,11 +79,10 @@ class Player extends FlxSprite
 		if(FlxG.keys.RIGHT)
 			acceleration.x += drag.x;
 		
-		if(isTouching(FlxObject.FLOOR)) {
+		if(isOnGround()) {
 			//Jump controls
 			if(FlxG.keys.justPressed("SPACE")) {
-				velocity.y = -acceleration.y*0.51;
-				play("jump");
+				jump();
 			} else if(velocity.x > 0) {
 				play("walk");
 				facing = FlxObject.RIGHT;
@@ -75,11 +92,11 @@ class Player extends FlxSprite
 			} else {
 				play("idle");
 			}
-		}
-		else if(velocity.y < 0)
+		} else if(velocity.y < 0) {
 			play("jump");
-		else
+		} else {
 			play("flail");
+		}
 
 		super.update();
 
@@ -87,5 +104,16 @@ class Player extends FlxSprite
 			mDebugBoundarySprite.x = this.x;
 			mDebugBoundarySprite.y = this.y;
 		}
+
+		if(isOnGround()) {
+			if(this.x > mSurfaceLine.rightmostPoint.x || this.x < mSurfaceLine.leftmostPoint.x) {
+				startNotBeingOnTheGround();
+			}
+		}
+	}
+
+	private function startNotBeingOnTheGround() {
+		acceleration.y = GRAVITY;
+		mSurfaceLine = null;
 	}
 }

@@ -5,10 +5,30 @@ import org.flixel.util.FlxPoint;
 class Line {
 	public var p1 : FlxPoint;
 	public var p2 : FlxPoint;
+	public var rightmostPoint : FlxPoint;
+	public var leftmostPoint : FlxPoint;
+	public var topmostPoint : FlxPoint;
+	public var bottommostPoint : FlxPoint;
 
 	public function new(x1 : Float, y1 : Float, x2 : Float, y2 : Float) {
 		p1 = new FlxPoint(x1, y1);
 		p2 = new FlxPoint(x2, y2);
+
+		if(x1 > x2) {
+			rightmostPoint = p1;
+			leftmostPoint = p2;
+		} else {
+			rightmostPoint = p2;
+			leftmostPoint = p1;
+		}
+
+		if(y1 < y2) {
+			topmostPoint = p1;
+			bottommostPoint = p2;
+		} else {
+			topmostPoint = p2;
+			bottommostPoint = p1;
+		}
 	}
 
 	public function toStringForFile() : String {

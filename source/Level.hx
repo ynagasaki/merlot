@@ -1,3 +1,4 @@
+package ;
 
 import sys.io.File;
 import org.flixel.FlxSprite;
@@ -45,14 +46,14 @@ class Level {
 		);
 
 		try {
-		var boundaries : Array<Dynamic> = mLevelJson.boundaries;
-		for(dyn in boundaries) {
-			trace(dyn);
-			var boundary = new Boundary();
-			boundary.surface = new Line(dyn.s[0], dyn.s[1], dyn.s[2], dyn.s[3]);
-			boundary.normal = new Line(dyn.n[0], dyn.n[1], dyn.n[2], dyn.n[3]);
-			addBoundary(boundary);
-		}
+			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
+			for(dyn in boundaries) {
+				trace(dyn);
+				var boundary = new Boundary();
+				boundary.surface = new Line(dyn.s[0], dyn.s[1], dyn.s[2], dyn.s[3]);
+				boundary.normal = new Line(dyn.n[0], dyn.n[1], dyn.n[2], dyn.n[3]);
+				addBoundary(boundary);
+			}
 		} catch(ex : Dynamic) {
 			trace(ex);
 		}
@@ -95,23 +96,28 @@ class Level {
 		trace("saved: " + mFilename);
 	}
 
-	public function checkLineIntersection(trajectory : Line) : FlxPoint {
+	public function checkSurfaceCollision(trajectory : Line) : IntersectionCheckResult {
 		var checkedCount : Int = 0;
+		var intersectionPoint : FlxPoint = null;
+
+		// maybe do like a BSP tree
 		for(boundary in mBoundaries) {
 			var s : Line = boundary.surface;
+
+			if(trajectory.p1.y > s.bottommostPoint.y) continue;
+			if(trajectory.p1.x > s.rightmostPoint.x) continue;
+			if(trajectory.p1.x < s.leftmostPoint.x) continue;
+
+			intersectionPoint = Utility.checkLineIntersection(trajectory, s);
 			checkedCount ++;
 
-			var max_x : Float = Math.max(s.p1.x, s.p2.x);
-			var min_x : Float = Math.min(s.p1.x, s.p2.x);
-
-			//trace("max: " + max_x + ", min: " + min_x);
-
-			if(max_x >= trajectory.p2.x && min_x <= trajectory.p2.x) {
-				//trace("(+)checked: " + checkedCount);
-				return Utility.checkLineIntersection(trajectory, s);
+			if(intersectionPoint != null) {
+				trace("checked: " + checkedCount);
+				return new IntersectionCheckResult(intersectionPoint, s);
 			}
 		}
-		trace("(-)checked: " + checkedCount);
-		return null;
+
+		trace("checked: " + checkedCount);
+		return new IntersectionCheckResult(null, null);
 	}
 }
