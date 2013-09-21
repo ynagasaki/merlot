@@ -1,11 +1,15 @@
 package;
+
 import org.flixel.FlxG;
 import org.flixel.FlxObject;
 import org.flixel.FlxSprite;
-
+import org.flixel.FlxState;
 
 class Player extends FlxSprite
 {
+	var mDebugBoundarySprite : FlxSprite = null;
+	var mDebugOn : Bool = false;
+
 	public function new(X:Float, Y:Float)
 	{
 		super(X, Y);
@@ -17,18 +21,34 @@ class Player extends FlxSprite
 		//tweak the bounding box for better feel
 		width = 10;
 		height = 30;
-		offset.x = 15;
-		offset.y = 5;
 
 		frames = 5;
-		frameHeight = 35;
 		frameWidth = 40;
+		frameHeight = 35;
+
+		offset.x = frameWidth / 2;
+		offset.y = frameHeight / 2;
 		
 		addAnimation("idle",[0],0,false);
 		addAnimation("walk",[1,2,3,4],10,true);
 		addAnimation("walk_back",[1,2,3,4],10,true);
 		addAnimation("flail",[0],18,false);
 		addAnimation("jump",[1],0,false);
+	}
+
+	public function setDebug(on : Bool, state : FlxState) : Void {
+		mDebugOn = on;
+
+		if(mDebugBoundarySprite == null) {
+			mDebugBoundarySprite = new FlxSprite(this.x, this.y);
+			mDebugBoundarySprite.makeGraphic(5,5, 0xFFFF0000);
+		}
+		
+		if(mDebugOn) {
+			state.add(mDebugBoundarySprite);
+		} else {
+			state.remove(mDebugBoundarySprite);
+		}
 	}
 	
 	override public function update():Void
@@ -61,6 +81,11 @@ class Player extends FlxSprite
 		else
 			play("flail");
 
-        super.update();
+		super.update();
+
+		if(mDebugOn) {
+			mDebugBoundarySprite.x = this.x;
+			mDebugBoundarySprite.y = this.y;
+		}
 	}
 }

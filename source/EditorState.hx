@@ -27,7 +27,7 @@ class EditorState extends FlxState {
 
 		add(mLevel.getLevelSprite());
 
-		FlxG.camera.setBounds(0, 0, 1800, 700, true);
+		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
 
 		super.create();
 	}
@@ -45,8 +45,12 @@ class EditorState extends FlxState {
 	{
 		figOutMouseDrawingLinesCrap();
 
-		if(FlxG.keys.pressed("SHIFT")) {
+		if(FlxG.keys.pressed("CONTROL")) {
 			FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
+		}
+
+		if(FlxG.keys.justPressed("ENTER") && FlxG.keys.pressed("SHIFT")) {
+			FlxG.switchState(new PlayState());
 		}
 
 		try {

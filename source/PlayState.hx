@@ -1,6 +1,69 @@
 package;
 
 import openfl.Assets;
+import org.flixel.FlxG;
+import org.flixel.FlxSprite;
+import org.flixel.FlxState;
+import org.flixel.util.FlxMath;
+import org.flixel.util.FlxPoint;
+
+import haxe.io.Input;
+
+class PlayState extends FlxState
+{
+	var mPlayer : Player = null;
+	var mLevel : Level = null;
+
+	override public function create():Void
+	{
+		// Set a background color
+		FlxG.bgColor = 0xFFFF00FF;
+
+		mLevel = new Level("assets/level-01.json");
+
+		add(mLevel.getLevelSprite());
+
+		mPlayer = new Player(50, 200);
+
+		add(mPlayer);
+
+		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
+		
+		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
+
+		mPlayer.setDebug(true, this);
+	}
+
+	override public function destroy():Void
+	{
+		super.destroy();
+	}
+
+	override public function update():Void
+	{
+		//trace("player-pos: " + mPlayer.x + ", " + mPlayer.y);
+		//trace("player-vel: " + mPlayer.velocity.x + ", " + mPlayer.velocity.y);
+
+		var intersection : FlxPoint = mLevel.checkLineIntersection(new Line(mPlayer.x, mPlayer.y, mPlayer.x, mPlayer.y+mPlayer.offset.y));
+
+		if(intersection != null) {
+			var distanceleft : Float = intersection.y - mPlayer.y - mPlayer.offset.y;
+
+			var futurePosition : Float = FlxG.elapsed * mPlayer.velocity.y + mPlayer.y + mPlayer.offset.y;
+
+			if(futurePosition >= distanceleft) {
+				mPlayer.y = mPlayer.y + distanceleft;// - mPlayer.offset.y;
+			}
+
+			mPlayer.velocity.y = mPlayer.acceleration.y = 0;
+		}
+
+		super.update();
+	}
+}
+
+/*
+import openfl.Assets;
 import flash.geom.Rectangle;
 import flash.net.SharedObject;
 import org.flixel.FlxButton;
@@ -56,9 +119,6 @@ class PlayState extends FlxState
 		}
 	}
 
-	/**
-	 * Function that is called up when to state is created to set it up. 
-	 */
 	override public function create():Void
 	{
 		// Set a background color
@@ -126,19 +186,12 @@ class PlayState extends FlxState
 			trace(ex);
 		}
 	}
-	
-	/**
-	 * Function that is called when this state is destroyed - you might want to 
-	 * consider setting all objects this state uses to null to help garbage collection.
-	 */
+
 	override public function destroy():Void
 	{
 		super.destroy();
 	}
 
-	/**
-	 * Function that is called once every frame.
-	 */
 	var elapsedTime : Float = 0.0;
 	var seconds : Int = 10;
 	override public function update():Void
@@ -167,8 +220,6 @@ class PlayState extends FlxState
 
 		super.update();
 	}
-
-
 
 	private function figOutMouseDrawingLinesCrap():Void {
 		var mouseX:Float = FlxG.mouse.x;		//Get the X position of the mouse in the game world
@@ -203,3 +254,4 @@ class PlayState extends FlxState
 		duck.velocity.y = -100;
 	}
 }
+*/

@@ -1,6 +1,9 @@
 
 import sys.io.File;
 import org.flixel.FlxSprite;
+import org.flixel.util.FlxColor;
+import org.flixel.util.FlxMath;
+import org.flixel.util.FlxPoint;
 
 class Level {
 	var mBackground : FlxSprite = null;
@@ -55,14 +58,22 @@ class Level {
 		}
 	}
 
+	public function getWidth() : Int {
+		return mLevelJson.width;
+	}
+
+	public function getHeight() : Int {
+		return mLevelJson.height;
+	}
+
 	public function getLevelSprite() : FlxSprite {
 		return mBackground;
 	}
 
 	public function addBoundary(boundary : Boundary) : Void {
 		mBoundaries.add(boundary);
-		mBackground.drawLine(boundary.surface.p1.x, boundary.surface.p1.y, boundary.surface.p2.x, boundary.surface.p2.y, 1, 1);
-		mBackground.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, 52, 1);
+		mBackground.drawLine(boundary.surface.p1.x, boundary.surface.p1.y, boundary.surface.p2.x, boundary.surface.p2.y, FlxColor.BLACK, 1);
+		mBackground.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
 	}
 
 	public function save() : Void {
@@ -82,5 +93,25 @@ class Level {
 		fout.close();
 
 		trace("saved: " + mFilename);
+	}
+
+	public function checkLineIntersection(trajectory : Line) : FlxPoint {
+		var checkedCount : Int = 0;
+		for(boundary in mBoundaries) {
+			var s : Line = boundary.surface;
+			checkedCount ++;
+
+			var max_x : Float = Math.max(s.p1.x, s.p2.x);
+			var min_x : Float = Math.min(s.p1.x, s.p2.x);
+
+			//trace("max: " + max_x + ", min: " + min_x);
+
+			if(max_x >= trajectory.p2.x && min_x <= trajectory.p2.x) {
+				//trace("(+)checked: " + checkedCount);
+				return Utility.checkLineIntersection(trajectory, s);
+			}
+		}
+		trace("(-)checked: " + checkedCount);
+		return null;
 	}
 }
