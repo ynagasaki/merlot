@@ -69,6 +69,10 @@ class Player extends FlxSprite
 		play("jump");
 	}
 
+	public function isFalling() : Bool {
+		return velocity.y > 0;
+	}
+
 	override public function update() : Void
 	{
 		var oldx : Float = this.x;

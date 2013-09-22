@@ -99,6 +99,8 @@ class Level {
 	public function checkSurfaceCollision(trajectory : Line) : IntersectionCheckResult {
 		var checkedCount : Int = 0;
 		var intersectionPoint : FlxPoint = null;
+		var topmostIntersectionPoint : FlxPoint = null;
+		var intersectionLine : Line = null;
 
 		// maybe do like a BSP tree
 		for(boundary in mBoundaries) {
@@ -112,12 +114,15 @@ class Level {
 			checkedCount ++;
 
 			if(intersectionPoint != null) {
-				trace("checked: " + checkedCount);
-				return new IntersectionCheckResult(intersectionPoint, s);
+				// we check if topmost > current-intersection b/c larger Y is visually lower
+				if(topmostIntersectionPoint == null || topmostIntersectionPoint.y > intersectionPoint.y) {
+					topmostIntersectionPoint = intersectionPoint;
+					intersectionLine = s;
+				}
 			}
 		}
 
 		trace("checked: " + checkedCount);
-		return new IntersectionCheckResult(null, null);
+		return new IntersectionCheckResult(topmostIntersectionPoint,  intersectionLine);
 	}
 }

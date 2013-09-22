@@ -14,6 +14,8 @@ class Utility {
 	 * point if intersect.
 	 */
 	public static function checkLineIntersection(line1 : Line, line2 : Line) : FlxPoint {
+		//trace("Checking intersection: " + line1 + " and " + line2);
+		
 		/// CONSTRUCT 2x2 LINEAR SYSTEM FOR (alpha,beta) CONVEX COORDS:
 		/// [ a b ] [alpha] = [c]
 		/// [ d e ] [beta ]   [f]
