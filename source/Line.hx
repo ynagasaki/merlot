@@ -9,6 +9,8 @@ class Line {
 	public var leftmostPoint : FlxPoint;
 	public var topmostPoint : FlxPoint;
 	public var bottommostPoint : FlxPoint;
+	public var slope : Float;
+	public var yintercept : Float;
 
 	public function new(x1 : Float, y1 : Float, x2 : Float, y2 : Float) {
 		p1 = new FlxPoint(x1, y1);
@@ -29,6 +31,14 @@ class Line {
 			topmostPoint = p2;
 			bottommostPoint = p1;
 		}
+
+		slope = (y2 - y1) / (x2 - x1);
+		yintercept = slope * (-x1) + y1; // y = m (x-x1) + y1
+	}
+
+	// y = mx + b
+	public function getY(x : Float) : Float {
+		return slope * x + yintercept;
 	}
 
 	public function toStringForFile() : String {

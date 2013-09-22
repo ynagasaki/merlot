@@ -71,6 +71,8 @@ class Player extends FlxSprite
 
 	override public function update() : Void
 	{
+		var oldx : Float = this.x;
+
 		//Smooth slidey walking controls
 		acceleration.x = 0;
 
@@ -108,6 +110,8 @@ class Player extends FlxSprite
 		if(isOnGround()) {
 			if(this.x > mSurfaceLine.rightmostPoint.x || this.x < mSurfaceLine.leftmostPoint.x) {
 				startNotBeingOnTheGround();
+			} else if(this.x != oldx) {
+				this.y = mSurfaceLine.getY(this.x) - offset.y;
 			}
 		}
 	}
