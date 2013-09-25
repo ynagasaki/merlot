@@ -3,7 +3,7 @@ package;
 import flash.Lib;
 import org.flixel.FlxGame;
 	
-class ProjectClass extends FlxGame
+class Merlot extends FlxGame
 {	
 	public function new()
 	{

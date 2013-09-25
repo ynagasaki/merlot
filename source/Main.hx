@@ -34,7 +34,7 @@ class Main extends Sprite
 		
 		initialize();
 		
-		var demo:FlxGame = new ProjectClass();
+		var demo:FlxGame = new Merlot();
 		addChild(demo);
 		
 		#if (cpp || neko)
@@ -47,7 +47,6 @@ class Main extends Sprite
 	{
 		if (e.keyCode == Keyboard.ESCAPE)
 		{
-			Lib.exit();
 		}
 	}
 	#end
@@ -60,7 +59,6 @@ class Main extends Sprite
 	
 	// Entry point
 	public static function main() {
-		
 		Lib.current.addChild(new Main());
 	}
 	

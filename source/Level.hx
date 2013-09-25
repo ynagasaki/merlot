@@ -48,7 +48,7 @@ class Level {
 		try {
 			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
 			for(dyn in boundaries) {
-				trace(dyn);
+				//trace(dyn);
 				var boundary = new Boundary();
 				boundary.surface = new Line(dyn.s[0], dyn.s[1], dyn.s[2], dyn.s[3]);
 				boundary.normal = new Line(dyn.n[0], dyn.n[1], dyn.n[2], dyn.n[3]);
@@ -122,7 +122,7 @@ class Level {
 			}
 		}
 
-		trace("checked: " + checkedCount);
+		//trace("checked: " + checkedCount);
 		return new IntersectionCheckResult(topmostIntersectionPoint,  intersectionLine);
 	}
 }

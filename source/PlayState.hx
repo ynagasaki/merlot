@@ -13,6 +13,12 @@ class PlayState extends FlxState
 {
 	var mPlayer : Player = null;
 	var mLevel : Level = null;
+	var mInitializedFromEditor : Bool = false;
+
+	public function new(initedByEditor : Bool) {
+		mInitializedFromEditor = initedByEditor;
+		super();
+	}
 
 	override public function create():Void
 	{
@@ -23,7 +29,7 @@ class PlayState extends FlxState
 
 		add(mLevel.getLevelSprite());
 
-		mPlayer = new Player(50, 200);
+		mPlayer = new Player(50, 300);
 
 		add(mPlayer);
 
@@ -61,6 +67,10 @@ class PlayState extends FlxState
 		}
 
 		super.update();
+
+		if(FlxG.keys.justPressed("ESCAPE") && mInitializedFromEditor) {
+			FlxG.switchState(new EditorState());
+		}
 	}
 }
 
