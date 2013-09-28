@@ -55,7 +55,7 @@ class Level {
 				addBoundary(boundary);
 			}
 		} catch(ex : Dynamic) {
-			trace(ex);
+			trace("lol:" + ex);
 		}
 	}
 

@@ -6,37 +6,6 @@ import org.flixel.FlxSprite;
 import org.flixel.FlxState;
 import org.flixel.util.FlxPoint;
 
-import org.flixel.FlxGroup;
-import org.flixel.FlxButton;
-
-class EditorMenu extends FlxGroup {
-	public function new(editorHandle : EditorState) {
-		super();
-
-		var buttons : Array<FlxButton> = [
-			new FlxButton(5,5,"LineMode", editorHandle.startLineMode),
-			new FlxButton(0,0,"Platform"),
-			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
-		];
-
-		for(i in 0 ... buttons.length) {
-			if(i > 0) {
-				buttons[i].y = 5;
-				buttons[i].x = buttons[i - 1].x + buttons[i - 1].width + 5;
-			}
-			add(buttons[i]);
-		}
-
-		setAll("scrollFactor", new FlxPoint(0,0), true);
-	}
-
-	public function hide(hide : Bool) : Void {
-		for(i in 0...members.length) {
-			members[i].visible = !hide;
-		}
-	}
-}
-
 enum EditorCommand {
 	EnterLineMode;
 	MakePlatform;
