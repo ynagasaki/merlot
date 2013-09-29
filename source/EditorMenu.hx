@@ -24,6 +24,7 @@ class EditorButton {
 }
 
 class EditorMenu extends FlxGroup {
+	var mEditorStateHandle : EditorState = null;
 	var mDirStack : Array<String> = null;
 	var mCurrentDirButts : Array<FlxButton> = null;
 
@@ -31,6 +32,7 @@ class EditorMenu extends FlxGroup {
 		super();
 
 		mDirStack = new Array();
+		mEditorStateHandle = editorHandle;
 
 		var buttons : Array<FlxButton> = [
 			new FlxButton(5,5,"LineMode", editorHandle.startLineMode),
@@ -39,8 +41,11 @@ class EditorMenu extends FlxGroup {
 		];
 
 		layoutTheButts(buttons);
+	}
 
-		setAll("scrollFactor", new FlxPoint(0,0), true);
+	public function addFixed(item : org.flixel.FlxObject) : Void {
+		item.scrollFactor = new FlxPoint(0, 0);
+		add(item);
 	}
 
 	public function hide(hide : Bool) : Void {
@@ -55,7 +60,7 @@ class EditorMenu extends FlxGroup {
 			if(i > 0) {
 				butts[i].x = butts[i - 1].x + butts[i - 1].width + 5;
 			}
-			add(butts[i]);
+			addFixed(butts[i]);
 		}
 
 		if(isdir) mCurrentDirButts = butts;
@@ -86,6 +91,10 @@ class EditorMenu extends FlxGroup {
 
 		removeDirectoryButtons();
 
+		displayFileSelector(getCurrentPath());
+	}
+
+	private function getCurrentPath() : String {
 		var path : String = "";
 		var len : Int =  mDirStack.length;
 
@@ -93,7 +102,12 @@ class EditorMenu extends FlxGroup {
 			path += mDirStack[i] + (i == len - 1 ? "" : "/");
 		}
 
-		displayFileSelector(path);
+		return path;
+	}
+
+	private function imageButtonCallback(butt : FlxButton) : Void {
+		removeDirectoryButtons();
+		mEditorStateHandle.createPlatformSprite(getCurrentPath() + "/" + butt.label.text + ".png");
 	}
 
 	private function displayFileSelector(currDir : String) : Void {
@@ -113,7 +127,7 @@ class EditorMenu extends FlxGroup {
 		for(i in 0...entries.length) {
 			var entry : String = entries[i];
 			if(entry.length >= 4 && entry.substring(entry.length - 4) == ".png") {
-				var item : FlxButton = new EditorButton(5, 0, entry.substring(0, entry.length-4), null).getButton();
+				var item : FlxButton = new EditorButton(5, 0, entry.substring(0, entry.length-4), imageButtonCallback).getButton();
 				item.color = 0xFF6FFF47;
 				buttons.push(item);
 			} else if(sys.FileSystem.isDirectory(currDir + "/" + entry)) {

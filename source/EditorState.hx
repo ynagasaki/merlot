@@ -17,13 +17,15 @@ enum EditorMode {
 }
 
 class EditorState extends FlxState {
-
 	var mFirstPoint : FlxPoint = null;
 	var mLevel : Level = null;
 	var mMenu : EditorMenu = null;
-
-	var mCommand : EditorCommand = null;
+	
 	var mMode : EditorMode = null;
+	var mCommand : EditorCommand = null;
+
+	var mSelectedPlatform : PlatformSprite = null;
+	var mLastMousePos : FlxPoint = null;
 
 	/**
 	 * Function that is called up when to state is created to set it up. 
@@ -36,13 +38,15 @@ class EditorState extends FlxState {
 		FlxG.mouse.show();
 		#end
 
-		mLevel = new Level("assets/level-01.json");
+		mLevel = new Level("assets/level-01.json", true);
 
 		add(mLevel.getLevelSprite());
 
 		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
 
 		mMenu = new EditorMenu(this);
+
+		mLastMousePos = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
 
 		add(mMenu);
 
@@ -60,6 +64,17 @@ class EditorState extends FlxState {
 	override public function update() : Void {
 		if(mMode == EditorMode.LineMode) {
 			figOutMouseDrawingLinesCrap();
+		} else {
+			if(FlxG.mouse.justPressed()) {
+				selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
+			}
+
+			if(FlxG.mouse.pressed() && mSelectedPlatform != null) {
+				var offsetx : Float = mLastMousePos.x - mSelectedPlatform.x;
+				var offsety : Float = mLastMousePos.y - mSelectedPlatform.y;
+
+				mSelectedPlatform.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
+			}
 		}
 
 		if(FlxG.keys.pressed("CONTROL")) {
@@ -87,6 +102,9 @@ class EditorState extends FlxState {
 		}
 
 		super.update();
+
+		mLastMousePos.x = FlxG.mouse.x;
+		mLastMousePos.y = FlxG.mouse.y;
 	}
 
 	private function figOutMouseDrawingLinesCrap() : Void {
@@ -100,7 +118,7 @@ class EditorState extends FlxState {
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
 				boundary.normal = calculateNormal(boundary.surface);
 
-				mLevel.addBoundary(boundary);
+				mLevel.addBoundary(boundary, true);
 
 				mFirstPoint = null;
 				trace("added boundary: " + boundary.surface);
@@ -114,7 +132,7 @@ class EditorState extends FlxState {
 		return new Line(line.p1.x, line.p1.y, line.p1.x + n.x, line.p1.y + n.y);
 	}
 
-	public function startLineMode() {
+	public function startLineMode() : Void {
 		mCommand = EditorCommand.EnterLineMode;
 		mMenu.hide(true);
 		trace("Started line mode: press escape when finished.");
@@ -127,5 +145,21 @@ class EditorState extends FlxState {
 		} catch(ex : Dynamic) {
 			trace("saveLevel: " + ex);
 		}
+	}
+
+	public function selectPlatformSprite(sprite : PlatformSprite) : Void {
+		if(sprite != mSelectedPlatform && mSelectedPlatform != null) mSelectedPlatform.color = 0xFFFFFFFF;
+		mSelectedPlatform = sprite;
+		if(mSelectedPlatform != null) mSelectedPlatform.color = 0xFF7777FF;
+	}
+
+	public function createPlatformSprite(filename : String) : Void {
+		var sprite : PlatformSprite = new PlatformSprite(filename);
+
+		sprite.move(50, 200);
+
+		mLevel.addPlatformSprite(sprite);
+
+		add(sprite);
 	}
 }
