@@ -7,13 +7,9 @@ import org.flixel.FlxState;
 import org.flixel.util.FlxPoint;
 
 enum EditorCommand {
-	EnterLineMode;
+	LineMode;
 	MakePlatform;
 	SaveLevel;
-}
-
-enum EditorMode {
-	LineMode;
 }
 
 class EditorState extends FlxState {
@@ -21,7 +17,7 @@ class EditorState extends FlxState {
 	var mLevel : Level = null;
 	var mMenu : EditorMenu = null;
 	
-	var mMode : EditorMode = null;
+	var mMenuActionIssued : Bool = false;
 	var mCommand : EditorCommand = null;
 
 	var mSelectedPlatform : PlatformSprite = null;
@@ -62,51 +58,50 @@ class EditorState extends FlxState {
 	}
 
 	override public function update() : Void {
-		if(mMode == EditorMode.LineMode) {
-			// Editor is in special line drawing mode
-			figOutMouseDrawingLinesCrap();
+		if(!mMenuActionIssued) {
+			if(mCommand == EditorCommand.LineMode) {
+				// Editor is in special line drawing mode
+				figOutMouseDrawingLinesCrap(mSelectedPlatform);
+
+				if(FlxG.keys.pressed("ESCAPE")) {
+					trace("Exiting " + mCommand);
+					mCommand = null;
+					mFirstPoint = null;
+					mMenu.hide(false);
+				}
+			}
+
+			if(mCommand == null) {
+				// Editor is in normal mode
+				if(FlxG.mouse.justReleased()) {
+					trace("pow");
+					selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
+				}
+
+				if(FlxG.mouse.pressed() && mSelectedPlatform != null) {
+					var offsetx : Float = mLastMousePos.x - mSelectedPlatform.x;
+					var offsety : Float = mLastMousePos.y - mSelectedPlatform.y;
+
+					mSelectedPlatform.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
+				}
+
+				if(FlxG.keys.justReleased("DELETE") && mSelectedPlatform != null) {
+					mLevel.removePlatformSprite;
+					this.remove(mSelectedPlatform, true);
+					selectPlatformSprite(null);
+				}
+
+				if(FlxG.keys.pressed("CONTROL")) {
+					FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
+				}
+
+
+				if(FlxG.keys.justReleased("ENTER") && FlxG.keys.pressed("SHIFT")) {
+					FlxG.switchState(new PlayState(true));
+				}
+			}
 		} else {
-			// Editor is in normal mode
-			if(FlxG.mouse.justPressed()) {
-				selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
-			}
-
-			if(FlxG.mouse.pressed() && mSelectedPlatform != null) {
-				var offsetx : Float = mLastMousePos.x - mSelectedPlatform.x;
-				var offsety : Float = mLastMousePos.y - mSelectedPlatform.y;
-
-				mSelectedPlatform.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
-			}
-
-			if(FlxG.keys.justPressed("DELETE") && mSelectedPlatform != null) {
-				mLevel.removePlatformSprite;
-				this.remove(mSelectedPlatform, true);
-				selectPlatformSprite(null);
-			}
-		}
-
-		if(FlxG.keys.pressed("CONTROL")) {
-			FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
-		}
-
-		if(FlxG.keys.pressed("ESCAPE")) {
-			if(mMode != null) {
-				trace("Exiting " + mMode);
-				mMode = null;
-				mMenu.hide(false);
-			}
-		}
-
-		if(mMode == null) {
-			if(FlxG.keys.justPressed("ENTER") && FlxG.keys.pressed("SHIFT")) {
-				FlxG.switchState(new PlayState(true));
-			}
-
-			if(mCommand == EditorCommand.EnterLineMode) {
-				mMode = EditorMode.LineMode;
-			}
-
-			mCommand = null;
+			mMenuActionIssued = false;
 		}
 
 		super.update();
@@ -115,7 +110,7 @@ class EditorState extends FlxState {
 		mLastMousePos.y = FlxG.mouse.y;
 	}
 
-	private function figOutMouseDrawingLinesCrap() : Void {
+	private function figOutMouseDrawingLinesCrap(sprite : PlatformSprite) : Void {
 		if(FlxG.mouse.justReleased()) {
 			if(mFirstPoint == null) {
 				mFirstPoint = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
@@ -124,9 +119,21 @@ class EditorState extends FlxState {
 				var boundary : Boundary = new Boundary();
 				
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
+
+				if(mSelectedPlatform != null) {
+					boundary.surface.p1.x -= mSelectedPlatform.x;
+					boundary.surface.p1.y -= mSelectedPlatform.y;
+					boundary.surface.p2.x -= mSelectedPlatform.x;
+					boundary.surface.p2.y -= mSelectedPlatform.y;
+				}
+
 				boundary.normal = calculateNormal(boundary.surface);
 
-				mLevel.addBoundary(boundary, true);
+				if(mSelectedPlatform == null) {
+					mLevel.addBoundary(boundary, true);
+				} else {
+					mSelectedPlatform.addBoundary(boundary, true);
+				}
 
 				mFirstPoint = null;
 				trace("added boundary: " + boundary.surface);
@@ -141,7 +148,8 @@ class EditorState extends FlxState {
 	}
 
 	public function startLineMode() : Void {
-		mCommand = EditorCommand.EnterLineMode;
+		mMenuActionIssued = true;
+		mCommand = EditorCommand.LineMode;
 		mMenu.hide(true);
 		trace("Started line mode: press escape when finished.");
 	}
