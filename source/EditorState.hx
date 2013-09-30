@@ -63,8 +63,10 @@ class EditorState extends FlxState {
 
 	override public function update() : Void {
 		if(mMode == EditorMode.LineMode) {
+			// Editor is in special line drawing mode
 			figOutMouseDrawingLinesCrap();
 		} else {
+			// Editor is in normal mode
 			if(FlxG.mouse.justPressed()) {
 				selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
 			}
@@ -74,6 +76,12 @@ class EditorState extends FlxState {
 				var offsety : Float = mLastMousePos.y - mSelectedPlatform.y;
 
 				mSelectedPlatform.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
+			}
+
+			if(FlxG.keys.justPressed("DELETE") && mSelectedPlatform != null) {
+				mLevel.removePlatformSprite;
+				this.remove(mSelectedPlatform, true);
+				selectPlatformSprite(null);
 			}
 		}
 

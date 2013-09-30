@@ -23,7 +23,10 @@ class Level {
 
 	public function addPlatformSprite(sprite : PlatformSprite) : Void {
 		mPlatformSprites.add(sprite);
+	}
 
+	public function removePlatformSprite(sprite : PlatformSprite) : Void {
+		mPlatformSprites.remove(sprite);
 	}
 
 	public function pickPlatformSprite(x : Float, y : Float) : PlatformSprite {

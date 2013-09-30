@@ -71,8 +71,7 @@ class EditorMenu extends FlxGroup {
 			mDirStack.push("assets");
 			displayFileSelector("assets");
 		} else {
-			removeDirectoryButtons();
-			while(mDirStack.length > 0) mDirStack.pop();
+			dismissFileSelector();
 		}
 	}
 
@@ -106,8 +105,13 @@ class EditorMenu extends FlxGroup {
 	}
 
 	private function imageButtonCallback(butt : FlxButton) : Void {
-		removeDirectoryButtons();
 		mEditorStateHandle.createPlatformSprite(getCurrentPath() + "/" + butt.label.text + ".png");
+		dismissFileSelector();
+	}
+
+	private function dismissFileSelector() : Void {
+		removeDirectoryButtons();
+		while(mDirStack.length > 0) mDirStack.pop();
 	}
 
 	private function displayFileSelector(currDir : String) : Void {
