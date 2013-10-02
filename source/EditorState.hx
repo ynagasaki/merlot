@@ -36,7 +36,7 @@ class EditorState extends FlxState {
 
 		mLevel = new Level("assets/level-01.json", true);
 
-		add(mLevel.getLevelSprite());
+		add(mLevel.getLevelGraphics());
 
 		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
 
@@ -74,7 +74,6 @@ class EditorState extends FlxState {
 			if(mCommand == null) {
 				// Editor is in normal mode
 				if(FlxG.mouse.justReleased()) {
-					trace("pow");
 					selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
 				}
 
@@ -86,15 +85,13 @@ class EditorState extends FlxState {
 				}
 
 				if(FlxG.keys.justReleased("DELETE") && mSelectedPlatform != null) {
-					mLevel.removePlatformSprite;
-					this.remove(mSelectedPlatform, true);
+					mLevel.removePlatformSprite(mSelectedPlatform);
 					selectPlatformSprite(null);
 				}
 
 				if(FlxG.keys.pressed("CONTROL")) {
 					FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
 				}
-
 
 				if(FlxG.keys.justReleased("ENTER") && FlxG.keys.pressed("SHIFT")) {
 					FlxG.switchState(new PlayState(true));
@@ -119,14 +116,6 @@ class EditorState extends FlxState {
 				var boundary : Boundary = new Boundary();
 				
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
-
-				if(mSelectedPlatform != null) {
-					boundary.surface.p1.x -= mSelectedPlatform.x;
-					boundary.surface.p1.y -= mSelectedPlatform.y;
-					boundary.surface.p2.x -= mSelectedPlatform.x;
-					boundary.surface.p2.y -= mSelectedPlatform.y;
-				}
-
 				boundary.normal = calculateNormal(boundary.surface);
 
 				if(mSelectedPlatform == null) {
@@ -175,7 +164,5 @@ class EditorState extends FlxState {
 		sprite.move(50, 200);
 
 		mLevel.addPlatformSprite(sprite);
-
-		add(sprite);
 	}
 }

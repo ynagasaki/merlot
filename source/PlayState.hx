@@ -27,7 +27,7 @@ class PlayState extends FlxState
 
 		mLevel = new Level("assets/level-01.json");
 
-		add(mLevel.getLevelSprite());
+		add(mLevel.getLevelGraphics());
 
 		mPlayer = new Player(50, 300);
 

@@ -5,8 +5,10 @@ import org.flixel.FlxSprite;
 import org.flixel.util.FlxColor;
 import org.flixel.util.FlxMath;
 import org.flixel.util.FlxPoint;
+import org.flixel.FlxGroup;
 
 class Level {
+	var mGraphics : FlxGroup = null;
 	var mBackground : FlxSprite = null;
 	var mLevelJson : Dynamic = null;
 	var mFilename : String = null;
@@ -16,6 +18,7 @@ class Level {
 	public function new(filename : String, ?debug : Bool = false) {
 		mPlatformSprites = new List();
 		mBoundariesGlobal = new List();
+		mGraphics = new FlxGroup();
 		mFilename = filename;
 
 		loadLevel(debug);
@@ -23,10 +26,18 @@ class Level {
 
 	public function addPlatformSprite(sprite : PlatformSprite) : Void {
 		mPlatformSprites.add(sprite);
+		for(boundary in sprite.getBoundaries()) {
+			mBoundariesGlobal.add(boundary);
+		}
+		mGraphics.add(sprite);
 	}
 
 	public function removePlatformSprite(sprite : PlatformSprite) : Void {
 		mPlatformSprites.remove(sprite);
+		for(boundary in sprite.getBoundaries()) {
+			mBoundariesGlobal.remove(boundary);
+		}
+		mGraphics.remove(sprite, true);
 	}
 
 	public function pickPlatformSprite(x : Float, y : Float) : PlatformSprite {
@@ -71,15 +82,21 @@ class Level {
 			true
 		);
 
+		mGraphics.add(mBackground);
+
 		try {
 			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
-			for(dyn in boundaries) {
-				//trace(dyn);
-				var boundary = new Boundary();
-				boundary.surface = new Line(dyn.s[0], dyn.s[1], dyn.s[2], dyn.s[3]);
-				boundary.normal = new Line(dyn.n[0], dyn.n[1], dyn.n[2], dyn.n[3]);
-				addBoundary(boundary, debug);
-			}
+			var platforms : Array<Dynamic> = mLevelJson.platforms;
+
+			if(boundaries != null)
+				for(dyn in boundaries) {
+					addBoundary(Boundary.fromJson(dyn), debug);
+				}
+
+			if(platforms != null)
+				for(dyn in platforms) {
+					addPlatformSprite(PlatformSprite.fromJson(dyn, debug));
+				}
 		} catch(ex : Dynamic) {
 			trace("lol:" + ex);
 		}
@@ -93,8 +110,8 @@ class Level {
 		return mLevelJson.height;
 	}
 
-	public function getLevelSprite() : FlxSprite {
-		return mBackground;
+	public function getLevelGraphics() : FlxGroup {
+		return mGraphics;
 	}
 
 	public function addBoundary(boundary : Boundary, ?drawBoundary : Bool = false) : Void {
@@ -107,15 +124,27 @@ class Level {
 
 	public function save() : Void {
 		var boundaries : Array<Dynamic> = new Array();
+		var platforms : Array<Dynamic> = new Array();
+		var savedBoundaries : List<Boundary> = new List();
+
+		for(platform in mPlatformSprites) {
+			var dyn : Dynamic = platform.toJson();
+			platforms.push(dyn);
+
+			// so we don't double-save the same boundaries
+			for(platformBoundary in platform.getBoundaries())
+				savedBoundaries.add(platformBoundary);
+		}
 
 		for(boundary in mBoundariesGlobal) {
-			var s : Line = boundary.surface;
-			var n : Line = boundary.normal;
-			var dynboundary : Dynamic = {"s":[s.p1.x, s.p1.y, s.p2.x, s.p2.y], "n":[n.p1.x, n.p1.y, n.p2.x, n.p2.y]};
-			boundaries.push(dynboundary);
+			// this is not very efficient, but it's only during save AND it doesn't affect play time
+			if(Lambda.exists(savedBoundaries, boundary.is)) continue;
+
+			boundaries.push(boundary.toJson());
 		}
 
 		mLevelJson.boundaries = boundaries;
+		mLevelJson.platforms = platforms;
 
 		var fout = File.write(mFilename, false);
 		fout.writeString(haxe.Json.stringify(mLevelJson));
