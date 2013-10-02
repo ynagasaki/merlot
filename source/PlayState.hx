@@ -25,7 +25,7 @@ class PlayState extends FlxState
 		// Set a background color
 		FlxG.bgColor = 0xFFFF00FF;
 
-		mLevel = new Level("assets/level-01.json");
+		mLevel = new Level("assets/level-template.json");
 
 		add(mLevel.getLevelGraphics());
 
@@ -47,26 +47,32 @@ class PlayState extends FlxState
 
 	override public function update():Void
 	{
+		var oldy : Float = mPlayer.y;
+		var intersectingLine : Line = null;
+		var distanceleft : Float = 0;
+
+		// if the player is falling, check for platforms below
 		if(!mPlayer.isOnGround() && mPlayer.isFalling()) {
 			var result : IntersectionCheckResult = mLevel.checkSurfaceCollision(
 				new Line(mPlayer.x, mPlayer.y + mPlayer.offset.y, mPlayer.x, mLevel.getHeight())
 			);
 
 			if(result.intersectionPoint != null) {
-				var distanceleft : Float = result.intersectionPoint.y - mPlayer.y - mPlayer.offset.y;
-				var distanceWillTravel : Float = FlxG.elapsed * mPlayer.velocity.y;
-
-				//trace("distance left: " + distanceleft + ", will travel: " + distanceWillTravel);
-				
-				if(distanceWillTravel >= distanceleft) {
-					mPlayer.y = mPlayer.y + distanceleft;
-					mPlayer.velocity.y = mPlayer.acceleration.y = 0;
-					mPlayer.setSurfaceLine(result.intersectingLine);
-				}
+				distanceleft = result.intersectionPoint.y - mPlayer.y - mPlayer.offset.y;
+				intersectingLine = result.intersectingLine;
 			}
 		}
-
+		
 		super.update();
+
+		// if there is a platform below, and the y-distance traveled in this frame exceeds
+		// the y-distance that was left before the height was updated...
+		if(intersectingLine != null && (mPlayer.y - oldy) >= distanceleft) {
+			// ... then plop the player on the ground.
+			mPlayer.y = oldy + distanceleft;
+			mPlayer.velocity.y = mPlayer.acceleration.y = 0;
+			mPlayer.setSurfaceLine(intersectingLine);
+		}
 
 		if(FlxG.keys.justPressed("ESCAPE") && mInitializedFromEditor) {
 			FlxG.switchState(new EditorState());
