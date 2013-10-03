@@ -25,7 +25,7 @@ class PlayState extends FlxState
 		// Set a background color
 		FlxG.bgColor = 0xFFFF00FF;
 
-		mLevel = new Level("assets/level-template.json");
+		mLevel = new Level("assets/lvls/level-template.json");
 
 		add(mLevel.getLevelGraphics());
 

@@ -1,6 +1,7 @@
 merlot
 ======
 a game
+ver: 0.1.0 (http://semver.org)
 
 setup
 -----

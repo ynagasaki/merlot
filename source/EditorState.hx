@@ -34,7 +34,7 @@ class EditorState extends FlxState {
 		FlxG.mouse.show();
 		#end
 
-		mLevel = new Level("assets/level-template.json", true);
+		mLevel = new Level("assets/lvls/level-template.json", true);
 
 		add(mLevel.getLevelGraphics());
 
