@@ -9,6 +9,10 @@ class Utility {
 		return x > -EPSILON && x < EPSILON;
 	}
 
+	public static function sameLoc(p1 : FlxPoint, p2 : FlxPoint) {
+		return p1.x == p2.x && p1.y == p2.y;
+	}
+
 	/*
 	 * Check if two line segments intersect, return the intersection
 	 * point if intersect.

@@ -22,6 +22,7 @@ class EditorState extends FlxState {
 
 	var mSelectedPlatform : PlatformSprite = null;
 	var mLastMousePos : FlxPoint = null;
+	var mLastBoundary : Boundary = null;
 
 	/**
 	 * Function that is called up when to state is created to set it up. 
@@ -126,6 +127,20 @@ class EditorState extends FlxState {
 
 				mFirstPoint = null;
 				trace("added boundary: " + boundary.surface);
+
+				// do "chaining"
+				if(FlxG.keys.pressed("C")) {
+					if(mLastBoundary != null) {
+						// "next" and "prev" only make sense for LTR segments
+						mLastBoundary.next = boundary;
+						boundary.prev = mLastBoundary;
+					}
+
+					mLastBoundary = boundary;
+					mFirstPoint = new FlxPoint(boundary.surface.p2.x, boundary.surface.p2.y);
+
+					trace("   with chaining: first point of next line set to: " + mFirstPoint);
+				}
 			}
 		}
 	}

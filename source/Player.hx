@@ -9,7 +9,7 @@ class Player extends FlxSprite
 {
 	public static inline var GRAVITY : Float = 400;
 
-	var mSurfaceLine : Line = null;
+	var mSurfaceBoundary : Boundary = null;
 	var mDebugBoundarySprite : FlxSprite = null;
 	var mDebugOn : Bool = false;
 
@@ -54,12 +54,12 @@ class Player extends FlxSprite
 		}
 	}
 
-	public function setSurfaceLine(surface : Line) : Void {
-		mSurfaceLine = surface;
+	public function setSurfaceBoundary(boundary : Boundary) : Void {
+		mSurfaceBoundary = boundary;
 	}
 
 	public function isOnGround() : Bool {
-		return mSurfaceLine != null;
+		return mSurfaceBoundary != null;
 	}
 
 	public function jump() : Void {
@@ -112,16 +112,29 @@ class Player extends FlxSprite
 		}
 
 		if(isOnGround()) {
-			if(this.x > mSurfaceLine.rightmostPoint.x || this.x < mSurfaceLine.leftmostPoint.x) {
-				startNotBeingOnTheGround();
+			var surfaceline : Line = mSurfaceBoundary.surface;
+
+			// "next" and "prev" only make sense for LTR segments
+			if(this.x > surfaceline.rightmostPoint.x) {
+				if(mSurfaceBoundary.hasNext()) {
+					setSurfaceBoundary(mSurfaceBoundary.next);
+				} else {
+					startNotBeingOnTheGround();
+				}
+			} else if(this.x < surfaceline.leftmostPoint.x) {
+				if(mSurfaceBoundary.hasPrev()) {
+					setSurfaceBoundary(mSurfaceBoundary.prev);
+				} else {
+					startNotBeingOnTheGround();
+				}
 			} else if(this.x != oldx) {
-				this.y = mSurfaceLine.getY(this.x) - offset.y;
+				this.y = surfaceline.getY(this.x) - offset.y;
 			}
 		}
 	}
 
 	private function startNotBeingOnTheGround() {
 		acceleration.y = GRAVITY;
-		mSurfaceLine = null;
+		mSurfaceBoundary = null;
 	}
 }

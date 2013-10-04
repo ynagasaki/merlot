@@ -5,10 +5,10 @@ import org.flixel.util.FlxPoint;
 class IntersectionCheckResult 
 {
 	public var intersectionPoint : FlxPoint;
-	public var intersectingLine : Line;
+	public var intersectingBoundary : Boundary;
 
-	public function new(p : FlxPoint, l : Line) {
+	public function new(p : FlxPoint, b : Boundary) {
 		intersectionPoint = p;
-		intersectingLine = l;
+		intersectingBoundary = b;
 	}
 }

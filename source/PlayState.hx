@@ -48,8 +48,8 @@ class PlayState extends FlxState
 	override public function update():Void
 	{
 		var oldy : Float = mPlayer.y;
-		var intersectingLine : Line = null;
 		var distanceleft : Float = 0;
+		var intersectingBoundary : Boundary = null;
 
 		// if the player is falling, check for platforms below
 		if(!mPlayer.isOnGround() && mPlayer.isFalling()) {
@@ -59,7 +59,7 @@ class PlayState extends FlxState
 
 			if(result.intersectionPoint != null) {
 				distanceleft = result.intersectionPoint.y - mPlayer.y - mPlayer.offset.y;
-				intersectingLine = result.intersectingLine;
+				intersectingBoundary = result.intersectingBoundary;
 			}
 		}
 		
@@ -67,11 +67,11 @@ class PlayState extends FlxState
 
 		// if there is a platform below, and the y-distance traveled in this frame exceeds
 		// the y-distance that was left before the height was updated...
-		if(intersectingLine != null && (mPlayer.y - oldy) >= distanceleft) {
+		if(intersectingBoundary != null && (mPlayer.y - oldy) >= distanceleft) {
 			// ... then plop the player on the ground.
 			mPlayer.y = oldy + distanceleft;
 			mPlayer.velocity.y = mPlayer.acceleration.y = 0;
-			mPlayer.setSurfaceLine(intersectingLine);
+			mPlayer.setSurfaceBoundary(intersectingBoundary);
 		}
 
 		if(FlxG.keys.justPressed("ESCAPE") && mInitializedFromEditor) {

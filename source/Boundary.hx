@@ -3,8 +3,25 @@ class Boundary {
 	public var surface : Line = null;
 	public var normal : Line = null;
 
+	public var next : Boundary = null;
+	public var prev : Boundary = null;
+
 	public function new() {
 		
+	}
+
+	/**
+	* "Next" only makes sense with LTR segments
+	*/
+	public function hasNext() : Bool { 
+		return next != null;
+	}
+
+	/**
+	* "Prev" only makes sense with LTR segments
+	*/
+	public function hasPrev() : Bool {
+		return prev != null;
 	}
 
 	public function is(other : Boundary) : Bool {

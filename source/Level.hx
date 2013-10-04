@@ -88,15 +88,19 @@ class Level {
 			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
 			var platforms : Array<Dynamic> = mLevelJson.platforms;
 
-			if(boundaries != null)
+			if(boundaries != null) {
 				for(dyn in boundaries) {
 					addBoundary(Boundary.fromJson(dyn), debug);
 				}
+			}
 
-			if(platforms != null)
+			if(platforms != null) {
 				for(dyn in platforms) {
 					addPlatformSprite(PlatformSprite.fromJson(dyn, debug));
 				}
+			}
+
+			findConnectedBoundarySegments();
 		} catch(ex : Dynamic) {
 			trace("lol:" + ex);
 		}
@@ -114,8 +118,34 @@ class Level {
 		return mGraphics;
 	}
 
+	public function findConnectedBoundarySegments() : Void {
+		for(boundary in mBoundariesGlobal) {
+			// "next" and "prev" only make sense for LTR segments
+			for(existingBoundary in mBoundariesGlobal) {
+				if(Utility.sameLoc(existingBoundary.surface.rightmostPoint, boundary.surface.leftmostPoint)) {
+					if(boundary.prev != null && boundary.prev != existingBoundary) {
+						trace("somethin wrong with this chain segment. #1");
+					}
+
+					existingBoundary.next = boundary;
+					boundary.prev = existingBoundary;
+				}
+
+				if(Utility.sameLoc(existingBoundary.surface.leftmostPoint, boundary.surface.rightmostPoint)) {
+					if(boundary.next != null && boundary.next != existingBoundary) {
+						trace("somethin wrong with this chain segment. #2");
+					}
+
+					existingBoundary.prev = boundary;
+					boundary.next = existingBoundary;
+				}
+			}
+		}
+	}
+
 	public function addBoundary(boundary : Boundary, ?drawBoundary : Bool = false) : Void {
 		mBoundariesGlobal.add(boundary);
+
 		if(drawBoundary) {
 			mBackground.drawLine(boundary.surface.p1.x, boundary.surface.p1.y, boundary.surface.p2.x, boundary.surface.p2.y, FlxColor.BLACK, 1);
 			mBackground.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
@@ -157,7 +187,7 @@ class Level {
 		var checkedCount : Int = 0;
 		var intersectionPoint : FlxPoint = null;
 		var topmostIntersectionPoint : FlxPoint = null;
-		var intersectionLine : Line = null;
+		var intersectionBoundary : Boundary = null;
 
 		// maybe do like a BSP tree
 		for(boundary in mBoundariesGlobal) {
@@ -174,12 +204,12 @@ class Level {
 				// we check if topmost > current-intersection b/c larger Y is visually lower
 				if(topmostIntersectionPoint == null || topmostIntersectionPoint.y > intersectionPoint.y) {
 					topmostIntersectionPoint = intersectionPoint;
-					intersectionLine = s;
+					intersectionBoundary = boundary;
 				}
 			}
 		}
 
 		//trace("checked: " + checkedCount);
-		return new IntersectionCheckResult(topmostIntersectionPoint,  intersectionLine);
+		return new IntersectionCheckResult(topmostIntersectionPoint,  intersectionBoundary);
 	}
 }
