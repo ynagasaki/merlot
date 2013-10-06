@@ -1,8 +1,8 @@
-package;
+package ;
+
 import org.flixel.FlxG;
 import org.flixel.FlxObject;
 import org.flixel.FlxSprite;
-
 
 class NonPlayable extends FlxSprite
 {
@@ -30,7 +30,6 @@ class NonPlayable extends FlxSprite
 	override public function update():Void
 	{
 		facing = (velocity.x < 0) ? FlxObject.LEFT : FlxObject.RIGHT;
-
-        super.update();
+		super.update();
 	}
 }

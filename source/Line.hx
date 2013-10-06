@@ -1,4 +1,4 @@
-package;
+package ;
 
 import org.flixel.util.FlxPoint;
 
@@ -33,6 +33,7 @@ class Line {
 		}
 
 		slope = (y2 - y1) / (x2 - x1);
+		//if((x2 - x1) == 0) trace("DIVIDE BY ZERO??? " + slope);
 		yintercept = slope * (-x1) + y1; // y = m (x-x1) + y1
 	}
 

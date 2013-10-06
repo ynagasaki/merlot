@@ -14,6 +14,7 @@ class Level {
 	var mFilename : String = null;
 	var mBoundariesGlobal : List<Boundary> = null;
 	var mPlatformSprites : List<PlatformSprite> = null;
+	var mStartPoint : FlxPoint = null;
 
 	public function new(filename : String, ?debug : Bool = false) {
 		mPlatformSprites = new List();
@@ -42,14 +43,14 @@ class Level {
 
 	public function pickPlatformSprite(x : Float, y : Float) : PlatformSprite {
 		try {
-		for(s in mPlatformSprites) {
-			var sx : Float = s.x;
-			var sw : Float = s.width;
-			var sy : Float = s.y;
-			var sh : Float = s.height;
+			for(s in mPlatformSprites) {
+				var sx : Float = s.x;
+				var sw : Float = s.width;
+				var sy : Float = s.y;
+				var sh : Float = s.height;
 
-			if(x >= sx && x <= sw + sx && y >= sy && y <= sy + sh) return s;
-		}
+				if(x >= sx && x <= sw + sx && y >= sy && y <= sy + sh) return s;
+			}
 		} catch(ex:Dynamic) {
 			trace(ex);
 		}
@@ -101,6 +102,12 @@ class Level {
 			}
 
 			findConnectedBoundarySegments();
+
+			try {
+				setStartPoint(mLevelJson.startpt[0], mLevelJson.startpt[1]);
+			} catch(ex : Dynamic) {
+				trace(ex);
+			}
 		} catch(ex : Dynamic) {
 			trace("lol:" + ex);
 		}
@@ -175,12 +182,23 @@ class Level {
 
 		mLevelJson.boundaries = boundaries;
 		mLevelJson.platforms = platforms;
+		mLevelJson.startpt = [mStartPoint.x, mStartPoint.y];
 
 		var fout = File.write(mFilename, false);
 		fout.writeString(haxe.Json.stringify(mLevelJson));
 		fout.close();
 
 		trace("saved: " + mFilename);
+	}
+
+	public function setStartPoint(x : Float, y : Float) : Void {
+		if(mStartPoint == null) mStartPoint = new FlxPoint(x, y);
+		mStartPoint.x = x;
+		mStartPoint.y = y;
+	}
+
+	public function getStartPoint() : FlxPoint {
+		return mStartPoint;
 	}
 
 	public function checkSurfaceCollision(trajectory : Line) : IntersectionCheckResult {

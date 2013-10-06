@@ -1,3 +1,4 @@
+package ;
 
 class Boundary {
 	public var surface : Line = null;

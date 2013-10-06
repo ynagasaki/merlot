@@ -1,6 +1,7 @@
 package ;
 
 import org.flixel.util.FlxPoint;
+import org.flixel.FlxSprite;
 
 class Utility {
 	public static inline var EPSILON : Float = 0.0001;

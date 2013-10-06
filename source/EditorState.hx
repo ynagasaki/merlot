@@ -20,6 +20,7 @@ class EditorState extends FlxState {
 	var mMenuActionIssued : Bool = false;
 	var mCommand : EditorCommand = null;
 
+	var mStartPoint : FlxSprite = null;
 	var mSelectedPlatform : PlatformSprite = null;
 	var mLastMousePos : FlxPoint = null;
 	var mLastBoundary : Boundary = null;
@@ -44,6 +45,12 @@ class EditorState extends FlxState {
 		mMenu = new EditorMenu(this);
 
 		mLastMousePos = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
+
+		var startpt : FlxPoint = mLevel.getStartPoint();
+		if(startpt != null) {
+			mStartPoint = new FlxSprite(startpt.x, startpt.y).makeGraphic(5,5,0xFF00FF00);
+			add(mStartPoint);
+		}
 
 		add(mMenu);
 
@@ -76,6 +83,12 @@ class EditorState extends FlxState {
 				// Editor is in normal mode
 				if(FlxG.mouse.justReleased()) {
 					selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
+
+					if(FlxG.keys.pressed("S")) {
+						mLevel.setStartPoint(FlxG.mouse.x, FlxG.mouse.y);
+						mStartPoint.x = FlxG.mouse.x;
+						mStartPoint.y = FlxG.mouse.y;
+					}
 				}
 
 				if(FlxG.mouse.pressed() && mSelectedPlatform != null) {
@@ -139,7 +152,7 @@ class EditorState extends FlxState {
 					mLastBoundary = boundary;
 					mFirstPoint = new FlxPoint(boundary.surface.p2.x, boundary.surface.p2.y);
 
-					trace("   with chaining: first point of next line set to: " + mFirstPoint);
+					trace("   +chaining: next line pt 1 set: " + mFirstPoint.x + ", " + mFirstPoint.y);
 				}
 			}
 		}

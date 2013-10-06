@@ -18,6 +18,7 @@ class Player extends FlxSprite
 		super(X, Y);
 		loadGraphic("assets/pino-run.png", true, true, 40, 35);
 		maxVelocity.x = 100;			//walking speed
+		maxVelocity.y = 400;
 		acceleration.y = GRAVITY;
 		drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
 		
