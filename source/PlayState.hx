@@ -1,12 +1,10 @@
 package ;
 
-import openfl.Assets;
 import org.flixel.FlxG;
 import org.flixel.FlxSprite;
 import org.flixel.FlxState;
-import org.flixel.util.FlxMath;
 import org.flixel.util.FlxPoint;
-import org.flixel.FlxObject;
+import org.flixel.FlxGroup;
 import haxe.io.Input;
 
 class PlayState extends FlxState
@@ -14,6 +12,7 @@ class PlayState extends FlxState
 	var mPlayer : Player = null;
 	var mLevel : Level = null;
 	var mInitializedFromEditor : Bool = false;
+	var mNutCoinGroup : FlxGroup = null;
 
 	public function new(initedByEditor : Bool) {
 		mInitializedFromEditor = initedByEditor;
@@ -25,13 +24,23 @@ class PlayState extends FlxState
 		// Set a background color
 		FlxG.bgColor = 0xFFFF00FF;
 
-		mLevel = new Level("assets/lvls/level-template.json");
+		mLevel = new Level("assets/lvls/level-template.json", false);
 
 		add(mLevel.getLevelGraphics());
 
-		var startpt : FlxPoint = mLevel.getStartPoint();
+		mNutCoinGroup = new FlxGroup();
 
-		mPlayer = new Player(startpt.x, startpt.y);
+		var nutcoins : List<CollectibleSprite> = mLevel.getNutCoins();
+		for(nutcoin in nutcoins) {
+			mNutCoinGroup.add(nutcoin);
+		}
+
+		var startpt : FlxPoint = mLevel.getStartPoint();
+		if(startpt != null) {
+			mPlayer = new Player(startpt.x, startpt.y);
+		} else {
+			mPlayer = new Player(0, 0);
+		}
 
 		add(mPlayer);
 
@@ -39,12 +48,16 @@ class PlayState extends FlxState
 		
 		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
 
-		mPlayer.setDebug(true, this);
+		//mPlayer.setDebug(true, this);
 	}
 
 	override public function destroy():Void
 	{
 		super.destroy();
+	}
+
+	private function nutCoinCallback(player : Dynamic, coin : Dynamic) : Void {
+		cast(coin, CollectibleSprite).kill();
 	}
 
 	override public function update():Void
@@ -55,16 +68,20 @@ class PlayState extends FlxState
 
 		// if the player is falling, check for platforms below
 		if(!mPlayer.isOnGround() && mPlayer.isFalling()) {
+			var feetx : Float = mPlayer.x + Player.WIDTH_HALF;
+			var feety : Float = mPlayer.y + Player.HEIGHT;
 			var result : IntersectionCheckResult = mLevel.checkSurfaceCollision(
-				new Line(mPlayer.x, mPlayer.y + mPlayer.offset.y, mPlayer.x, mLevel.getHeight())
+				new Line(feetx, feety, feetx, mLevel.getHeight())
 			);
 
 			if(result.intersectionPoint != null) {
-				distanceleft = result.intersectionPoint.y - mPlayer.y - mPlayer.offset.y;
+				distanceleft = result.intersectionPoint.y - mPlayer.y - mPlayer.height;
 				intersectingBoundary = result.intersectingBoundary;
 			}
 		}
-		
+
+		FlxG.overlap(mPlayer, mNutCoinGroup, nutCoinCallback);
+
 		super.update();
 
 		// if there is a platform below, and the y-distance traveled in this frame exceeds

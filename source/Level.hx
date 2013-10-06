@@ -12,17 +12,28 @@ class Level {
 	var mBackground : FlxSprite = null;
 	var mLevelJson : Dynamic = null;
 	var mFilename : String = null;
+	var mStartPoint : FlxPoint = null;
 	var mBoundariesGlobal : List<Boundary> = null;
 	var mPlatformSprites : List<PlatformSprite> = null;
-	var mStartPoint : FlxPoint = null;
+	var mNutCoins : List<CollectibleSprite> = null;
 
 	public function new(filename : String, ?debug : Bool = false) {
+		mNutCoins = new List();
 		mPlatformSprites = new List();
 		mBoundariesGlobal = new List();
 		mGraphics = new FlxGroup();
 		mFilename = filename;
 
 		loadLevel(debug);
+	}
+
+	public function getNutCoins() : List<CollectibleSprite> {
+		return mNutCoins;
+	}
+
+	public function addNutCoin(sprite : CollectibleSprite) : Void {
+		mNutCoins.add(sprite);
+		mGraphics.add(sprite);
 	}
 
 	public function addPlatformSprite(sprite : PlatformSprite) : Void {
@@ -88,17 +99,18 @@ class Level {
 		try {
 			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
 			var platforms : Array<Dynamic> = mLevelJson.platforms;
+			var nutcoins : Array<Dynamic> = mLevelJson.nutcoins;
 
-			if(boundaries != null) {
-				for(dyn in boundaries) {
-					addBoundary(Boundary.fromJson(dyn), debug);
-				}
+			for(dyn in boundaries) {
+				addBoundary(Boundary.fromJson(dyn), debug);
 			}
 
-			if(platforms != null) {
-				for(dyn in platforms) {
-					addPlatformSprite(PlatformSprite.fromJson(dyn, debug));
-				}
+			for(dyn in platforms) {
+				addPlatformSprite(PlatformSprite.fromJson(dyn, debug));
+			}
+
+			for(dyn in nutcoins) {
+				addNutCoin(CollectibleSprite.fromJson(dyn));
 			}
 
 			findConnectedBoundarySegments();
@@ -106,7 +118,7 @@ class Level {
 			try {
 				setStartPoint(mLevelJson.startpt[0], mLevelJson.startpt[1]);
 			} catch(ex : Dynamic) {
-				trace(ex);
+				trace("lol, startpt troubles: " + ex);
 			}
 		} catch(ex : Dynamic) {
 			trace("lol:" + ex);
@@ -162,6 +174,7 @@ class Level {
 	public function save() : Void {
 		var boundaries : Array<Dynamic> = new Array();
 		var platforms : Array<Dynamic> = new Array();
+		var nutcoins : Array<Dynamic> = new Array();
 		var savedBoundaries : List<Boundary> = new List();
 
 		for(platform in mPlatformSprites) {
@@ -180,6 +193,11 @@ class Level {
 			boundaries.push(boundary.toJson());
 		}
 
+		for(nutcoin in mNutCoins) {
+			nutcoins.push(nutcoin.toJson());
+		}
+
+		mLevelJson.nutcoins = nutcoins;
 		mLevelJson.boundaries = boundaries;
 		mLevelJson.platforms = platforms;
 		mLevelJson.startpt = [mStartPoint.x, mStartPoint.y];

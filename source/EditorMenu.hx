@@ -4,21 +4,16 @@ import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 import org.flixel.FlxButton;
 
-class EditorButton {
-	var mButton : FlxButton = null;
+class EditorButton extends FlxButton {
 	var mCallback : (FlxButton -> Void) = null;
 
 	public function new(x : Int, y : Int, label : String, callback : (FlxButton -> Void)) {
-		mButton = new FlxButton(x, y, label, clickCallback);
+		super(x, y, label, clickCallback);
 		mCallback = callback;
 	}
 
-	public function getButton() : FlxButton {
-		return mButton;
-	}
-
 	public function clickCallback() : Void {
-		if(mCallback != null) mCallback(mButton);
+		if(mCallback != null) mCallback(this);
 	}
 }
 
@@ -34,7 +29,8 @@ class EditorMenu extends FlxGroup {
 		mEditorStateHandle = editorHandle;
 
 		var buttons : Array<FlxButton> = [
-			new FlxButton(5,5,"LineMode", editorHandle.startLineMode),
+			new EditorButton(5, 5, EditorCommand.LineMode.getName(), editorHandle.startMode),
+			new EditorButton(0, 0, EditorCommand.NutCoinMode.getName(), editorHandle.startMode),
 			new FlxButton(0,0,"Platform", platformButtonCallback),
 			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
 		];
@@ -121,7 +117,7 @@ class EditorMenu extends FlxGroup {
 		trace("reading directory: " + currDir);
 
 		if(mDirStack.length > 1) {
-			var up : FlxButton = new EditorButton(5,0,"..",editorButtonCallback).getButton();
+			var up : FlxButton = new EditorButton(5,0,"..",editorButtonCallback);
 			up.color = 0xFF3366FF;
 			up.label.color = 0xFFFFFFFF;
 			buttons.push(up);
@@ -130,11 +126,11 @@ class EditorMenu extends FlxGroup {
 		for(i in 0...entries.length) {
 			var entry : String = entries[i];
 			if(entry.length >= 4 && entry.substring(entry.length - 4) == ".png") {
-				var item : FlxButton = new EditorButton(5, 0, entry.substring(0, entry.length-4), imageButtonCallback).getButton();
+				var item : FlxButton = new EditorButton(5, 0, entry.substring(0, entry.length-4), imageButtonCallback);
 				item.color = 0xFF6FFF47;
 				buttons.push(item);
 			} else if(sys.FileSystem.isDirectory(currDir + "/" + entry)) {
-				var item : FlxButton = new EditorButton(5, 0, entry, editorButtonCallback).getButton();
+				var item : FlxButton = new EditorButton(5, 0, entry, editorButtonCallback);
 				item.color = 0xFF3366FF;
 				item.label.color = 0xFFFFFFFF;
 				buttons.push(item);

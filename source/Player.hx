@@ -8,13 +8,15 @@ import org.flixel.FlxState;
 class Player extends FlxSprite
 {
 	public static inline var GRAVITY : Float = 400;
+	public static inline var WIDTH : Float = 14;
+	public static inline var WIDTH_HALF : Float = WIDTH / 2;
+	public static inline var HEIGHT : Float = 29;
 
 	var mSurfaceBoundary : Boundary = null;
 	var mDebugBoundarySprite : FlxSprite = null;
 	var mDebugOn : Bool = false;
 
-	public function new(X:Float, Y:Float)
-	{
+	public function new(X:Float, Y:Float) : Void {
 		super(X, Y);
 		loadGraphic("assets/pino-run.png", true, true, 40, 35);
 		maxVelocity.x = 100;			//walking speed
@@ -23,16 +25,16 @@ class Player extends FlxSprite
 		drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
 		
 		//tweak the bounding box for better feel
-		width = 10;
-		height = 30;
+		width = WIDTH;
+		height = HEIGHT;
 
 		frames = 5;
 		frameWidth = 40;
 		frameHeight = 35;
 
-		offset.x = frameWidth / 2;
-		offset.y = frameHeight / 2;
-		
+		offset.x = frameWidth / 2 - WIDTH_HALF - 1;
+		offset.y = frameHeight - HEIGHT; // as long as frameheight > height
+
 		addAnimation("idle",[0],0,false);
 		addAnimation("walk",[1,2,3,4],10,true);
 		addAnimation("walk_back",[1,2,3,4],10,true);
@@ -76,7 +78,7 @@ class Player extends FlxSprite
 
 	override public function update() : Void
 	{
-		var oldx : Float = this.x;
+		var oldx : Float = this.x + WIDTH_HALF;
 
 		//Smooth slidey walking controls
 		acceleration.x = 0;
@@ -114,22 +116,23 @@ class Player extends FlxSprite
 
 		if(isOnGround()) {
 			var surfaceline : Line = mSurfaceBoundary.surface;
+			var newx : Float = this.x + WIDTH_HALF;
 
 			// "next" and "prev" only make sense for LTR segments
-			if(this.x > surfaceline.rightmostPoint.x) {
+			if(newx > surfaceline.rightmostPoint.x) {
 				if(mSurfaceBoundary.hasNext()) {
 					setSurfaceBoundary(mSurfaceBoundary.next);
 				} else {
 					startNotBeingOnTheGround();
 				}
-			} else if(this.x < surfaceline.leftmostPoint.x) {
+			} else if(newx < surfaceline.leftmostPoint.x) {
 				if(mSurfaceBoundary.hasPrev()) {
 					setSurfaceBoundary(mSurfaceBoundary.prev);
 				} else {
 					startNotBeingOnTheGround();
 				}
-			} else if(this.x != oldx) {
-				this.y = surfaceline.getY(this.x) - offset.y;
+			} else if(newx != oldx) {
+				this.y = surfaceline.getY(newx) - HEIGHT;
 			}
 		}
 	}

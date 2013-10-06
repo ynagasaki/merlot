@@ -4,13 +4,8 @@ import haxe.Json;
 import org.flixel.FlxG;
 import org.flixel.FlxSprite;
 import org.flixel.FlxState;
+import org.flixel.FlxButton;
 import org.flixel.util.FlxPoint;
-
-enum EditorCommand {
-	LineMode;
-	MakePlatform;
-	SaveLevel;
-}
 
 class EditorState extends FlxState {
 	var mFirstPoint : FlxPoint = null;
@@ -67,16 +62,20 @@ class EditorState extends FlxState {
 
 	override public function update() : Void {
 		if(!mMenuActionIssued) {
-			if(mCommand == EditorCommand.LineMode) {
-				// Editor is in special line drawing mode
-				figOutMouseDrawingLinesCrap(mSelectedPlatform);
-
+			if(mCommand != null) {
 				if(FlxG.keys.pressed("ESCAPE")) {
 					trace("Exiting " + mCommand);
 					mCommand = null;
 					mFirstPoint = null;
 					mMenu.hide(false);
 				}
+			}
+
+			if(mCommand == EditorCommand.LineMode) {
+				// Editor is in special line drawing mode
+				figOutMouseDrawingLinesCrap(mSelectedPlatform);
+			} else if(mCommand == EditorCommand.NutCoinMode) {
+				placeNutCoins();
 			}
 
 			if(mCommand == null) {
@@ -103,10 +102,6 @@ class EditorState extends FlxState {
 					selectPlatformSprite(null);
 				}
 
-				if(FlxG.keys.pressed("CONTROL")) {
-					FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
-				}
-
 				if(FlxG.keys.justReleased("ENTER") && FlxG.keys.pressed("SHIFT")) {
 					FlxG.switchState(new PlayState(true));
 				}
@@ -115,10 +110,21 @@ class EditorState extends FlxState {
 			mMenuActionIssued = false;
 		}
 
+		// Allow camera movement regardless of mode
+		if(FlxG.keys.pressed("CONTROL")) {
+			FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
+		}
+
 		super.update();
 
 		mLastMousePos.x = FlxG.mouse.x;
 		mLastMousePos.y = FlxG.mouse.y;
+	}
+
+	private function placeNutCoins() : Void {
+		if(FlxG.mouse.justReleased()) {
+			mLevel.addNutCoin(new CollectibleSprite("assets/items/nut-coin.png", FlxG.mouse.x, FlxG.mouse.y));
+		}
 	}
 
 	private function figOutMouseDrawingLinesCrap(sprite : PlatformSprite) : Void {
@@ -164,11 +170,11 @@ class EditorState extends FlxState {
 		return new Line(line.p1.x, line.p1.y, line.p1.x + n.x, line.p1.y + n.y);
 	}
 
-	public function startLineMode() : Void {
+	public function startMode(button : FlxButton) : Void {
 		mMenuActionIssued = true;
-		mCommand = EditorCommand.LineMode;
+		mCommand = EditorCommand.createByName(button.label.text);
 		mMenu.hide(true);
-		trace("Started line mode: press escape when finished.");
+		trace("Started "+mCommand+": press escape when finished.");
 	}
 
 	public function saveLevel() {
@@ -176,7 +182,7 @@ class EditorState extends FlxState {
 			mLevel.save();
 			trace("Successfully saved level.");
 		} catch(ex : Dynamic) {
-			trace("saveLevel: " + ex);
+			trace("saveLevel error: " + ex);
 		}
 	}
 
