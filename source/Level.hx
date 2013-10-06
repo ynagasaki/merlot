@@ -44,6 +44,11 @@ class Level {
 		mGraphics.add(sprite);
 	}
 
+	public function removeNutCoin(sprite : CollectibleSprite) : Void {
+		mNutCoins.remove(sprite);
+		mGraphics.remove(sprite, true);
+	}
+
 	public function removePlatformSprite(sprite : PlatformSprite) : Void {
 		mPlatformSprites.remove(sprite);
 		for(boundary in sprite.getBoundaries()) {
@@ -52,15 +57,14 @@ class Level {
 		mGraphics.remove(sprite, true);
 	}
 
-	public function pickPlatformSprite(x : Float, y : Float) : PlatformSprite {
+	public function pickSprite(x : Float, y : Float) : FlxSprite {
 		try {
 			for(s in mPlatformSprites) {
-				var sx : Float = s.x;
-				var sw : Float = s.width;
-				var sy : Float = s.y;
-				var sh : Float = s.height;
+				if(Utility.isPointInSpriteBounds(x, y, s)) return s;
+			}
 
-				if(x >= sx && x <= sw + sx && y >= sy && y <= sy + sh) return s;
+			for(s in mNutCoins) {
+				if(Utility.isPointInSpriteBounds(x, y, s)) return s;
 			}
 		} catch(ex:Dynamic) {
 			trace(ex);

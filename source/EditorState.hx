@@ -16,7 +16,7 @@ class EditorState extends FlxState {
 	var mCommand : EditorCommand = null;
 
 	var mStartPoint : FlxSprite = null;
-	var mSelectedPlatform : PlatformSprite = null;
+	var mSelectedSprite : FlxSprite = null;
 	var mLastMousePos : FlxPoint = null;
 	var mLastBoundary : Boundary = null;
 
@@ -43,7 +43,7 @@ class EditorState extends FlxState {
 
 		var startpt : FlxPoint = mLevel.getStartPoint();
 		if(startpt != null) {
-			mStartPoint = new FlxSprite(startpt.x, startpt.y).makeGraphic(5,5,0xFF00FF00);
+			mStartPoint = new FlxSprite(startpt.x, startpt.y).makeGraphic(Player.WIDTH, Player.HEIGHT, 0xFF00FF00);
 			add(mStartPoint);
 		}
 
@@ -73,7 +73,7 @@ class EditorState extends FlxState {
 
 			if(mCommand == EditorCommand.LineMode) {
 				// Editor is in special line drawing mode
-				figOutMouseDrawingLinesCrap(mSelectedPlatform);
+				figOutMouseDrawingLinesCrap();
 			} else if(mCommand == EditorCommand.NutCoinMode) {
 				placeNutCoins();
 			}
@@ -81,25 +81,18 @@ class EditorState extends FlxState {
 			if(mCommand == null) {
 				// Editor is in normal mode
 				if(FlxG.mouse.justReleased()) {
-					selectPlatformSprite(mLevel.pickPlatformSprite(FlxG.mouse.x, FlxG.mouse.y));
-
-					if(FlxG.keys.pressed("S")) {
-						mLevel.setStartPoint(FlxG.mouse.x, FlxG.mouse.y);
-						mStartPoint.x = FlxG.mouse.x;
-						mStartPoint.y = FlxG.mouse.y;
-					}
+					pickSprite();
 				}
 
-				if(FlxG.mouse.pressed() && mSelectedPlatform != null) {
-					var offsetx : Float = mLastMousePos.x - mSelectedPlatform.x;
-					var offsety : Float = mLastMousePos.y - mSelectedPlatform.y;
+				if(FlxG.mouse.pressed() && mSelectedSprite != null) {
+					var offsetx : Float = mLastMousePos.x - mSelectedSprite.x;
+					var offsety : Float = mLastMousePos.y - mSelectedSprite.y;
 
-					mSelectedPlatform.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
+					mSelectedSprite.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
 				}
 
-				if(FlxG.keys.justReleased("DELETE") && mSelectedPlatform != null) {
-					mLevel.removePlatformSprite(mSelectedPlatform);
-					selectPlatformSprite(null);
+				if(FlxG.keys.justReleased("DELETE") && mSelectedSprite != null) {
+					deleteSelectedSprite();
 				}
 
 				if(FlxG.keys.justReleased("ENTER") && FlxG.keys.pressed("SHIFT")) {
@@ -121,13 +114,36 @@ class EditorState extends FlxState {
 		mLastMousePos.y = FlxG.mouse.y;
 	}
 
+	private function deleteSelectedSprite() : Void {
+		var type = Type.getClass(mSelectedSprite);
+
+		if(type == PlatformSprite)
+			mLevel.removePlatformSprite(cast(mSelectedSprite, PlatformSprite));
+		else if(type == CollectibleSprite)
+			mLevel.removeNutCoin(cast(mSelectedSprite, CollectibleSprite));
+		
+		selectSprite(null);
+	}
+
+	private function pickSprite() : Void {
+		var x : Float = FlxG.mouse.x;
+		var y : Float = FlxG.mouse.y;
+		var spr : FlxSprite = mLevel.pickSprite(x, y);
+
+		if(spr == null && Utility.isPointInSpriteBounds(x, y, mStartPoint)) {
+			spr = mStartPoint;
+		}
+
+		selectSprite(spr);
+	}
+
 	private function placeNutCoins() : Void {
 		if(FlxG.mouse.justReleased()) {
 			mLevel.addNutCoin(new CollectibleSprite("assets/items/nut-coin.png", FlxG.mouse.x, FlxG.mouse.y));
 		}
 	}
 
-	private function figOutMouseDrawingLinesCrap(sprite : PlatformSprite) : Void {
+	private function figOutMouseDrawingLinesCrap() : Void {
 		if(FlxG.mouse.justReleased()) {
 			if(mFirstPoint == null) {
 				mFirstPoint = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
@@ -138,10 +154,10 @@ class EditorState extends FlxState {
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
 				boundary.normal = calculateNormal(boundary.surface);
 
-				if(mSelectedPlatform == null) {
+				if(mSelectedSprite == null) {
 					mLevel.addBoundary(boundary, true);
-				} else {
-					mSelectedPlatform.addBoundary(boundary, true);
+				} else if(Type.getClass(mSelectedSprite) == PlatformSprite) {
+					cast(mSelectedSprite, PlatformSprite).addBoundary(boundary, true);
 				}
 
 				mFirstPoint = null;
@@ -179,6 +195,9 @@ class EditorState extends FlxState {
 
 	public function saveLevel() {
 		try {
+			if(mStartPoint != null) {
+				mLevel.setStartPoint(mStartPoint.x, mStartPoint.y);
+			}
 			mLevel.save();
 			trace("Successfully saved level.");
 		} catch(ex : Dynamic) {
@@ -186,10 +205,10 @@ class EditorState extends FlxState {
 		}
 	}
 
-	public function selectPlatformSprite(sprite : PlatformSprite) : Void {
-		if(sprite != mSelectedPlatform && mSelectedPlatform != null) mSelectedPlatform.color = 0xFFFFFFFF;
-		mSelectedPlatform = sprite;
-		if(mSelectedPlatform != null) mSelectedPlatform.color = 0xFF7777FF;
+	public function selectSprite(sprite : FlxSprite) : Void {
+		if(sprite != mSelectedSprite && mSelectedSprite != null) mSelectedSprite.color = 0xFFFFFFFF;
+		mSelectedSprite = sprite;
+		if(mSelectedSprite != null) mSelectedSprite.color = 0xFF7777FF;
 	}
 
 	public function createPlatformSprite(filename : String) : Void {

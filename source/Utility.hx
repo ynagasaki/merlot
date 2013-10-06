@@ -50,4 +50,12 @@ class Utility {
 
 		return null;
 	}
+
+	public static function isPointInSpriteBounds(x : Float, y : Float, spr : FlxSprite) : Bool{
+		var sx : Float = spr.x;
+		var sy : Float = spr.y;
+		var sx2 : Float = sx + spr.width;
+		var sy2 : Float = sy + spr.height;
+		return x >= sx && x <= sx2 && y >= sy && y <= sy2;
+	}
 }
