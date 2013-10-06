@@ -12,6 +12,15 @@ class CollectibleSprite extends FlxSprite {
 		loadGraphic(filename, false, false);
 		this.x = center ? x - this.width / 2 : x;
 		this.y = center ? y - this.height / 2 : y;
+
+		var ten_pct_width : Float = .1 * width;
+		var ten_pct_height : Float = .1 * height;
+
+		offset.x = ten_pct_width;
+		offset.y = ten_pct_height;
+
+		width = .8 * width;
+		height = .8 * height;
 	}
 
 	public function toJson() : Dynamic {
