@@ -41,15 +41,9 @@ class PlatformSprite extends FlxSprite {
 		}
 	}
 
-	public function addBoundary(boundary : Boundary, drawBoundary : Bool) : Void {
+	public function addBoundary(boundary : Boundary) : Void {
 		// boundary will be stored in world coords
 		mBoundaries.add(boundary);
-
-		// but we will draw it in "local" coords
-		if(drawBoundary) {
-			drawLine(boundary.surface.p1.x - x, boundary.surface.p1.y - y, boundary.surface.p2.x - x, boundary.surface.p2.y - y, FlxColor.BLACK, 1);
-			drawLine(boundary.normal.p1.x - x, boundary.normal.p1.y - y, boundary.normal.p2.x - x, boundary.normal.p2.y - y, FlxColor.RED, 1);
-		}
 	}
 
 	public function getBoundaries() : List<Boundary> {
@@ -66,7 +60,7 @@ class PlatformSprite extends FlxSprite {
 		return {"f":mFilename,"b":boundaries,"p":[x,y]};
 	}
 
-	public static function fromJson(jsonobj : Dynamic, ?debug : Bool = false) : PlatformSprite {
+	public static function fromJson(jsonobj : Dynamic) : PlatformSprite {
 		var retval : PlatformSprite = null;
 
 		try {
@@ -77,7 +71,7 @@ class PlatformSprite extends FlxSprite {
 
 			var boundaries : Array<Dynamic> = jsonobj.b;
 			for(dyn in boundaries) {
-				retval.addBoundary(Boundary.fromJson(dyn), debug);
+				retval.addBoundary(Boundary.fromJson(dyn));
 			}
 		} catch(ex : Dynamic) {
 			trace("PlatformSprite.fromJson: " + ex);

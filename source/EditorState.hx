@@ -72,7 +72,6 @@ class EditorState extends FlxState {
 			}
 
 			if(mCommand == EditorCommand.LineMode) {
-				// Editor is in special line drawing mode
 				figOutMouseDrawingLinesCrap();
 			} else if(mCommand == EditorCommand.NutCoinMode) {
 				placeNutCoins();
@@ -154,12 +153,11 @@ class EditorState extends FlxState {
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
 				boundary.normal = calculateNormal(boundary.surface);
 
-				if(mSelectedSprite == null) {
-					mLevel.addBoundary(boundary, true);
-				} else if(Type.getClass(mSelectedSprite) == PlatformSprite) {
-					cast(mSelectedSprite, PlatformSprite).addBoundary(boundary, true);
+				if(mSelectedSprite != null && Type.getClass(mSelectedSprite) == PlatformSprite) {
+					cast(mSelectedSprite, PlatformSprite).addBoundary(boundary);
 				}
 
+				mLevel.addBoundary(boundary);
 				mFirstPoint = null;
 				trace("added boundary: " + boundary.surface);
 

@@ -8,6 +8,7 @@ import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 
 class Level {
+	var mDebug : Bool = false;
 	var mGraphics : FlxGroup = null;
 	var mBackground : FlxSprite = null;
 	var mLevelJson : Dynamic = null;
@@ -23,8 +24,9 @@ class Level {
 		mBoundariesGlobal = new List();
 		mGraphics = new FlxGroup();
 		mFilename = filename;
-
-		loadLevel(debug);
+		mDebug = debug;
+		
+		loadLevel();
 	}
 
 	public function getNutCoins() : List<CollectibleSprite> {
@@ -38,10 +40,10 @@ class Level {
 
 	public function addPlatformSprite(sprite : PlatformSprite) : Void {
 		mPlatformSprites.add(sprite);
-		for(boundary in sprite.getBoundaries()) {
-			mBoundariesGlobal.add(boundary);
-		}
 		mGraphics.add(sprite);
+		for(boundary in sprite.getBoundaries()) {
+			addBoundary(boundary);
+		}
 	}
 
 	public function removeNutCoin(sprite : CollectibleSprite) : Void {
@@ -51,10 +53,10 @@ class Level {
 
 	public function removePlatformSprite(sprite : PlatformSprite) : Void {
 		mPlatformSprites.remove(sprite);
+		mGraphics.remove(sprite, true);
 		for(boundary in sprite.getBoundaries()) {
 			mBoundariesGlobal.remove(boundary);
 		}
-		mGraphics.remove(sprite, true);
 	}
 
 	public function pickSprite(x : Float, y : Float) : FlxSprite {
@@ -72,7 +74,7 @@ class Level {
 		return null;
 	}
 
-	private function loadLevel(debug : Bool) : Void {
+	private function loadLevel() : Void {
 		var contents :  String = null;
 
 		try {
@@ -106,11 +108,11 @@ class Level {
 			var nutcoins : Array<Dynamic> = mLevelJson.nutcoins;
 
 			for(dyn in boundaries) {
-				addBoundary(Boundary.fromJson(dyn), debug);
+				addBoundary(Boundary.fromJson(dyn));
 			}
 
 			for(dyn in platforms) {
-				addPlatformSprite(PlatformSprite.fromJson(dyn, debug));
+				addPlatformSprite(PlatformSprite.fromJson(dyn));
 			}
 
 			for(dyn in nutcoins) {
@@ -166,12 +168,29 @@ class Level {
 		}
 	}
 
-	public function addBoundary(boundary : Boundary, ?drawBoundary : Bool = false) : Void {
+	public function addBoundary(boundary : Boundary) : Void {
 		mBoundariesGlobal.add(boundary);
 
-		if(drawBoundary) {
-			mBackground.drawLine(boundary.surface.p1.x, boundary.surface.p1.y, boundary.surface.p2.x, boundary.surface.p2.y, FlxColor.BLACK, 1);
-			mBackground.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
+		if(mDebug) {
+			var linespr : FlxSprite  = new FlxSprite(boundary.surface.leftmostPoint.x, boundary.surface.topmostPoint.y);
+			
+			linespr.makeGraphic(
+				Math.round(boundary.surface.rightmostPoint.x), 
+				Math.round(boundary.surface.bottommostPoint.y), 
+				0x00FFFFFF, 
+				true
+			);
+
+			linespr.drawLine(
+				boundary.surface.p1.x - linespr.x, 
+				boundary.surface.p1.y - linespr.y, 
+				boundary.surface.p2.x - linespr.x, 
+				boundary.surface.p2.y - linespr.y, 
+				FlxColor.BLACK, 1
+			);
+			
+			//linespr.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
+			mGraphics.add(linespr);
 		}
 	}
 

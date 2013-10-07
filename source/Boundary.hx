@@ -8,7 +8,6 @@ class Boundary {
 	public var prev : Boundary = null;
 
 	public function new() {
-		
 	}
 
 	/**
