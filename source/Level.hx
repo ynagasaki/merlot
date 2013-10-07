@@ -172,25 +172,8 @@ class Level {
 		mBoundariesGlobal.add(boundary);
 
 		if(mDebug) {
-			var linespr : FlxSprite  = new FlxSprite(boundary.surface.leftmostPoint.x, boundary.surface.topmostPoint.y);
-			
-			linespr.makeGraphic(
-				Math.round(boundary.surface.rightmostPoint.x), 
-				Math.round(boundary.surface.bottommostPoint.y), 
-				0x00FFFFFF, 
-				true
-			);
-
-			linespr.drawLine(
-				boundary.surface.p1.x - linespr.x, 
-				boundary.surface.p1.y - linespr.y, 
-				boundary.surface.p2.x - linespr.x, 
-				boundary.surface.p2.y - linespr.y, 
-				FlxColor.BLACK, 1
-			);
-			
 			//linespr.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
-			mGraphics.add(linespr);
+			mGraphics.add(new BoundarySprite( boundary));
 		}
 	}
 

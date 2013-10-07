@@ -144,6 +144,10 @@ class EditorState extends FlxState {
 
 	private function figOutMouseDrawingLinesCrap() : Void {
 		if(FlxG.mouse.justReleased()) {
+			if(FlxG.keys.pressed("S")) {
+				
+			}
+
 			if(mFirstPoint == null) {
 				mFirstPoint = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
 				trace("assign next point");
