@@ -46,6 +46,10 @@ class PlatformSprite extends FlxSprite {
 		mBoundaries.add(boundary);
 	}
 
+	public function removeBoundary(boundary : Boundary) : Bool {
+		return mBoundaries.remove(boundary);
+	}
+
 	public function getBoundaries() : List<Boundary> {
 		return mBoundaries;
 	}

@@ -20,6 +20,8 @@ class EditorState extends FlxState {
 	var mLastMousePos : FlxPoint = null;
 	var mLastBoundary : Boundary = null;
 
+	var mBoundarySprites : List<BoundarySprite> = null;
+
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
@@ -31,9 +33,14 @@ class EditorState extends FlxState {
 		FlxG.mouse.show();
 		#end
 
-		mLevel = new Level("assets/lvls/level-template.json", true);
+		mLevel = new Level("assets/lvls/level-template.json");
 
 		add(mLevel.getLevelGraphics());
+
+		mBoundarySprites = new List();
+		for(b in mLevel.getGlobalBoundariesList()) {
+			addBoundarySprite(b);
+		}
 
 		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
 
@@ -90,10 +97,6 @@ class EditorState extends FlxState {
 					mSelectedSprite.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
 				}
 
-				if(FlxG.keys.justReleased("DELETE") && mSelectedSprite != null) {
-					deleteSelectedSprite();
-				}
-
 				if(FlxG.keys.justReleased("ENTER") && FlxG.keys.pressed("SHIFT")) {
 					FlxG.switchState(new PlayState(true));
 				}
@@ -106,6 +109,10 @@ class EditorState extends FlxState {
 		if(FlxG.keys.pressed("CONTROL")) {
 			FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
 		}
+		// Allow selected sprite deletion regardless of mode
+		if(FlxG.keys.justReleased("DELETE") && mSelectedSprite != null) {
+			deleteSelectedSprite();
+		}
 
 		super.update();
 
@@ -116,11 +123,21 @@ class EditorState extends FlxState {
 	private function deleteSelectedSprite() : Void {
 		var type = Type.getClass(mSelectedSprite);
 
-		if(type == PlatformSprite)
+		if(type == PlatformSprite) {
 			mLevel.removePlatformSprite(cast(mSelectedSprite, PlatformSprite));
-		else if(type == CollectibleSprite)
+		} else if(type == CollectibleSprite) {
 			mLevel.removeNutCoin(cast(mSelectedSprite, CollectibleSprite));
-		
+		} else if(type == BoundarySprite) {
+			var boundarysprite : BoundarySprite = cast(mSelectedSprite, BoundarySprite);
+			if(boundarysprite.boundary.hasNext() || boundarysprite.boundary.hasPrev()) {
+				trace("* Warning: boundary is part of chain; SHIFT-DELETE to delete whole chain; not yet implemented, lol.");
+			} else {
+				mLevel.removeBoundary(boundarysprite.boundary);
+				mBoundarySprites.remove(boundarysprite);
+				remove(mSelectedSprite, true);
+			}
+		}
+
 		selectSprite(null);
 	}
 
@@ -145,7 +162,15 @@ class EditorState extends FlxState {
 	private function figOutMouseDrawingLinesCrap() : Void {
 		if(FlxG.mouse.justReleased()) {
 			if(FlxG.keys.pressed("S")) {
-				
+				var selectedsprite : BoundarySprite = null;
+				for(bsprite in mBoundarySprites) {
+					if(Utility.isPointInSpriteBounds(FlxG.mouse.x, FlxG.mouse.y, bsprite)) {
+						selectedsprite = bsprite;
+						break;
+					}
+				}
+				selectSprite(selectedsprite);
+				return;
 			}
 
 			if(mFirstPoint == null) {
@@ -153,7 +178,6 @@ class EditorState extends FlxState {
 				trace("assign next point");
 			} else {
 				var boundary : Boundary = new Boundary();
-				
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
 				boundary.normal = calculateNormal(boundary.surface);
 
@@ -162,6 +186,9 @@ class EditorState extends FlxState {
 				}
 
 				mLevel.addBoundary(boundary);
+				addBoundarySprite(boundary);
+				//linespr.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
+
 				mFirstPoint = null;
 				trace("added boundary: " + boundary.surface);
 
@@ -180,6 +207,12 @@ class EditorState extends FlxState {
 				}
 			}
 		}
+	}
+
+	private function addBoundarySprite(boundary : Boundary) : Void {
+		var boundarysprite : BoundarySprite = new BoundarySprite(boundary);
+		mBoundarySprites.add(boundarysprite);
+		add(boundarysprite);
 	}
 
 	private function calculateNormal(line : Line) : Line {
@@ -208,9 +241,22 @@ class EditorState extends FlxState {
 	}
 
 	public function selectSprite(sprite : FlxSprite) : Void {
-		if(sprite != mSelectedSprite && mSelectedSprite != null) mSelectedSprite.color = 0xFFFFFFFF;
+		if(sprite != mSelectedSprite && mSelectedSprite != null) {
+			if(Type.getClass(mSelectedSprite) == BoundarySprite) {
+				cast(mSelectedSprite, BoundarySprite).drawDeselected();
+			} else {
+				mSelectedSprite.color = 0xFFFFFFFF;
+			}
+		}
 		mSelectedSprite = sprite;
-		if(mSelectedSprite != null) mSelectedSprite.color = 0xFF7777FF;
+		if(mSelectedSprite != null) {
+			if(Type.getClass(mSelectedSprite) == BoundarySprite) {
+				cast(mSelectedSprite, BoundarySprite).drawSelected();
+			} else {
+				mSelectedSprite.color = 0xFF7777FF;
+			}
+		}
+		trace("Selected: " + (sprite == null ? "(nothing)" : sprite.toString()));
 	}
 
 	public function createPlatformSprite(filename : String) : Void {

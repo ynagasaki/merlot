@@ -8,7 +8,6 @@ import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 
 class Level {
-	var mDebug : Bool = false;
 	var mGraphics : FlxGroup = null;
 	var mBackground : FlxSprite = null;
 	var mLevelJson : Dynamic = null;
@@ -18,13 +17,12 @@ class Level {
 	var mPlatformSprites : List<PlatformSprite> = null;
 	var mNutCoins : List<CollectibleSprite> = null;
 
-	public function new(filename : String, ?debug : Bool = false) {
+	public function new(filename : String) {
 		mNutCoins = new List();
 		mPlatformSprites = new List();
 		mBoundariesGlobal = new List();
 		mGraphics = new FlxGroup();
 		mFilename = filename;
-		mDebug = debug;
 		
 		loadLevel();
 	}
@@ -170,10 +168,16 @@ class Level {
 
 	public function addBoundary(boundary : Boundary) : Void {
 		mBoundariesGlobal.add(boundary);
+	}
 
-		if(mDebug) {
-			//linespr.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
-			mGraphics.add(new BoundarySprite( boundary));
+	public function getGlobalBoundariesList() : List<Boundary> {
+		return mBoundariesGlobal;
+	}
+
+	public function removeBoundary(boundary : Boundary) : Void {
+		mBoundariesGlobal.remove(boundary);
+		for(platformsprite in mPlatformSprites) {
+			if(platformsprite.removeBoundary(boundary)) break;
 		}
 	}
 
