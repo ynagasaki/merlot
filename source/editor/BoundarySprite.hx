@@ -1,9 +1,10 @@
 
-package ;
+package editor;
 
+import org.flixel.FlxBasic;
 import org.flixel.FlxSprite;
 
-class BoundarySprite extends FlxSprite {
+class BoundarySprite extends FlxSprite implements SelectableItem {
 	public var boundary : Boundary = null;
 
 	public function new(b : Boundary) : Void {
@@ -18,10 +19,19 @@ class BoundarySprite extends FlxSprite {
 
 		boundary = b;
 
-		drawDeselected();
+		deselect();
 	}
 
-	public function drawSelected() : Void {
+	public function getItem() : FlxBasic { return this; }
+	public function getX() : Float { return this.x; }
+	public function getY() : Float { return this.y; }
+
+	public function isCollectibleSprite() : Bool { return false; }
+	public function isBoundarySprite() : Bool { return true; }
+	public function isPlatformSprite() : Bool { return false; }
+	public function isInnerLevel() : Bool { return false; }
+
+	public function select() : Void {
 		fill(0x00FFFFFF);
 		drawLine(
 			boundary.surface.p1.x - this.x, 
@@ -33,7 +43,7 @@ class BoundarySprite extends FlxSprite {
 		);
 	}
 
-	public function drawDeselected() : Void {
+	public function deselect() : Void {
 		fill(0x00FFFFFF);
 		drawLine(
 			boundary.surface.p1.x - this.x, 

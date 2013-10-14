@@ -8,23 +8,25 @@ import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 
 class Level {
+	var mFilename : String = null;
+	var mLevelJson : Dynamic = null;
 	var mGraphics : FlxGroup = null;
 	var mBackground : FlxSprite = null;
-	var mLevelJson : Dynamic = null;
-	var mFilename : String = null;
 	var mStartPoint : FlxPoint = null;
+	var mNutCoins : List<CollectibleSprite> = null;
 	var mBoundariesGlobal : List<Boundary> = null;
 	var mPlatformSprites : List<PlatformSprite> = null;
-	var mNutCoins : List<CollectibleSprite> = null;
+	var mInnerLevels : List<InnerLevel> = null;
 
 	public function new(filename : String) {
 		mNutCoins = new List();
 		mPlatformSprites = new List();
 		mBoundariesGlobal = new List();
+		mInnerLevels = new List();
 		mGraphics = new FlxGroup();
 		mFilename = filename;
 		
-		loadLevel();
+		if(filename != null) loadLevel();
 	}
 
 	public function getNutCoins() : List<CollectibleSprite> {
@@ -72,6 +74,12 @@ class Level {
 		return null;
 	}
 
+	private function prepareBackground(filename : String) : Void {
+		mBackground = new FlxSprite(0, 0);
+		mBackground.loadGraphic(filename, false, false);
+		mGraphics.add(mBackground);
+	}
+
 	private function loadLevel() : Void {
 		var contents :  String = null;
 
@@ -87,18 +95,7 @@ class Level {
 			trace("** error: Parsing level json string failed: " + ex);
 		}
 
-		mBackground = new FlxSprite(0, 0);
-
-		mBackground.loadGraphic(
-			mLevelJson.background, 
-			false, 
-			false, 
-			mLevelJson.width,
-			mLevelJson.height,
-			true
-		);
-
-		mGraphics.add(mBackground);
+		prepareBackground(mLevelJson.background);
 
 		try {
 			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
@@ -182,6 +179,8 @@ class Level {
 	}
 
 	public function save() : Void {
+		if(mFilename == null) return;
+
 		var boundaries : Array<Dynamic> = new Array();
 		var platforms : Array<Dynamic> = new Array();
 		var nutcoins : Array<Dynamic> = new Array();
@@ -215,8 +214,6 @@ class Level {
 		var fout = File.write(mFilename, false);
 		fout.writeString(haxe.Json.stringify(mLevelJson));
 		fout.close();
-
-		trace("saved: " + mFilename);
 	}
 
 	public function setStartPoint(x : Float, y : Float) : Void {

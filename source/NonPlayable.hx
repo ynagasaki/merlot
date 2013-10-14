@@ -6,10 +6,10 @@ import org.flixel.FlxSprite;
 
 class NonPlayable extends FlxSprite
 {
-	public function new(X:Float, Y:Float, w:Int, h:Int)
+	public function new(filename : String, X:Float, Y:Float, w:Int, h:Int)
 	{
 		super(X, Y);
-		loadGraphic("assets/duck-thing-sm.png", true, true, w, h);
+		loadGraphic(filename, true, true);
 		maxVelocity.x = 100;			//walking speed
 		acceleration.y = 400;			//gravity
 		drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
@@ -18,13 +18,12 @@ class NonPlayable extends FlxSprite
 		width = w;
 		height = h;
 
-		frames = 1;
+		frames = 2;
 		frameHeight = w;
 		frameWidth = h;
 		
 		addAnimation("idle",[0],0,false);
-		addAnimation("walk",[0],0,false);
-		addAnimation("walk_back",[0],0,false);
+		addAnimation("walk",[0,1],20,true);
 	}
 	
 	override public function update():Void

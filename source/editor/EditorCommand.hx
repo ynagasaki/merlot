@@ -1,5 +1,5 @@
 
-package ;
+package editor;
 
 enum EditorCommand {
 	LineMode;

@@ -1,5 +1,6 @@
 package ;
 
+import editor.EditorState;
 import org.flixel.FlxG;
 import org.flixel.FlxSprite;
 import org.flixel.FlxState;
@@ -49,6 +50,8 @@ class PlayState extends FlxState
 		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
 
 		//mPlayer.setDebug(true, this);
+
+		//add(new NonPlayable("assets/baddies/b1.png",mPlayer.x + 100, mPlayer.y, 23, 23));
 	}
 
 	override public function destroy():Void

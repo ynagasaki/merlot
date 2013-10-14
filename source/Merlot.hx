@@ -1,5 +1,6 @@
 package ;
 
+import editor.EditorState;
 import flash.Lib;
 import org.flixel.FlxGame;
 	

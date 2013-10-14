@@ -1,5 +1,6 @@
-package ;
+package editor;
 
+import org.flixel.FlxG;
 import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 import org.flixel.FlxButton;
@@ -18,7 +19,9 @@ class EditorButton extends FlxButton {
 }
 
 class EditorMenu extends FlxGroup {
+	var mFileSelectorOpener : FlxButton = null;
 	var mEditorStateHandle : EditorState = null;
+
 	var mDirStack : Array<String> = null;
 	var mCurrentDirButts : Array<FlxButton> = null;
 
@@ -31,7 +34,8 @@ class EditorMenu extends FlxGroup {
 		var buttons : Array<FlxButton> = [
 			new EditorButton(5, 5, EditorCommand.LineMode.getName(), editorHandle.startMode),
 			new EditorButton(0, 0, EditorCommand.NutCoinMode.getName(), editorHandle.startMode),
-			new FlxButton(0,0,"Platform", platformButtonCallback),
+			new EditorButton(0, 0, "Platform", openFileSelector),
+			new EditorButton(0, 0, "InnerLvl", openFileSelector),
 			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
 		];
 
@@ -50,21 +54,51 @@ class EditorMenu extends FlxGroup {
 	}
 
 	private function layoutTheButts(butts : Array<FlxButton>, ?isdir : Bool = false) : Void {
+		var highesty : Float = 0;
+		var nextx : Float = 5;
+		var nexty : Float = (isdir) ? 30 : 5;
+
 		for(i in 0 ... butts.length) {
-			butts[i].y = (isdir) ? 30 : 5 ;
-			if(i > 0) {
-				butts[i].x = butts[i - 1].x + butts[i - 1].width + 5;
+			var buttwidth : Float = butts[i].width;
+			var buttheight : Float = butts[i].height;
+
+			butts[i].x = nextx;
+			butts[i].y = nexty;
+
+			nextx = nextx + buttwidth + 5;
+
+			if(nextx + buttwidth > FlxG.width) {
+				nextx = 5;
+				nexty = highesty + buttheight + 5;
 			}
+
+			if(nexty > highesty) highesty = nexty;
+
 			addFixed(butts[i]);
 		}
 
 		if(isdir) mCurrentDirButts = butts;
 	}
 
-	private function platformButtonCallback() : Void {
+	private function openFileSelector(button : FlxButton) : Void {
+		if(mDirStack.length > 0 && button != mFileSelectorOpener) {
+			dismissFileSelector();
+		}
+
 		if(mDirStack.length == 0) {
+			mFileSelectorOpener = button;
+
 			mDirStack.push("assets");
-			displayFileSelector("assets");
+
+			var subdir : String = switch(button.label.text) {
+					case "Platform": "plats";
+					case "InnerLvl": "bgs";
+					default: null;
+				};
+
+			if(subdir != null) mDirStack.push(subdir);
+
+			displayFileSelector(getCurrentPath());
 		} else {
 			dismissFileSelector();
 		}
@@ -100,7 +134,12 @@ class EditorMenu extends FlxGroup {
 	}
 
 	private function imageButtonCallback(butt : FlxButton) : Void {
-		mEditorStateHandle.createPlatformSprite(getCurrentPath() + "/" + butt.label.text + ".png");
+		var filename : String = getCurrentPath() + "/" + butt.label.text + ".png";
+		if(mFileSelectorOpener.label.text == "Platform") {
+			mEditorStateHandle.createPlatformSprite(filename);
+		} else if(mFileSelectorOpener.label.text == "InnerLvl") {
+			mEditorStateHandle.createInnerLevel(filename);
+		}
 		dismissFileSelector();
 	}
 
@@ -114,7 +153,7 @@ class EditorMenu extends FlxGroup {
 		var buttons : Array<FlxButton> = new Array();
 		var displayEntries : Int = 0;
 
-		trace("reading directory: " + currDir);
+		//trace("reading directory: " + currDir);
 
 		if(mDirStack.length > 1) {
 			var up : FlxButton = new EditorButton(5,0,"..",editorButtonCallback);
