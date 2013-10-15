@@ -23,7 +23,7 @@ class SelectableSpriteWrapper implements SelectableItem {
 		sprite.move(x, y);
 	}
 
-	public function getItem() : FlxBasic { return sprite; }
+	public function getItem() : Dynamic { return sprite; }
 	public function getX() : Float { return sprite.x; }
 	public function getY() : Float { return sprite.y; }
 

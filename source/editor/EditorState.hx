@@ -99,7 +99,7 @@ class EditorState extends FlxState {
 			if(mCommand == null) {
 				// Editor is in normal mode
 				if(FlxG.mouse.justReleased()) {
-					pickSprite();
+					pickSelectableItem();
 				}
 
 				if(FlxG.mouse.pressed() && !selectedItemIsNull()) {
@@ -123,7 +123,7 @@ class EditorState extends FlxState {
 		}
 		// Allow selected sprite deletion regardless of mode
 		if(FlxG.keys.justReleased("DELETE") && !selectedItemIsNull()) {
-			deleteSelectedSprite();
+			deleteSelectedItem();
 		}
 
 		super.update();
@@ -132,7 +132,7 @@ class EditorState extends FlxState {
 		mLastMousePos.y = FlxG.mouse.y;
 	}
 
-	private function deleteSelectedSprite() : Void {
+	private function deleteSelectedItem() : Void {
 		if(mSelectedItem.isPlatformSprite()) {
 			mLevel.removePlatformSprite(cast(mSelectedItem.getItem(), PlatformSprite));
 		} else if(mSelectedItem.isCollectibleSprite()) {
@@ -151,11 +151,31 @@ class EditorState extends FlxState {
 		select(null);
 	}
 
-	private function pickSprite() : Void {
+	private function pickSelectableItem() : Void {
 		var x : Float = FlxG.mouse.x;
 		var y : Float = FlxG.mouse.y;
-		var spr : FlxSprite = mLevel.pickSprite(x, y);
 
+		var spr : FlxSprite = null;
+		var plats : List<PlatformSprite> = mLevel.getPlatformSprites();
+		var coins : List<CollectibleSprite> = mLevel.getNutCoins();
+
+		// check plats
+		for(p in plats) {
+			if(Utility.isPointInSpriteBounds(x, y, p)) { 
+				spr = p; 
+				break; 
+			}
+		}
+
+		// check nut coins
+		if(spr == null) for(c in coins) {
+			if(Utility.isPointInSpriteBounds(x, y, c)) {
+				spr = c;
+				break;
+			}
+		}
+
+		// check start pt
 		if(spr == null && Utility.isPointInSpriteBounds(x, y, mStartPoint)) {
 			spr = mStartPoint;
 		}
@@ -269,7 +289,8 @@ class EditorState extends FlxState {
 	}
 
 	public function createInnerLevel(filename : String) : Void {
-		var level : Level = new InnerLevel(filename, 50, 200);
-		add(level.getLevelGraphics());
+		var level : InnerLevel = new InnerLevel(mLevel, filename);
+		level.setPosition(50, 200);
+		mLevel.addInnerLevel(level);
 	}
 }

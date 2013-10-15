@@ -8,7 +8,7 @@ interface SelectableItem {
 	public function deselect() : Void;
 	public function move(x : Float, y : Float) : Void;
 
-	public function getItem() : FlxBasic;
+	public function getItem() : Dynamic;
 	public function getX() : Float;
 	public function getY() : Float;
 

@@ -22,7 +22,7 @@ class BoundarySprite extends FlxSprite implements SelectableItem {
 		deselect();
 	}
 
-	public function getItem() : FlxBasic { return this; }
+	public function getItem() : Dynamic { return this; }
 	public function getX() : Float { return this.x; }
 	public function getY() : Float { return this.y; }
 

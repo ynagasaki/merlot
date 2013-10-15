@@ -29,8 +29,20 @@ class Level {
 		if(filename != null) loadLevel();
 	}
 
+	public function getBackground() : FlxSprite {
+		return mBackground;
+	}
+
 	public function getNutCoins() : List<CollectibleSprite> {
 		return mNutCoins;
+	}
+
+	public function getPlatformSprites() : List<PlatformSprite> {
+		return mPlatformSprites;
+	}
+
+	public function getInnerLevels() : List<InnerLevel> {
+		return mInnerLevels;
 	}
 
 	public function addNutCoin(sprite : CollectibleSprite) : Void {
@@ -46,6 +58,16 @@ class Level {
 		}
 	}
 
+	public function addInnerLevel(lvl : InnerLevel) : Void {
+		if(lvl.parentLevel != this) {
+			trace("Inner level not added b/c its parent is not this level.");
+			return;
+		}
+
+		mInnerLevels.add(lvl);
+		mGraphics.add(lvl.getLevelGraphics());
+	}
+
 	public function removeNutCoin(sprite : CollectibleSprite) : Void {
 		mNutCoins.remove(sprite);
 		mGraphics.remove(sprite, true);
@@ -57,21 +79,6 @@ class Level {
 		for(boundary in sprite.getBoundaries()) {
 			mBoundariesGlobal.remove(boundary);
 		}
-	}
-
-	public function pickSprite(x : Float, y : Float) : FlxSprite {
-		try {
-			for(s in mPlatformSprites) {
-				if(Utility.isPointInSpriteBounds(x, y, s)) return s;
-			}
-
-			for(s in mNutCoins) {
-				if(Utility.isPointInSpriteBounds(x, y, s)) return s;
-			}
-		} catch(ex:Dynamic) {
-			trace(ex);
-		}
-		return null;
 	}
 
 	private function prepareBackground(filename : String) : Void {
