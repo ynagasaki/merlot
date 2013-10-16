@@ -16,6 +16,14 @@ class InnerLevel extends Level {
 		prepareBackground(backgroundFilename);
 	}
 
+	override public function getWidth() : Int {
+		return Math.ceil(mBackground.width);
+	}
+
+	override public function getHeight() : Int {
+		return Math.ceil(mBackground.height);
+	}
+
 	public function setPosition(x : Float, y : Float) : Void {
 		for(p in mPlatformSprites) {
 			var xoffset : Float = p.x - this.x;

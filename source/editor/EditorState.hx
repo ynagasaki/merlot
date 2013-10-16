@@ -155,32 +155,41 @@ class EditorState extends FlxState {
 		var x : Float = FlxG.mouse.x;
 		var y : Float = FlxG.mouse.y;
 
-		var spr : FlxSprite = null;
+		var item : SelectableItem = null;
 		var plats : List<PlatformSprite> = mLevel.getPlatformSprites();
 		var coins : List<CollectibleSprite> = mLevel.getNutCoins();
+		var lvls : List<InnerLevel> = mLevel.getInnerLevels();
+
+		// check inner levels
+		for(l in lvls) {
+			if(x >= l.x && y >= l.y && x <= l.x + l.getWidth() && y <= l.y + l.getHeight()) {
+				item = new SelectableLevelWrapper(l);
+				break;
+			}
+		}
 
 		// check plats
-		for(p in plats) {
+		if(item == null) for(p in plats) {
 			if(Utility.isPointInSpriteBounds(x, y, p)) { 
-				spr = p; 
+				item = new SelectableSpriteWrapper(p);
 				break; 
 			}
 		}
 
 		// check nut coins
-		if(spr == null) for(c in coins) {
+		if(item == null) for(c in coins) {
 			if(Utility.isPointInSpriteBounds(x, y, c)) {
-				spr = c;
+				item = new SelectableSpriteWrapper(c);
 				break;
 			}
 		}
 
 		// check start pt
-		if(spr == null && Utility.isPointInSpriteBounds(x, y, mStartPoint)) {
-			spr = mStartPoint;
+		if(item == null && Utility.isPointInSpriteBounds(x, y, mStartPoint)) {
+			item = new SelectableSpriteWrapper(mStartPoint);
 		}
 
-		select(new SelectableSpriteWrapper(spr));
+		select(item);
 	}
 
 	private function placeNutCoins() : Void {
