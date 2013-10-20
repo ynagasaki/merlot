@@ -4,6 +4,11 @@ package ;
 import org.flixel.util.FlxPoint;
 
 class CrossLevelGate {
+	public static inline var WIDTH : Float = Player.WIDTH + 10;
+	public static inline var HEIGHT : Float = Player.HEIGHT + 10;
+	public static inline var WIDTH_HALF : Float = WIDTH / 2;
+	public static inline var HEIGHT_HALF : Float = HEIGHT / 2;
+
 	public var position : FlxPoint = null;
 
 	var mLevel1 : Level = null;
@@ -20,6 +25,6 @@ class CrossLevelGate {
 	}
 
 	public function isRelevantTo(lvl : Level) : Bool {
-		return lvl == mLevel1 || lvl == mLevel2;
+		return (lvl == mLevel1 || lvl == mLevel2);
 	}
 }

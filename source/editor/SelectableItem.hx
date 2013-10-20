@@ -1,14 +1,12 @@
 
 package editor;
 
-import org.flixel.FlxBasic;
-
 interface SelectableItem {
 	public function select() : Void;
 	public function deselect() : Void;
 	public function move(x : Float, y : Float) : Void;
 
-	public function getItem() : Dynamic;
+	public function getItem() : Dynamic; // this is not the best type to use.. could be causing bugs
 	public function getX() : Float;
 	public function getY() : Float;
 

@@ -1,7 +1,6 @@
 
 package editor;
 
-import org.flixel.FlxBasic;
 import org.flixel.FlxSprite;
 
 class BoundarySprite extends FlxSprite implements SelectableItem {

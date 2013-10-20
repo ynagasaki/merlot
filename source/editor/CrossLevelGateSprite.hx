@@ -1,0 +1,68 @@
+
+package editor;
+
+import org.flixel.FlxSprite;
+
+class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
+	public var gate : CrossLevelGate = null;
+
+	var mMoved : Bool = false;
+
+	public function new(g : CrossLevelGate) : Void {
+		super(g.position.x - CrossLevelGate.WIDTH_HALF, g.position.y - CrossLevelGate.HEIGHT_HALF);
+
+		makeGraphic(
+			Math.round(CrossLevelGate.WIDTH), 
+			Math.round(CrossLevelGate.HEIGHT), 
+			0xFFFF0000, 
+			true
+		);
+
+		gate = g;
+
+		deselect();
+	}
+
+	public function getItem() : Dynamic { return this; }
+	public function getX() : Float { return this.x; }
+	public function getY() : Float { return this.y; }
+
+	public function isCollectibleSprite() : Bool { return false; }
+	public function isBoundarySprite() : Bool { return false; }
+	public function isPlatformSprite() : Bool { return false; }
+	public function isInnerLevel() : Bool { return false; }
+
+	public function select() : Void {
+		this.color = 0xFF7777FF;
+	}
+
+	public function deselect() : Void {
+		this.color = 0xFFFFFFFF;
+	}
+
+	override public function move(x : Float, y : Float) : Void {
+		var deltax : Float = this.x;
+		var deltay : Float = this.y;
+
+		super.move(x, y);
+		
+		deltax = this.x - deltax;
+		deltay = this.y - deltay;
+
+		gate.position.x += deltax;
+		gate.position.y += deltay;
+
+		mMoved = true;
+	}
+
+	override public function update() : Void {
+		super.update();
+
+		if(!mMoved) {
+			this.x = gate.position.x - CrossLevelGate.WIDTH_HALF;
+			this.y = gate.position.y - CrossLevelGate.HEIGHT_HALF;
+		}
+
+		mMoved = false;
+	}
+}

@@ -22,8 +22,10 @@ class EditorState extends FlxState {
 	var mStartPoint : FlxSprite = null;
 	var mLastMousePos : FlxPoint = null;
 	var mLastBoundary : Boundary = null;
+	var mActiveInnerLevel : InnerLevel = null;
 
 	var mBoundarySprites : List<BoundarySprite> = null;
+	var mGateSprites : List<CrossLevelGateSprite> = null;
 
 	override public function create() : Void {
 		// Set a background color
@@ -36,6 +38,8 @@ class EditorState extends FlxState {
 		mLevel = new Level("assets/lvls/level-template.json");
 
 		add(mLevel.getLevelGraphics());
+
+		mGateSprites = new List();
 
 		mBoundarySprites = new List();
 		for(b in mLevel.getGlobalBoundariesList()) {
@@ -90,14 +94,17 @@ class EditorState extends FlxState {
 					setStatus("Exiting " + mCommand);
 					mCommand = null;
 					mFirstPoint = null;
+					mActiveInnerLevel = null;
 					mMenu.hide(false);
 				}
 			}
 
 			if(mCommand == EditorCommand.LineMode) {
-				figOutMouseDrawingLinesCrap();
+				performLineMode();
 			} else if(mCommand == EditorCommand.NutCoinMode) {
 				placeNutCoins();
+			} else if(mCommand == EditorCommand.GateMode) {
+				placeGates();
 			}
 
 			if(mCommand == null) {
@@ -164,21 +171,8 @@ class EditorState extends FlxState {
 		var coins : List<CollectibleSprite> = mLevel.getNutCoins();
 		var lvls : List<InnerLevel> = mLevel.getInnerLevels();
 
-		// check inner levels
-		for(l in lvls) {
-			if(x >= l.x && y >= l.y && x <= l.x + l.getWidth() && y <= l.y + l.getHeight()) {
-				item = new SelectableLevelWrapper(l);
-				break;
-			}
-		}
-
-		// check plats
-		if(item == null) for(p in plats) {
-			if(Utility.isPointInSpriteBounds(x, y, p)) { 
-				item = new SelectableSpriteWrapper(p);
-				break; 
-			}
-		}
+		// Because I suck, the order in which we check for picked items matters:
+		// Generally speaking, it's smallest --> largest
 
 		// check nut coins
 		if(item == null) for(c in coins) {
@@ -193,7 +187,40 @@ class EditorState extends FlxState {
 			item = new SelectableSpriteWrapper(mStartPoint);
 		}
 
+		// check cross gates
+		if(item == null) for(g in mGateSprites) {
+			if(Utility.isPointInSpriteBounds(x, y, g)) {
+				item = g;
+				break;
+			}
+		}
+
+		// check inner levels
+		if(item == null) for(l in lvls) {
+			if(x >= l.x && y >= l.y && x <= l.x + l.getWidth() && y <= l.y + l.getHeight()) {
+				item = new SelectableLevelWrapper(l);
+				break;
+			}
+		}
+
+		// check plats
+		if(item == null) for(p in plats) {
+			if(Utility.isPointInSpriteBounds(x, y, p)) { 
+				item = new SelectableSpriteWrapper(p);
+				break; 
+			}
+		}
+
 		select(item);
+	}
+
+	private function placeGates() : Void {
+		if(FlxG.mouse.justReleased()) {
+			var gate : CrossLevelGate = new CrossLevelGate(FlxG.mouse.x, FlxG.mouse.y, mLevel, mActiveInnerLevel);
+			mLevel.addCrossLevelGate(gate);
+			mActiveInnerLevel.addCrossLevelGate(gate);
+			addGateSprite(gate);
+		}
 	}
 
 	private function placeNutCoins() : Void {
@@ -202,9 +229,9 @@ class EditorState extends FlxState {
 		}
 	}
 
-	private function figOutMouseDrawingLinesCrap() : Void {
+	private function performLineMode() : Void {
 		if(FlxG.mouse.justReleased()) {
-			if(FlxG.keys.pressed("S")) {
+			if(!FlxG.keys.pressed("SHIFT")) {
 				var selected : BoundarySprite = null;
 				for(bsprite in mBoundarySprites) {
 					if(Utility.isPointInSpriteBounds(FlxG.mouse.x, FlxG.mouse.y, bsprite)) {
@@ -262,6 +289,12 @@ class EditorState extends FlxState {
 		add(boundarysprite);
 	}
 
+	private function addGateSprite(gate : CrossLevelGate) : Void {
+		var spr : CrossLevelGateSprite = new CrossLevelGateSprite(gate);
+		mGateSprites.add(spr);
+		add(spr);
+	}
+
 	private function calculateNormal(line : Line) : Line {
 		var v1 = new Vector3(line.p2.x - line.p1.x, line.p2.y - line.p1.y, 0);
 		var n = Vector3.cross(v1, new Vector3(0, 0, 1));
@@ -272,14 +305,17 @@ class EditorState extends FlxState {
 		mMenuActionIssued = true;
 		mCommand = EditorCommand.createByName(button.label.text);
 
-		if(mCommand.equals(EditorCommand.GateMode) && 
-			(mSelectedItem == null || (Type.getClass(mSelectedItem.getItem()) != InnerLevel))) {
-			setStatus("Must select an inner level to start " + mCommand);
-			mCommand = null;
-		} else {
-			mMenu.hide(true);
-			setStatus("Started "+mCommand+": press escape when finished.");
+		if(mCommand.equals(EditorCommand.GateMode)) {
+			if(mSelectedItem == null || (Type.getClass(mSelectedItem) != editor.SelectableLevelWrapper)) {
+				setStatus("Must select an inner level to start " + mCommand);
+				mCommand = null;
+				return;
+			} else {
+				mActiveInnerLevel = cast(mSelectedItem, SelectableLevelWrapper).level;
+			}
 		}
+		mMenu.hide(true);
+		setStatus("Started "+mCommand+": press escape when finished.");
 	}
 
 	public function saveLevel() {

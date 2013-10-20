@@ -1,8 +1,6 @@
 
 package ;
 
-import org.flixel.util.FlxPoint;
-
 class InnerLevel extends Level {
 
 	public var x : Float = 0;
@@ -28,7 +26,7 @@ class InnerLevel extends Level {
 		}
 	}
 
-	override public function applyChanges() {
+	override public function applyChanges() : Void {
 		super.applyChanges();
 		mLevelJson.x = this.x; 
 		mLevelJson.y = this.y;
@@ -54,8 +52,16 @@ class InnerLevel extends Level {
 		mBackground.y = y;
 	}
 
-	override public function constructLevel(jsonobj : Dynamic) {
+	override public function constructLevel(jsonobj : Dynamic) : Void {
 		super.constructLevel(jsonobj);
 		setPosition(mLevelJson.x, mLevelJson.y);
+	}
+
+	override public function addCrossLevelGate(gate : CrossLevelGate) : Void {
+		if(gate.isRelevantTo(this) && gate.isRelevantTo(parentLevel)) {
+			mCrossLevelGates.add(gate);
+		} else {
+			trace("innerLevel: did not add gate b/c it is irrelevant.");
+		}
 	}
 }
