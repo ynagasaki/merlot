@@ -13,15 +13,18 @@ class Level {
 	var mGraphics : FlxGroup = null;
 	var mBackground : FlxSprite = null;
 	var mStartPoint : FlxPoint = null;
+
 	var mNutCoins : List<CollectibleSprite> = null;
-	var mBoundariesGlobal : List<Boundary> = null;
-	var mPlatformSprites : List<PlatformSprite> = null;
 	var mInnerLevels : List<InnerLevel> = null;
+	var mPlatformSprites : List<PlatformSprite> = null;
+	var mBoundariesGlobal : List<Boundary> = null;
+	var mCrossLevelGates : List<CrossLevelGate> = null;
 
 	public function new(filename : String) {
 		mNutCoins = new List();
 		mPlatformSprites = new List();
 		mBoundariesGlobal = new List();
+		mCrossLevelGates = new List();
 		mInnerLevels = new List();
 		mGraphics = new FlxGroup();
 		mFilename = filename;
@@ -41,6 +44,10 @@ class Level {
 		return mPlatformSprites;
 	}
 
+	public function getCrossLevelGates() : List<CrossLevelGate> {
+		return mCrossLevelGates;
+	}
+
 	public function getInnerLevels() : List<InnerLevel> {
 		return mInnerLevels;
 	}
@@ -56,6 +63,16 @@ class Level {
 		for(boundary in sprite.getBoundaries()) {
 			addBoundary(boundary);
 		}
+	}
+
+	public function addCrossLevelGate(gate : CrossLevelGate) : Void {
+		for(lvl in mInnerLevels) {
+			if(gate.isRelevantTo(lvl) && gate.isRelevantTo(this)) {
+				mCrossLevelGates.add(gate);
+				return;
+			}
+		}
+		trace("Gate not added b/c it is irrelevant to this level.");
 	}
 
 	public function addInnerLevel(lvl : InnerLevel) : Void {

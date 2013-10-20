@@ -36,6 +36,7 @@ class EditorMenu extends FlxGroup {
 			new EditorButton(0, 0, EditorCommand.NutCoinMode.getName(), editorHandle.startMode),
 			new EditorButton(0, 0, "Platform", openFileSelector),
 			new EditorButton(0, 0, "InnerLvl", openFileSelector),
+			new EditorButton(0, 0, EditorCommand.GateMode.getName(), editorHandle.startMode),
 			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
 		];
 

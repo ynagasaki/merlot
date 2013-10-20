@@ -1,6 +1,8 @@
 
 package ;
 
+import org.flixel.util.FlxPoint;
+
 class InnerLevel extends Level {
 
 	public var x : Float = 0;

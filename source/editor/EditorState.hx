@@ -80,6 +80,10 @@ class EditorState extends FlxState {
 	}
 
 	override public function update() : Void {
+		//if(FlxG.mouse.pressed() || FlxG.mouse.justPressed() || FlxG.mouse.justReleased()) {
+		//	if(FlxG.mouse.y <= mMenu.)
+		//}
+		
 		if(!mMenuActionIssued) {
 			if(mCommand != null) {
 				if(FlxG.keys.pressed("ESCAPE")) {
@@ -267,8 +271,15 @@ class EditorState extends FlxState {
 	public function startMode(button : FlxButton) : Void {
 		mMenuActionIssued = true;
 		mCommand = EditorCommand.createByName(button.label.text);
-		mMenu.hide(true);
-		setStatus("Started "+mCommand+": press escape when finished.");
+
+		if(mCommand.equals(EditorCommand.GateMode) && 
+			(mSelectedItem == null || (Type.getClass(mSelectedItem.getItem()) != InnerLevel))) {
+			setStatus("Must select an inner level to start " + mCommand);
+			mCommand = null;
+		} else {
+			mMenu.hide(true);
+			setStatus("Started "+mCommand+": press escape when finished.");
+		}
 	}
 
 	public function saveLevel() {
