@@ -13,15 +13,23 @@ class InnerLevel extends Level {
 
 		parentLevel = parent;
 
-		prepareBackground(backgroundFilename);
+		if(backgroundFilename != null) {
+			prepareBackground(backgroundFilename);
+
+			mLevelJson = {
+				width: Math.ceil(mBackground.width), 
+				height: Math.ceil(mBackground.height), 
+				background: backgroundFilename,
+				x: this.x,
+				y: this.y
+			};
+		}
 	}
 
-	override public function getWidth() : Int {
-		return Math.ceil(mBackground.width);
-	}
-
-	override public function getHeight() : Int {
-		return Math.ceil(mBackground.height);
+	override public function applyChanges() {
+		super.applyChanges();
+		mLevelJson.x = this.x; 
+		mLevelJson.y = this.y;
 	}
 
 	public function setPosition(x : Float, y : Float) : Void {
@@ -44,4 +52,8 @@ class InnerLevel extends Level {
 		mBackground.y = y;
 	}
 
+	override public function constructLevel(jsonobj : Dynamic) {
+		super.constructLevel(jsonobj);
+		setPosition(mLevelJson.x, mLevelJson.y);
+	}
 }

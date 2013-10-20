@@ -276,6 +276,7 @@ class EditorState extends FlxState {
 			if(mStartPoint != null) {
 				mLevel.setStartPoint(mStartPoint.x, mStartPoint.y);
 			}
+			mLevel.applyChanges();
 			mLevel.save();
 			setStatus("Successfully saved level.");
 		} catch(ex : Dynamic) {

@@ -97,10 +97,15 @@ class Level {
 		}
 
 		try {
-			mLevelJson = haxe.Json.parse(contents);
+			var jsonobj = haxe.Json.parse(contents);
+			constructLevel(jsonobj);
 		} catch(ex : Dynamic) {
 			trace("** error: Parsing level json string failed: " + ex);
 		}
+	}
+
+	private function constructLevel(jsonobj : Dynamic) {
+		mLevelJson = jsonobj;
 
 		prepareBackground(mLevelJson.background);
 
@@ -108,6 +113,7 @@ class Level {
 			var boundaries : Array<Dynamic> = mLevelJson.boundaries;
 			var platforms : Array<Dynamic> = mLevelJson.platforms;
 			var nutcoins : Array<Dynamic> = mLevelJson.nutcoins;
+			var innerlvls : Array<Dynamic> = mLevelJson.innerlevels;
 
 			for(dyn in boundaries) {
 				addBoundary(Boundary.fromJson(dyn));
@@ -121,15 +127,19 @@ class Level {
 				addNutCoin(CollectibleSprite.fromJson(dyn));
 			}
 
+			for(dyn in innerlvls) {
+				var lvl : InnerLevel = new InnerLevel(this, null);
+				lvl.constructLevel(dyn);
+				addInnerLevel(lvl);
+			}
+
 			findConnectedBoundarySegments();
 
-			try {
+			if(mLevelJson.startpt != null) {
 				setStartPoint(mLevelJson.startpt[0], mLevelJson.startpt[1]);
-			} catch(ex : Dynamic) {
-				trace("lol, startpt troubles: " + ex);
 			}
 		} catch(ex : Dynamic) {
-			trace("lol:" + ex);
+			trace("construct failed:" + ex);
 		}
 	}
 
@@ -185,12 +195,11 @@ class Level {
 		}
 	}
 
-	public function save() : Void {
-		if(mFilename == null) return;
-
+	public function applyChanges() : Void {
 		var boundaries : Array<Dynamic> = new Array();
 		var platforms : Array<Dynamic> = new Array();
 		var nutcoins : Array<Dynamic> = new Array();
+		var innerlvls : Array<Dynamic> = new Array();
 		var savedBoundaries : List<Boundary> = new List();
 
 		for(platform in mPlatformSprites) {
@@ -213,10 +222,22 @@ class Level {
 			nutcoins.push(nutcoin.toJson());
 		}
 
+		for(innerlvl in mInnerLevels) {
+			innerlvl.applyChanges();
+			innerlvls.push(innerlvl.mLevelJson);
+		}
+
 		mLevelJson.nutcoins = nutcoins;
 		mLevelJson.boundaries = boundaries;
 		mLevelJson.platforms = platforms;
-		mLevelJson.startpt = [mStartPoint.x, mStartPoint.y];
+		mLevelJson.innerlevels = innerlvls;
+		
+		if(mStartPoint != null) 
+			mLevelJson.startpt = [mStartPoint.x, mStartPoint.y];
+	}
+
+	public function save() : Void {
+		if(mFilename == null) return;
 
 		var fout = File.write(mFilename, false);
 		fout.writeString(haxe.Json.stringify(mLevelJson));
