@@ -221,7 +221,6 @@ class EditorState extends FlxState {
 		if(FlxG.mouse.justReleased()) {
 			var gate : CrossLevelGate = new CrossLevelGate(FlxG.mouse.x, FlxG.mouse.y, mLevel, mActiveInnerLevel);
 			mLevel.addCrossLevelGate(gate);
-			mActiveInnerLevel.addCrossLevelGate(gate);
 			addGateSprite(gate);
 		}
 	}

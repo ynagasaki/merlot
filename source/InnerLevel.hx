@@ -1,6 +1,8 @@
 
 package ;
 
+import org.flixel.util.FlxRect;
+
 class InnerLevel extends Level {
 	public var x : Float = 0;
 	public var y : Float = 0;
@@ -36,6 +38,7 @@ class InnerLevel extends Level {
 		super.applyChanges();
 		mLevelJson.x = this.x; 
 		mLevelJson.y = this.y;
+		mLevelJson.gates = []; // we don't want to double-save gates
 	}
 
 	public function setPosition(x : Float, y : Float) : Void {
@@ -78,5 +81,11 @@ class InnerLevel extends Level {
 		else if(result == null && parentLevel.getId() == id) 
 			return parentLevel;
 		return null;
+	}
+
+	override public function setVisible(visible : Bool) : Void {
+		for(idx in 0...this.mGraphics.members.length) {
+			this.mGraphics.members[idx].visible = visible;
+		}
 	}
 }

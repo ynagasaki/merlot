@@ -11,9 +11,9 @@ import haxe.io.Input;
 class PlayState extends FlxState
 {
 	var mPlayer : Player = null;
-	var mLevel : Level = null;
-	var mInitializedFromEditor : Bool = false;
+	var mActiveLevel : Level = null;
 	var mNutCoinGroup : FlxGroup = null;
+	var mInitializedFromEditor : Bool = false;
 
 	public function new(initedByEditor : Bool) {
 		mInitializedFromEditor = initedByEditor;
@@ -25,18 +25,18 @@ class PlayState extends FlxState
 		// Set a background color
 		FlxG.bgColor = 0xFFFF00FF;
 
-		mLevel = new Level("assets/lvls/level-template.json");
+		mActiveLevel = new Level("assets/lvls/level-template.json");
 
-		add(mLevel.getLevelGraphics());
+		add(mActiveLevel.getLevelGraphics());
 
 		mNutCoinGroup = new FlxGroup();
 
-		var nutcoins : List<CollectibleSprite> = mLevel.getNutCoins();
+		var nutcoins : List<CollectibleSprite> = mActiveLevel.getNutCoins();
 		for(nutcoin in nutcoins) {
 			mNutCoinGroup.add(nutcoin);
 		}
 
-		var startpt : FlxPoint = mLevel.getStartPoint();
+		var startpt : FlxPoint = mActiveLevel.getStartPoint();
 		if(startpt != null) {
 			mPlayer = new Player(startpt.x, startpt.y);
 		} else {
@@ -45,13 +45,17 @@ class PlayState extends FlxState
 
 		add(mPlayer);
 
-		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
+		FlxG.camera.setBounds(0, 0, mActiveLevel.getWidth(), mActiveLevel.getHeight(), true);
 		
 		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
 
 		//mPlayer.setDebug(true, this);
 
 		//add(new NonPlayable("assets/baddies/b1.png",mPlayer.x + 100, mPlayer.y, 23, 23));
+
+		for(lvl in mActiveLevel.getInnerLevels()) {
+			lvl.setVisible(false);
+		}
 	}
 
 	override public function destroy():Void
@@ -73,8 +77,8 @@ class PlayState extends FlxState
 		if(!mPlayer.isOnGround() && mPlayer.isFalling()) {
 			var feetx : Float = mPlayer.x + Player.WIDTH_HALF;
 			var feety : Float = mPlayer.y + Player.HEIGHT;
-			var result : IntersectionCheckResult = mLevel.checkSurfaceCollision(
-				new Line(feetx, feety, feetx, mLevel.getHeight())
+			var result : IntersectionCheckResult = mActiveLevel.checkSurfaceCollision(
+				new Line(feetx, feety, feetx, mActiveLevel.getHeight())
 			);
 
 			if(result.intersectionPoint != null) {
@@ -102,11 +106,16 @@ class PlayState extends FlxState
 		}
 
 		if(FlxG.keys.justPressed("UP")) {
-			var gate : CrossLevelGate = mLevel.checkCrossLevelGateEntry(mPlayer);
-			if(gate != null) 
-				trace("should enter level: " + gate.getDestinationLevelRelativeTo(mLevel).getId());
-			else
-				trace("gate is null");
+			var gate : CrossLevelGate = mActiveLevel.checkCrossLevelGateEntry(mPlayer);
+			if(gate != null) {
+				switchLevel(gate.getDestinationLevelRelativeTo(mActiveLevel));
+			}
 		}
+	}
+
+	private function switchLevel(target : Level) : Void {
+		mActiveLevel.setVisible(false);
+		target.setVisible(true);
+		mActiveLevel = target;
 	}
 }

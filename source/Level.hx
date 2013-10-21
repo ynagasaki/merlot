@@ -72,6 +72,7 @@ class Level {
 		for(lvl in mInnerLevels) {
 			if(gate.isRelevantTo(lvl) && gate.isRelevantTo(this)) {
 				mCrossLevelGates.add(gate);
+				gate.getDestinationLevelRelativeTo(this).addCrossLevelGate(gate);
 				return;
 			}
 		}
@@ -231,6 +232,10 @@ class Level {
 		}
 	}
 
+	public function setVisible(visible : Bool) : Void {
+
+	}
+
 	public function applyChanges() : Void {
 		var gates : Array<Dynamic> = new Array();
 		var boundaries : Array<Dynamic> = new Array();
@@ -299,11 +304,9 @@ class Level {
 
 	public function resolveLevelId(id : String) : Level {
 		if(getId() == id) return this;
-
 		for(lvl in mInnerLevels) {
 			if(lvl.getId() == id) return lvl;
 		}
-
 		return null;
 	}
 
@@ -314,7 +317,10 @@ class Level {
 		for(g in mCrossLevelGates) {
 			gaterect.x = g.position.x;
 			gaterect.y = g.position.y;
-			
+
+			//trace("player: " + plyrrect.x + "," + plyrrect.y + "," + plyrrect.width +","+plyrrect.height);
+			//trace("gate: " + gaterect.x + "," + gaterect.y + "," + gaterect.width +","+gaterect.height);
+
 			if(Utility.isRectInRect(plyrrect, gaterect)) return g;
 		}
 
