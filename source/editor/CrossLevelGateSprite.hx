@@ -9,11 +9,11 @@ class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
 	var mMoved : Bool = false;
 
 	public function new(g : CrossLevelGate) : Void {
-		super(g.position.x - CrossLevelGate.WIDTH_HALF, g.position.y - CrossLevelGate.HEIGHT_HALF);
+		super(g.position.x, g.position.y);
 
 		makeGraphic(
-			Math.round(CrossLevelGate.WIDTH), 
-			Math.round(CrossLevelGate.HEIGHT), 
+			Math.ceil(CrossLevelGate.WIDTH), 
+			Math.ceil(CrossLevelGate.HEIGHT), 
 			0xFFFF0000, 
 			true
 		);
@@ -59,8 +59,8 @@ class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
 		super.update();
 
 		if(!mMoved) {
-			this.x = gate.position.x - CrossLevelGate.WIDTH_HALF;
-			this.y = gate.position.y - CrossLevelGate.HEIGHT_HALF;
+			this.x = gate.position.x;
+			this.y = gate.position.y;
 		}
 
 		mMoved = false;

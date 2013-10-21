@@ -2,11 +2,11 @@
 package ;
 
 class InnerLevel extends Level {
-
 	public var x : Float = 0;
 	public var y : Float = 0;
-
 	public var parentLevel : Level = null;
+
+	var mId : String = null;
 
 	public function new(parent : Level, backgroundFilename : String) : Void {
 		super(null);
@@ -24,6 +24,12 @@ class InnerLevel extends Level {
 				y: this.y
 			};
 		}
+
+		mId = parent.getId() + "/" + parent.getInnerLevels().length;
+	}
+
+	override public function getId() : String {
+		return mId;
 	}
 
 	override public function applyChanges() : Void {
@@ -63,5 +69,14 @@ class InnerLevel extends Level {
 		} else {
 			trace("innerLevel: did not add gate b/c it is irrelevant.");
 		}
+	}
+
+	override public function resolveLevelId(id : String) : Level {
+		var result : Level = super.resolveLevelId(id);
+		if(result != null) 
+			return result;
+		else if(result == null && parentLevel.getId() == id) 
+			return parentLevel;
+		return null;
 	}
 }

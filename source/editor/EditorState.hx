@@ -40,6 +40,9 @@ class EditorState extends FlxState {
 		add(mLevel.getLevelGraphics());
 
 		mGateSprites = new List();
+		for(g in mLevel.getCrossLevelGates()) {
+			addGateSprite(g);
+		}
 
 		mBoundarySprites = new List();
 		for(b in mLevel.getGlobalBoundariesList()) {

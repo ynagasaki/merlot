@@ -100,5 +100,13 @@ class PlayState extends FlxState
 		if(FlxG.keys.justPressed("ESCAPE") && mInitializedFromEditor) {
 			FlxG.switchState(new EditorState());
 		}
+
+		if(FlxG.keys.justPressed("UP")) {
+			var gate : CrossLevelGate = mLevel.checkCrossLevelGateEntry(mPlayer);
+			if(gate != null) 
+				trace("should enter level: " + gate.getDestinationLevelRelativeTo(mLevel).getId());
+			else
+				trace("gate is null");
+		}
 	}
 }

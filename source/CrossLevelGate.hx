@@ -27,4 +27,13 @@ class CrossLevelGate {
 	public function isRelevantTo(lvl : Level) : Bool {
 		return (lvl == mLevel1 || lvl == mLevel2);
 	}
+
+	public function toJson() : Dynamic {
+		return {
+			x: position.x, 
+			y: position.y, 
+			level1_id: mLevel1.getId(), 
+			level2_id: mLevel2.getId()
+		};
+	}
 }

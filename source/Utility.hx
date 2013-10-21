@@ -2,6 +2,7 @@ package ;
 
 import org.flixel.util.FlxPoint;
 import org.flixel.FlxSprite;
+import org.flixel.util.FlxRect;
 
 class Utility {
 	public static inline var EPSILON : Float = 0.0001;
@@ -12,6 +13,10 @@ class Utility {
 
 	public static function sameLoc(p1 : FlxPoint, p2 : FlxPoint) {
 		return p1.x == p2.x && p1.y == p2.y;
+	}
+
+	public static function isRectInRect(r1 : FlxRect, r2 : FlxRect) : Bool {
+		return r1.x>=r2.x&&r1.y>=r2.y&&r1.x+r1.width<=r2.x+r2.width&&r1.y+r1.height<=r2.y+r2.height;
 	}
 
 	/*

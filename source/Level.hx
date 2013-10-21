@@ -2,9 +2,8 @@ package ;
 
 import sys.io.File;
 import org.flixel.FlxSprite;
-import org.flixel.util.FlxColor;
-import org.flixel.util.FlxMath;
 import org.flixel.util.FlxPoint;
+import org.flixel.util.FlxRect;
 import org.flixel.FlxGroup;
 
 class Level {
@@ -30,6 +29,10 @@ class Level {
 		mFilename = filename;
 		
 		if(filename != null) loadLevel();
+	}
+
+	public function getId() : String {
+		return mFilename;
 	}
 
 	public function getBackground() : FlxSprite {
@@ -131,6 +134,7 @@ class Level {
 			var platforms : Array<Dynamic> = mLevelJson.platforms;
 			var nutcoins : Array<Dynamic> = mLevelJson.nutcoins;
 			var innerlvls : Array<Dynamic> = mLevelJson.innerlevels;
+			var gates : Array<Dynamic> = mLevelJson.gates;
 
 			for(dyn in boundaries) {
 				addBoundary(Boundary.fromJson(dyn));
@@ -148,6 +152,21 @@ class Level {
 				var lvl : InnerLevel = new InnerLevel(this, null);
 				lvl.constructLevel(dyn);
 				addInnerLevel(lvl);
+			}
+
+			for(dyn in gates) {
+				var lvl1 : Level = resolveLevelId(dyn.level1_id);
+				var lvl2 : Level = resolveLevelId(dyn.level2_id);
+
+				if(lvl1 == null || lvl2 == null) {
+					trace(
+						"error loading gate: could not find: " +
+						(lvl1 == null ? dyn.level1_id : "") + " " +
+						(lvl2 == null ? dyn.level2_id : "")
+					);
+				} else {
+					addCrossLevelGate(new CrossLevelGate(dyn.x, dyn.y, lvl1, lvl2));
+				}
 			}
 
 			findConnectedBoundarySegments();
@@ -213,6 +232,7 @@ class Level {
 	}
 
 	public function applyChanges() : Void {
+		var gates : Array<Dynamic> = new Array();
 		var boundaries : Array<Dynamic> = new Array();
 		var platforms : Array<Dynamic> = new Array();
 		var nutcoins : Array<Dynamic> = new Array();
@@ -239,11 +259,17 @@ class Level {
 			nutcoins.push(nutcoin.toJson());
 		}
 
+		for(gate in mCrossLevelGates) {
+			gates.push(gate.toJson());
+		}
+
 		for(innerlvl in mInnerLevels) {
 			innerlvl.applyChanges();
 			innerlvls.push(innerlvl.mLevelJson);
 		}
 
+		mLevelJson.id = getId();
+		mLevelJson.gates = gates;
 		mLevelJson.nutcoins = nutcoins;
 		mLevelJson.boundaries = boundaries;
 		mLevelJson.platforms = platforms;
@@ -269,6 +295,30 @@ class Level {
 
 	public function getStartPoint() : FlxPoint {
 		return mStartPoint;
+	}
+
+	public function resolveLevelId(id : String) : Level {
+		if(getId() == id) return this;
+
+		for(lvl in mInnerLevels) {
+			if(lvl.getId() == id) return lvl;
+		}
+
+		return null;
+	}
+
+	public function checkCrossLevelGateEntry(player : Player) : CrossLevelGate {
+		var gaterect : FlxRect = new FlxRect(0, 0, CrossLevelGate.WIDTH, CrossLevelGate.HEIGHT);
+		var plyrrect : FlxRect = new FlxRect(player.x, player.y, Player.WIDTH, Player.HEIGHT);
+
+		for(g in mCrossLevelGates) {
+			gaterect.x = g.position.x;
+			gaterect.y = g.position.y;
+			
+			if(Utility.isRectInRect(plyrrect, gaterect)) return g;
+		}
+
+		return null;
 	}
 
 	public function checkSurfaceCollision(trajectory : Line) : IntersectionCheckResult {
