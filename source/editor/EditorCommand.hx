@@ -7,4 +7,5 @@ enum EditorCommand {
 	SaveLevel;
 	NutCoinMode;
 	GateMode;
+	InnerEditMode;
 }

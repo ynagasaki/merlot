@@ -87,14 +87,13 @@ class EditorState extends FlxState {
 	}
 
 	override public function update() : Void {
-		//if(FlxG.mouse.pressed() || FlxG.mouse.justPressed() || FlxG.mouse.justReleased()) {
-		//	if(FlxG.mouse.y <= mMenu.)
-		//}
-		
 		if(!mMenuActionIssued) {
 			if(mCommand != null) {
 				if(FlxG.keys.pressed("ESCAPE")) {
 					setStatus("Exiting " + mCommand);
+					if(mCommand == EditorCommand.InnerEditMode) {
+						enterInnerEditMode(false);
+					}
 					mCommand = null;
 					mFirstPoint = null;
 					mActiveInnerLevel = null;
@@ -129,6 +128,9 @@ class EditorState extends FlxState {
 			}
 		} else {
 			mMenuActionIssued = false;
+			if(mCommand == EditorCommand.InnerEditMode) {
+				enterInnerEditMode(true);
+			}
 		}
 
 		// Allow camera movement regardless of mode
@@ -144,6 +146,30 @@ class EditorState extends FlxState {
 
 		mLastMousePos.x = FlxG.mouse.x;
 		mLastMousePos.y = FlxG.mouse.y;
+	}
+
+	private function enterInnerEditMode(entering : Bool) : Void {
+		for(bspr in mBoundarySprites) {
+			bspr.visible = !entering;
+		}
+
+		for(gspr in mGateSprites) {
+			if(entering) {
+				gspr.fill(0x55FF0000);
+			} else {
+				gspr.fill(0xFFFF0000);
+			}
+		}
+
+		for(pspr in mLevel.getPlatformSprites()) {
+			pspr.visible = !entering;
+		}
+
+		for(cspr in mLevel.getNutCoins()) {
+			cspr.visible = !entering;
+		}
+
+		select(null);
 	}
 
 	private function deleteSelectedItem() : Void {
@@ -307,7 +333,7 @@ class EditorState extends FlxState {
 		mMenuActionIssued = true;
 		mCommand = EditorCommand.createByName(button.label.text);
 
-		if(mCommand.equals(EditorCommand.GateMode)) {
+		if(mCommand.equals(EditorCommand.GateMode) || mCommand.equals(EditorCommand.InnerEditMode)) {
 			if(mSelectedItem == null || (Type.getClass(mSelectedItem) != editor.SelectableLevelWrapper)) {
 				setStatus("Must select an inner level to start " + mCommand);
 				mCommand = null;
@@ -316,6 +342,7 @@ class EditorState extends FlxState {
 				mActiveInnerLevel = cast(mSelectedItem, SelectableLevelWrapper).level;
 			}
 		}
+
 		mMenu.hide(true);
 		setStatus("Started "+mCommand+": press escape when finished.");
 	}
@@ -336,9 +363,17 @@ class EditorState extends FlxState {
 
 	public function select(item : SelectableItem) : Void {
 		var itemobj : FlxBasic = (item == null ? null : item.getItem());
-		if(!selectedItemIsNull() && itemobj != mSelectedItem.getItem()) mSelectedItem.deselect();
+		if(!selectedItemIsNull() && itemobj != mSelectedItem.getItem()) {
+			mSelectedItem.deselect();
+			if(mSelectedItem.isInnerLevel()) 
+				mMenu.displayInnerLevelModeButton(false);
+		}
 		mSelectedItem = item;
-		if(!selectedItemIsNull()) mSelectedItem.select();
+		if(!selectedItemIsNull()) { 
+			mSelectedItem.select();
+			if(mSelectedItem.isInnerLevel())
+				mMenu.displayInnerLevelModeButton(true);
+		}
 	}
 
 	public function createPlatformSprite(filename : String) : Void {

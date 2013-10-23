@@ -20,10 +20,14 @@ class EditorButton extends FlxButton {
 
 class EditorMenu extends FlxGroup {
 	var mFileSelectorOpener : FlxButton = null;
+	var mInnerEditButton : EditorButton = null;
+	var mInnerLevelButton : EditorButton = null;
 	var mEditorStateHandle : EditorState = null;
 
 	var mDirStack : Array<String> = null;
 	var mCurrentDirButts : Array<FlxButton> = null;
+	var mOuterLevelMenu : Array<FlxButton> = null;
+	var mInnerLevelMenu : Array<FlxButton> = null;
 
 	public function new(editorHandle : EditorState) {
 		super();
@@ -31,16 +35,27 @@ class EditorMenu extends FlxGroup {
 		mDirStack = new Array();
 		mEditorStateHandle = editorHandle;
 
-		var buttons : Array<FlxButton> = [
+		mInnerLevelButton = new EditorButton(0, 0, "InnerLvl", openFileSelector);
+		mInnerEditButton = new EditorButton(0, 0, EditorCommand.InnerEditMode.getName(), editorHandle.startMode);
+
+		mOuterLevelMenu = [
 			new EditorButton(5, 5, EditorCommand.LineMode.getName(), editorHandle.startMode),
 			new EditorButton(0, 0, EditorCommand.NutCoinMode.getName(), editorHandle.startMode),
 			new EditorButton(0, 0, "Platform", openFileSelector),
-			new EditorButton(0, 0, "InnerLvl", openFileSelector),
+			mInnerLevelButton,
 			new EditorButton(0, 0, EditorCommand.GateMode.getName(), editorHandle.startMode),
 			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
 		];
 
-		layoutTheButts(buttons);
+		mInnerLevelMenu = [];
+
+		layoutTheButts(mOuterLevelMenu);
+	}
+
+	public function displayInnerLevelModeButton(show : Bool) : Void {
+		removeButtons(mOuterLevelMenu);
+		mOuterLevelMenu[3] = (show) ? mInnerEditButton : mInnerLevelButton;
+		layoutTheButts(mOuterLevelMenu);
 	}
 
 	public function addFixed(item : org.flixel.FlxObject) : Void {
@@ -52,6 +67,7 @@ class EditorMenu extends FlxGroup {
 		for(i in 0...members.length) {
 			members[i].visible = !hide;
 		}
+		mInnerLevelButton.visible = mInnerEditButton.visible = !hide;
 	}
 
 	private function layoutTheButts(butts : Array<FlxButton>, ?isdir : Bool = false) : Void {
@@ -105,9 +121,9 @@ class EditorMenu extends FlxGroup {
 		}
 	}
 
-	private function removeDirectoryButtons() {
-		for(j in 0...mCurrentDirButts.length) {
-			remove(mCurrentDirButts[j], true);
+	private function removeButtons(butts : Array<FlxButton>) {
+		for(j in 0...butts.length) {
+			remove(butts[j], true);
 		}
 	}
 
@@ -118,7 +134,7 @@ class EditorMenu extends FlxGroup {
 			mDirStack.push(butt.label.text);
 		}
 
-		removeDirectoryButtons();
+		removeButtons(mCurrentDirButts);
 
 		displayFileSelector(getCurrentPath());
 	}
@@ -145,7 +161,7 @@ class EditorMenu extends FlxGroup {
 	}
 
 	private function dismissFileSelector() : Void {
-		removeDirectoryButtons();
+		removeButtons(mCurrentDirButts);
 		while(mDirStack.length > 0) mDirStack.pop();
 	}
 
