@@ -8,8 +8,9 @@ import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 import haxe.io.Input;
 
-class PlayState extends FlxState
-{
+class PlayState extends FlxState {
+	public static inline var FALL_PROBE_LENGTH : Float = 5000;
+
 	var mPlayer : Player = null;
 	var mActiveLevel : Level = null;
 	var mNutCoinGroup : FlxGroup = null;
@@ -30,11 +31,7 @@ class PlayState extends FlxState
 		add(mActiveLevel.getLevelGraphics());
 
 		mNutCoinGroup = new FlxGroup();
-
-		var nutcoins : List<CollectibleSprite> = mActiveLevel.getNutCoins();
-		for(nutcoin in nutcoins) {
-			mNutCoinGroup.add(nutcoin);
-		}
+		prepareActiveLevelNutCoinGroup();
 
 		var startpt : FlxPoint = mActiveLevel.getStartPoint();
 		if(startpt != null) {
@@ -78,7 +75,7 @@ class PlayState extends FlxState
 			var feetx : Float = mPlayer.x + Player.WIDTH_HALF;
 			var feety : Float = mPlayer.y + Player.HEIGHT;
 			var result : IntersectionCheckResult = mActiveLevel.checkSurfaceCollision(
-				new Line(feetx, feety, feetx, mActiveLevel.getHeight())
+				new Line(feetx, feety, feetx, FALL_PROBE_LENGTH) // this could be lvl.y + lvl.height
 			);
 
 			if(result.intersectionPoint != null) {
@@ -113,9 +110,19 @@ class PlayState extends FlxState
 		}
 	}
 
+	private function prepareActiveLevelNutCoinGroup() : Void {
+		var nutcoins : List<CollectibleSprite> = mActiveLevel.getNutCoins();
+		for(nutcoin in nutcoins) {
+			if(nutcoin.alive)
+				mNutCoinGroup.add(nutcoin);
+		}
+	}
+
 	private function switchLevel(target : Level) : Void {
 		mActiveLevel.setVisible(false);
 		target.setVisible(true);
 		mActiveLevel = target;
+		mNutCoinGroup.clear();
+		prepareActiveLevelNutCoinGroup();
 	}
 }

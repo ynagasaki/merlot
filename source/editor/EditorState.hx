@@ -188,10 +188,26 @@ class EditorState extends FlxState {
 
 		select(null);
 
-		if(entering)
+
+		for(bs in mBoundarySprites) {
+			remove(bs, true);
+		}
+
+		mBoundarySprites.clear();
+
+		if(entering) {
 			mMenu.displayInnerLevelMenu();
-		else
+
+			for(b in mActiveInnerLevel.getGlobalBoundariesList()) {
+				addBoundarySprite(b);
+			}
+		} else {
 			mMenu.displayOuterLevelMenu();
+
+			for(b in mLevel.getGlobalBoundariesList()) {
+				addBoundarySprite(b);
+			}
+		}
 	}
 
 	private function deleteSelectedItem() : Void {
