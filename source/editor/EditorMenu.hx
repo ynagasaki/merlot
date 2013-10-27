@@ -28,6 +28,7 @@ class EditorMenu extends FlxGroup {
 	var mCurrentDirButts : Array<FlxButton> = null;
 	var mOuterLevelMenu : Array<FlxButton> = null;
 	var mInnerLevelMenu : Array<FlxButton> = null;
+	var mActiveLevelMenu : Array<FlxButton> = null;
 
 	public function new(editorHandle : EditorState) {
 		super();
@@ -47,15 +48,38 @@ class EditorMenu extends FlxGroup {
 			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
 		];
 
-		mInnerLevelMenu = [];
+		mInnerLevelMenu = [
+			mOuterLevelMenu[0],
+			mOuterLevelMenu[1],
+			mOuterLevelMenu[2]
+		];
 
-		layoutTheButts(mOuterLevelMenu);
+		mActiveLevelMenu = mOuterLevelMenu;
+
+		layoutTheButts(mActiveLevelMenu);
+	}
+
+	public function displayInnerLevelMenu() : Void {
+		removeButtons(mActiveLevelMenu);
+		mActiveLevelMenu = mInnerLevelMenu;
+		layoutTheButts(mActiveLevelMenu);
+	}
+
+	public function displayOuterLevelMenu() : Void {
+		removeButtons(mActiveLevelMenu);
+		mActiveLevelMenu = mOuterLevelMenu;
+		layoutTheButts(mActiveLevelMenu);
 	}
 
 	public function displayInnerLevelModeButton(show : Bool) : Void {
-		removeButtons(mOuterLevelMenu);
-		mOuterLevelMenu[3] = (show) ? mInnerEditButton : mInnerLevelButton;
-		layoutTheButts(mOuterLevelMenu);
+		if(mActiveLevelMenu != mOuterLevelMenu) {
+			trace("active menu is not outer menu. fixit foo.");
+			return;
+		}
+
+		removeButtons(mActiveLevelMenu);
+		mActiveLevelMenu[3] = (show) ? mInnerEditButton : mInnerLevelButton;
+		layoutTheButts(mActiveLevelMenu);
 	}
 
 	public function addFixed(item : org.flixel.FlxObject) : Void {

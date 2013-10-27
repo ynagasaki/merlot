@@ -34,9 +34,18 @@ class InnerLevel extends Level {
 
 	override public function applyChanges() : Void {
 		super.applyChanges();
+		
 		mLevelJson.x = this.x; 
 		mLevelJson.y = this.y;
+		
 		mLevelJson.gates = []; // we don't want to double-save gates
+
+		// save nutcoins in inner-level local-space
+		for(i in 0...mLevelJson.nutcoins.length) {
+			var nutcoin : Dynamic = mLevelJson.nutcoins[i];
+			nutcoin.p[0] -= this.x;
+			nutcoin.p[1] -= this.y;
+		}
 	}
 
 	public function setPosition(x : Float, y : Float) : Void {

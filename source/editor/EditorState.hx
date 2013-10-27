@@ -16,6 +16,7 @@ class EditorState extends FlxState {
 	
 	var mMenuActionIssued : Bool = false;
 	var mCommand : EditorCommand = null;
+	var mInnerCommand : EditorCommand = null;
 	var mStatus : FlxText = null;
 
 	var mSelectedItem : SelectableItem = null;
@@ -74,6 +75,19 @@ class EditorState extends FlxState {
 		super.create();
 	}
 
+	private function setactivecmd(cmd : EditorCommand) {
+		if(mCommand == EditorCommand.InnerEditMode) mInnerCommand = cmd;
+		else mCommand = cmd;
+	}
+
+	private function activecmd() : EditorCommand {
+		return (mCommand == EditorCommand.InnerEditMode) ? mInnerCommand : mCommand;
+	}
+
+	private function activelvl() : Level {
+		return (mActiveInnerLevel==null) ? mLevel : mActiveInnerLevel;
+	}
+
 	private function selectedItemIsNull() : Bool {
 		return mSelectedItem == null || mSelectedItem.getItem() == null;
 	}
@@ -89,27 +103,30 @@ class EditorState extends FlxState {
 	override public function update() : Void {
 		if(!mMenuActionIssued) {
 			if(mCommand != null) {
-				if(FlxG.keys.pressed("ESCAPE")) {
-					setStatus("Exiting " + mCommand);
-					if(mCommand == EditorCommand.InnerEditMode) {
+				if(FlxG.keys.justPressed("ESCAPE")) {
+					if(mCommand == EditorCommand.InnerEditMode && mInnerCommand != null) {
+						setStatus("Exiting " + mInnerCommand);
+						mInnerCommand = null;
+					} else {
+						setStatus("Exiting " + mCommand);
+						mCommand = null;
+						mActiveInnerLevel = null;
 						enterInnerEditMode(false);
 					}
-					mCommand = null;
 					mFirstPoint = null;
-					mActiveInnerLevel = null;
 					mMenu.hide(false);
 				}
 			}
 
-			if(mCommand == EditorCommand.LineMode) {
+			if(activecmd() == EditorCommand.LineMode) {
 				performLineMode();
-			} else if(mCommand == EditorCommand.NutCoinMode) {
+			} else if(activecmd() == EditorCommand.NutCoinMode) {
 				placeNutCoins();
-			} else if(mCommand == EditorCommand.GateMode) {
+			} else if(activecmd() == EditorCommand.GateMode) {
 				placeGates();
 			}
 
-			if(mCommand == null) {
+			if(activecmd() == null) {
 				// Editor is in normal mode
 				if(FlxG.mouse.justReleased()) {
 					pickSelectableItem();
@@ -170,19 +187,24 @@ class EditorState extends FlxState {
 		}
 
 		select(null);
+
+		if(entering)
+			mMenu.displayInnerLevelMenu();
+		else
+			mMenu.displayOuterLevelMenu();
 	}
 
 	private function deleteSelectedItem() : Void {
 		if(mSelectedItem.isPlatformSprite()) {
-			mLevel.removePlatformSprite(cast(mSelectedItem.getItem(), PlatformSprite));
+			activelvl().removePlatformSprite(cast(mSelectedItem.getItem(), PlatformSprite));
 		} else if(mSelectedItem.isCollectibleSprite()) {
-			mLevel.removeNutCoin(cast(mSelectedItem.getItem(), CollectibleSprite));
+			activelvl().removeNutCoin(cast(mSelectedItem.getItem(), CollectibleSprite));
 		} else if(mSelectedItem.isBoundarySprite()) {
 			var boundarysprite : BoundarySprite = cast(mSelectedItem.getItem(), BoundarySprite);
 			if(boundarysprite.boundary.hasNext() || boundarysprite.boundary.hasPrev()) {
 				setStatus("* Warning: boundary part of chain; SHIFT-DELETE to delete chain; not yet impl, lol.");
 			} else {
-				mLevel.removeBoundary(boundarysprite.boundary);
+				activelvl().removeBoundary(boundarysprite.boundary);
 				mBoundarySprites.remove(boundarysprite);
 				remove(mSelectedItem.getItem(), true);
 			}
@@ -196,9 +218,9 @@ class EditorState extends FlxState {
 		var y : Float = FlxG.mouse.y;
 
 		var item : SelectableItem = null;
-		var plats : List<PlatformSprite> = mLevel.getPlatformSprites();
-		var coins : List<CollectibleSprite> = mLevel.getNutCoins();
-		var lvls : List<InnerLevel> = mLevel.getInnerLevels();
+		var plats : List<PlatformSprite> = activelvl().getPlatformSprites();
+		var coins : List<CollectibleSprite> = activelvl().getNutCoins();
+		var lvls : List<InnerLevel> = activelvl().getInnerLevels();
 
 		// Because I suck, the order in which we check for picked items matters:
 		// Generally speaking, it's smallest --> largest
@@ -253,7 +275,7 @@ class EditorState extends FlxState {
 
 	private function placeNutCoins() : Void {
 		if(FlxG.mouse.justReleased()) {
-			mLevel.addNutCoin(new CollectibleSprite("assets/items/nut-coin.png", FlxG.mouse.x, FlxG.mouse.y));
+			activelvl().addNutCoin(new CollectibleSprite("assets/items/nut-coin.png", FlxG.mouse.x, FlxG.mouse.y));
 		}
 	}
 
@@ -286,7 +308,7 @@ class EditorState extends FlxState {
 					message += " to platform";
 				}
 
-				mLevel.addBoundary(boundary);
+				activelvl().addBoundary(boundary);
 				addBoundarySprite(boundary);
 				//linespr.drawLine(boundary.normal.p1.x, boundary.normal.p1.y, boundary.normal.p2.x, boundary.normal.p2.y, FlxColor.RED, 1);
 
@@ -330,21 +352,24 @@ class EditorState extends FlxState {
 	}
 
 	public function startMode(button : FlxButton) : Void {
-		mMenuActionIssued = true;
-		mCommand = EditorCommand.createByName(button.label.text);
+		var cmd : EditorCommand = EditorCommand.createByName(button.label.text);
+		var message : String = "Started " + cmd + ": press escape when finished.";
 
-		if(mCommand.equals(EditorCommand.GateMode) || mCommand.equals(EditorCommand.InnerEditMode)) {
-			if(mSelectedItem == null || (Type.getClass(mSelectedItem) != editor.SelectableLevelWrapper)) {
-				setStatus("Must select an inner level to start " + mCommand);
-				mCommand = null;
-				return;
+		mMenuActionIssued = true;
+
+		if(cmd.equals(EditorCommand.GateMode) || cmd.equals(EditorCommand.InnerEditMode)) {
+			if(mSelectedItem == null || (Type.getClass(mSelectedItem) != SelectableLevelWrapper)) {
+				message = "Must select an inner level to start " + cmd;
 			} else {
 				mActiveInnerLevel = cast(mSelectedItem, SelectableLevelWrapper).level;
+				setactivecmd(cmd);
 			}
+		} else {
+			mMenu.hide(true);
+			setactivecmd(cmd);
 		}
 
-		mMenu.hide(true);
-		setStatus("Started "+mCommand+": press escape when finished.");
+		setStatus(message);
 	}
 
 	public function saveLevel() {
@@ -379,7 +404,7 @@ class EditorState extends FlxState {
 	public function createPlatformSprite(filename : String) : Void {
 		var sprite : PlatformSprite = new PlatformSprite(filename);
 		sprite.move(50, 200);
-		mLevel.addPlatformSprite(sprite);
+		activelvl().addPlatformSprite(sprite);
 	}
 
 	public function createInnerLevel(filename : String) : Void {
