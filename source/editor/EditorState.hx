@@ -381,7 +381,7 @@ class EditorState extends FlxState {
 			}
 		}
 
-		mMenu.hide(true);
+		mMenu.hide(!cmd.equals(EditorCommand.InnerEditMode));
 		setactivecmd(cmd);
 		setStatus("Started " + cmd + ": press escape when finished.");
 	}
