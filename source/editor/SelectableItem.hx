@@ -10,6 +10,7 @@ interface SelectableItem {
 	public function getX() : Float;
 	public function getY() : Float;
 
+	public function isGateSprite() : Bool;
 	public function isBoundarySprite() : Bool;
 	public function isPlatformSprite() : Bool;
 	public function isCollectibleSprite() : Bool;

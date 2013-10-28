@@ -123,7 +123,7 @@ class EditorState extends FlxState {
 			} else if(activecmd() == EditorCommand.NutCoinMode) {
 				placeNutCoins();
 			} else if(activecmd() == EditorCommand.GateMode) {
-				placeGates();
+				performGateMode();
 			}
 
 			if(activecmd() == null) {
@@ -281,7 +281,7 @@ class EditorState extends FlxState {
 		select(item);
 	}
 
-	private function placeGates() : Void {
+	private function performGateMode() : Void {
 		if(FlxG.mouse.justReleased()) {
 			var gate : CrossLevelGate = new CrossLevelGate(FlxG.mouse.x, FlxG.mouse.y, mLevel, mActiveInnerLevel);
 			mLevel.addCrossLevelGate(gate);
@@ -369,23 +369,21 @@ class EditorState extends FlxState {
 
 	public function startMode(button : FlxButton) : Void {
 		var cmd : EditorCommand = EditorCommand.createByName(button.label.text);
-		var message : String = "Started " + cmd + ": press escape when finished.";
 
 		mMenuActionIssued = true;
 
 		if(cmd.equals(EditorCommand.GateMode) || cmd.equals(EditorCommand.InnerEditMode)) {
 			if(mSelectedItem == null || (Type.getClass(mSelectedItem) != SelectableLevelWrapper)) {
-				message = "Must select an inner level to start " + cmd;
+				setStatus("Must select an inner level to start " + cmd);
+				return;
 			} else {
 				mActiveInnerLevel = cast(mSelectedItem, SelectableLevelWrapper).level;
-				setactivecmd(cmd);
 			}
-		} else {
-			mMenu.hide(true);
-			setactivecmd(cmd);
 		}
 
-		setStatus(message);
+		mMenu.hide(true);
+		setactivecmd(cmd);
+		setStatus("Started " + cmd + ": press escape when finished.");
 	}
 
 	public function saveLevel() {
@@ -406,14 +404,49 @@ class EditorState extends FlxState {
 		var itemobj : FlxBasic = (item == null ? null : item.getItem());
 		if(!selectedItemIsNull() && itemobj != mSelectedItem.getItem()) {
 			mSelectedItem.deselect();
-			if(mSelectedItem.isInnerLevel()) 
+			if(mSelectedItem.isInnerLevel()) {
 				mMenu.displayInnerLevelModeButton(false);
+			} else if(mSelectedItem.isGateSprite()) {
+				var gs : CrossLevelGateSprite = cast(mSelectedItem, CrossLevelGateSprite);
+				gs.highlightRelatedBoundarySprites(activelvl(), mBoundarySprites, false);
+			}
 		}
 		mSelectedItem = item;
 		if(!selectedItemIsNull()) { 
 			mSelectedItem.select();
-			if(mSelectedItem.isInnerLevel())
+			if(mSelectedItem.isInnerLevel()) {
 				mMenu.displayInnerLevelModeButton(true);
+			} else if(mSelectedItem.isGateSprite()) {
+				var gs : CrossLevelGateSprite = cast(mSelectedItem, CrossLevelGateSprite);
+				gs.highlightRelatedBoundarySprites(activelvl(), mBoundarySprites, true);
+			}
+		}
+	}
+
+	public function linkGatesWithSurfaceBoundaries() : Void {
+		var lvl : Level = activelvl();
+
+		if(Type.getClass(lvl) != InnerLevel) {
+			trace("let's link gates from inner levels pls, thx");
+			return;
+		}
+
+		for(gs in mGateSprites) {
+			for(bs in mBoundarySprites) {
+				if(gs.overlaps(bs)) {
+					gs.gate.addLinkedBoundaryToLevel(lvl, bs.boundary);
+					bs.select();
+				}
+			}
+
+			var otherlvl : Level = gs.gate.getDestinationLevelRelativeTo(lvl);
+			var blist : List<Boundary> = otherlvl.getGlobalBoundariesList();
+
+			for(b in blist) {
+				if(gs.overlaps(new BoundarySprite(b))) {
+					gs.gate.addLinkedBoundaryToLevel(otherlvl, b);
+				}
+			}
 		}
 	}
 

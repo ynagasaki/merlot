@@ -25,6 +25,7 @@ class BoundarySprite extends FlxSprite implements SelectableItem {
 	public function getX() : Float { return this.x; }
 	public function getY() : Float { return this.y; }
 
+	public function isGateSprite() : Bool { return false; }
 	public function isCollectibleSprite() : Bool { return false; }
 	public function isBoundarySprite() : Bool { return true; }
 	public function isPlatformSprite() : Bool { return false; }

@@ -14,10 +14,28 @@ class CrossLevelGate {
 	var mLevel1 : Level = null;
 	var mLevel2 : Level = null;
 
+	var mLinkedBoundariesLevel1 : List<Boundary> = null;
+	var mLinkedBoundariesLevel2 : List<Boundary> = null;
+
 	public function new(x : Float, y : Float, lvl1 : Level, lvl2 : Level) {
 		position = new FlxPoint(x, y);
 		mLevel1 = lvl1;
 		mLevel2 = lvl2;
+		mLinkedBoundariesLevel1 = new List();
+		mLinkedBoundariesLevel2 = new List();
+	}
+
+	public function addLinkedBoundaryToLevel(lvl : Level, boundary : Boundary) : Void {
+		if(lvl == mLevel1) mLinkedBoundariesLevel1.add(boundary);
+		else if(lvl == mLevel2) mLinkedBoundariesLevel2.add(boundary);
+		else trace("* add: warning: level (" + lvl.getId() + ") is not part of this gate.");
+	}
+
+	public function getLinkedBoundaries(lvl : Level) : List<Boundary> {
+		if(lvl == mLevel1) return mLinkedBoundariesLevel1;
+		else if(lvl == mLevel2) return mLinkedBoundariesLevel2;
+		else trace("* get: warning: level (" + lvl.getId() + ") is not part of this gate.");
+		return null;
 	}
 
 	public function getDestinationLevelRelativeTo(me : Level) : Level {

@@ -31,6 +31,7 @@ class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
 	public function isBoundarySprite() : Bool { return false; }
 	public function isPlatformSprite() : Bool { return false; }
 	public function isInnerLevel() : Bool { return false; }
+	public function isGateSprite() : Bool { return true; }
 
 	public function select() : Void {
 		this.color = 0xFF7777FF;
@@ -38,6 +39,20 @@ class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
 
 	public function deselect() : Void {
 		this.color = 0xFFFFFFFF;
+	}
+
+	public function highlightRelatedBoundarySprites(lvl : Level, levelBoundarySpriteList : List<BoundarySprite>, highlight : Bool) {
+		var linkedboundaries : List<Boundary> = gate.getLinkedBoundaries(lvl);
+		for(boundary in linkedboundaries) {
+			for(bs in levelBoundarySpriteList) {
+				if(bs.boundary == boundary) {
+					if(highlight)
+						bs.select();
+					else
+						bs.deselect();
+				}
+			}
+		}
 	}
 
 	override public function move(x : Float, y : Float) : Void {

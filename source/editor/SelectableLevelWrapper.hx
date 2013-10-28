@@ -37,6 +37,7 @@ class SelectableLevelWrapper implements SelectableItem
 		return level.y;
 	}
 
+	public function isGateSprite() : Bool { return false; }
 	public function isBoundarySprite() : Bool { return false; }
 	public function isPlatformSprite() : Bool { return false; }
 	public function isCollectibleSprite() : Bool { return false; }

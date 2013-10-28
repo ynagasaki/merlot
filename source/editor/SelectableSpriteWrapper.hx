@@ -28,6 +28,7 @@ class SelectableSpriteWrapper implements SelectableItem {
 	public function getY() : Float { return sprite.y; }
 
 	public function isInnerLevel() : Bool { return false; }
+	public function isGateSprite() : Bool { return false; } // gatesprite is speshl
 	public function isBoundarySprite() : Bool { return false; } // boundarysprite is speshl
 	public function isCollectibleSprite() : Bool { return Type.getClass(sprite) == CollectibleSprite; }
 	public function isPlatformSprite() : Bool { return Type.getClass(sprite) == PlatformSprite; }
