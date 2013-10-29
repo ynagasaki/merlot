@@ -46,6 +46,34 @@ class CrossLevelGate {
 		return (lvl == mLevel1 || lvl == mLevel2);
 	}
 
+	public function determineOverlappingSurfaceBoundaries() : Void {
+		var p2 : FlxPoint = new FlxPoint(position.x + WIDTH, position.y + HEIGHT);
+		var p3 : FlxPoint = new FlxPoint(0, 0);
+		var p4 : FlxPoint = new FlxPoint(0, 0);
+
+		for(b in mLevel1.getGlobalBoundariesList()) {
+			p3.x = b.surface.leftmostPoint.x;
+			p3.y = b.surface.topmostPoint.y;
+			p4.x = b.surface.rightmostPoint.x;
+			p4.y = b.surface.bottommostPoint.y;
+
+			if(Utility.overlaps(position, p2, p3, p4)) {
+				addLinkedBoundaryToLevel(mLevel1, b);
+			}
+		}
+
+		for(b in mLevel2.getGlobalBoundariesList()) {
+			p3.x = b.surface.leftmostPoint.x;
+			p3.y = b.surface.topmostPoint.y;
+			p4.x = b.surface.rightmostPoint.x;
+			p4.y = b.surface.bottommostPoint.y;
+
+			if(Utility.overlaps(position, p2, p3, p4)) {
+				addLinkedBoundaryToLevel(mLevel2, b);
+			}
+		}
+	}
+
 	public function toJson() : Dynamic {
 		return {
 			x: position.x, 

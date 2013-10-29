@@ -51,8 +51,7 @@ class EditorMenu extends FlxGroup {
 		mInnerLevelMenu = [
 			mOuterLevelMenu[0],
 			mOuterLevelMenu[1],
-			mOuterLevelMenu[2],
-			new FlxButton(0, 0, "Gate-Bdry", editorHandle.linkGatesWithSurfaceBoundaries)
+			mOuterLevelMenu[2]
 		];
 
 		mActiveLevelMenu = mOuterLevelMenu;

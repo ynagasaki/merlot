@@ -172,6 +172,10 @@ class Level {
 
 			findConnectedBoundarySegments();
 
+			for(gate in mCrossLevelGates) {
+				gate.determineOverlappingSurfaceBoundaries();
+			}
+
 			if(mLevelJson.startpt != null) {
 				setStartPoint(mLevelJson.startpt[0], mLevelJson.startpt[1]);
 			}

@@ -105,7 +105,7 @@ class PlayState extends FlxState {
 		if(FlxG.keys.justPressed("UP")) {
 			var gate : CrossLevelGate = mActiveLevel.checkCrossLevelGateEntry(mPlayer);
 			if(gate != null) {
-				switchLevel(gate.getDestinationLevelRelativeTo(mActiveLevel));
+				switchLevel(gate, gate.getDestinationLevelRelativeTo(mActiveLevel));
 			}
 		}
 	}
@@ -118,11 +118,23 @@ class PlayState extends FlxState {
 		}
 	}
 
-	private function switchLevel(target : Level) : Void {
+	private function switchLevel(gate : CrossLevelGate, target : Level) : Void {
 		mActiveLevel.setVisible(false);
 		target.setVisible(true);
 		mActiveLevel = target;
 		mNutCoinGroup.clear();
 		prepareActiveLevelNutCoinGroup();
+
+		var otherLevelRelevantSurfaceBoundaries : List<Boundary> = gate.getLinkedBoundaries(target);
+		if(otherLevelRelevantSurfaceBoundaries.length > 0) {
+			for(b in otherLevelRelevantSurfaceBoundaries) {
+				if(mPlayer.x >= b.surface.leftmostPoint.x && mPlayer.x <= b.surface.rightmostPoint.x) {
+					mPlayer.setSurfaceBoundary(b);
+					break;
+				}
+			}
+		} else {
+			mPlayer.startNotBeingOnTheGround();
+		}
 	}
 }

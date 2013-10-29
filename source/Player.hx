@@ -137,7 +137,7 @@ class Player extends FlxSprite
 		}
 	}
 
-	private function startNotBeingOnTheGround() {
+	public function startNotBeingOnTheGround() : Void {
 		acceleration.y = GRAVITY;
 		mSurfaceBoundary = null;
 	}

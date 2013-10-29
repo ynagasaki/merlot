@@ -423,33 +423,6 @@ class EditorState extends FlxState {
 		}
 	}
 
-	public function linkGatesWithSurfaceBoundaries() : Void {
-		var lvl : Level = activelvl();
-
-		if(Type.getClass(lvl) != InnerLevel) {
-			trace("let's link gates from inner levels pls, thx");
-			return;
-		}
-
-		for(gs in mGateSprites) {
-			for(bs in mBoundarySprites) {
-				if(gs.overlaps(bs)) {
-					gs.gate.addLinkedBoundaryToLevel(lvl, bs.boundary);
-					bs.select();
-				}
-			}
-
-			var otherlvl : Level = gs.gate.getDestinationLevelRelativeTo(lvl);
-			var blist : List<Boundary> = otherlvl.getGlobalBoundariesList();
-
-			for(b in blist) {
-				if(gs.overlaps(new BoundarySprite(b))) {
-					gs.gate.addLinkedBoundaryToLevel(otherlvl, b);
-				}
-			}
-		}
-	}
-
 	public function createPlatformSprite(filename : String) : Void {
 		var sprite : PlatformSprite = new PlatformSprite(filename);
 		sprite.move(50, 200);

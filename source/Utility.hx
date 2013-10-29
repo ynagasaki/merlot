@@ -15,6 +15,10 @@ class Utility {
 		return p1.x == p2.x && p1.y == p2.y;
 	}
 
+	public static function overlaps(p1 : FlxPoint, p2 : FlxPoint, p3 : FlxPoint, p4 : FlxPoint) : Bool {
+		return !(p2.y < p3.y || p1.y > p4.y || p2.x < p3.x || p1.x > p4.x);
+	}
+
 	public static function isRectInRect(r1 : FlxRect, r2 : FlxRect) : Bool {
 		return r1.x>=r2.x&&r1.y>=r2.y&&r1.x+r1.width<=r2.x+r2.width&&r1.y+r1.height<=r2.y+r2.height;
 	}
