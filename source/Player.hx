@@ -3,25 +3,18 @@ package ;
 import org.flixel.FlxG;
 import org.flixel.FlxObject;
 import org.flixel.FlxSprite;
-import org.flixel.FlxState;
 
-class Player extends FlxSprite
-{
-	public static inline var GRAVITY : Float = 400;
+class Player extends Character {
 	public static inline var WIDTH : Float = 14;
 	public static inline var WIDTH_HALF : Float = WIDTH / 2;
 	public static inline var HEIGHT : Float = 29;
-
-	var mSurfaceBoundary : Boundary = null;
-	var mDebugBoundarySprite : FlxSprite = null;
-	var mDebugOn : Bool = false;
 
 	public function new(X:Float, Y:Float) : Void {
 		super(X, Y);
 		loadGraphic("assets/pino-run.png", true, true, 40, 35);
 		maxVelocity.x = 100;			//walking speed
 		maxVelocity.y = 400;
-		acceleration.y = GRAVITY;
+		acceleration.y = Character.GRAVITY;
 		drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
 		
 		//tweak the bounding box for better feel
@@ -42,44 +35,7 @@ class Player extends FlxSprite
 		addAnimation("jump",[1],0,false);
 	}
 
-	public function setDebug(on : Bool, state : FlxState) : Void {
-		mDebugOn = on;
-
-		if(mDebugBoundarySprite == null) {
-			mDebugBoundarySprite = new FlxSprite(this.x, this.y);
-			mDebugBoundarySprite.makeGraphic(5,5, 0xFFFF0000);
-		}
-		
-		if(mDebugOn) {
-			state.add(mDebugBoundarySprite);
-		} else {
-			state.remove(mDebugBoundarySprite);
-		}
-	}
-
-	public function setSurfaceBoundary(boundary : Boundary) : Void {
-		mSurfaceBoundary = boundary;
-	}
-
-	public function isOnGround() : Bool {
-		return mSurfaceBoundary != null;
-	}
-
-	public function jump() : Void {
-		startNotBeingOnTheGround();
-		
-		velocity.y = -acceleration.y * 0.51;
-		play("jump");
-	}
-
-	public function isFalling() : Bool {
-		return velocity.y > 0;
-	}
-
-	override public function update() : Void
-	{
-		var oldx : Float = this.x + WIDTH_HALF;
-
+	override public function update() : Void {
 		//Smooth slidey walking controls
 		acceleration.x = 0;
 
@@ -108,37 +64,5 @@ class Player extends FlxSprite
 		}
 
 		super.update();
-
-		if(mDebugOn) {
-			mDebugBoundarySprite.x = this.x;
-			mDebugBoundarySprite.y = this.y;
-		}
-
-		if(isOnGround()) {
-			var surfaceline : Line = mSurfaceBoundary.surface;
-			var newx : Float = this.x + WIDTH_HALF;
-
-			// "next" and "prev" only make sense for LTR segments
-			if(newx > surfaceline.rightmostPoint.x) {
-				if(mSurfaceBoundary.hasNext()) {
-					setSurfaceBoundary(mSurfaceBoundary.next);
-				} else {
-					startNotBeingOnTheGround();
-				}
-			} else if(newx < surfaceline.leftmostPoint.x) {
-				if(mSurfaceBoundary.hasPrev()) {
-					setSurfaceBoundary(mSurfaceBoundary.prev);
-				} else {
-					startNotBeingOnTheGround();
-				}
-			} else if(newx != oldx) {
-				this.y = surfaceline.getY(newx) - HEIGHT;
-			}
-		}
-	}
-
-	public function startNotBeingOnTheGround() : Void {
-		acceleration.y = GRAVITY;
-		mSurfaceBoundary = null;
 	}
 }

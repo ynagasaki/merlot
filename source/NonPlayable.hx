@@ -4,10 +4,8 @@ import org.flixel.FlxG;
 import org.flixel.FlxObject;
 import org.flixel.FlxSprite;
 
-class NonPlayable extends FlxSprite
-{
-	public function new(filename : String, X:Float, Y:Float, w:Int, h:Int)
-	{
+class NonPlayable extends Character {
+	public function new(filename : String, X:Float, Y:Float, w:Int, h:Int) {
 		super(X, Y);
 		loadGraphic(filename, true, true);
 		maxVelocity.x = 100;			//walking speed
@@ -26,8 +24,7 @@ class NonPlayable extends FlxSprite
 		addAnimation("walk",[0,1],20,true);
 	}
 	
-	override public function update():Void
-	{
+	override public function update():Void {
 		facing = (velocity.x < 0) ? FlxObject.LEFT : FlxObject.RIGHT;
 		super.update();
 	}

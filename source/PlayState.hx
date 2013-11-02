@@ -8,12 +8,30 @@ import org.flixel.util.FlxPoint;
 import org.flixel.FlxGroup;
 import haxe.io.Input;
 
+class CharacterFrameInfo {
+	public var oldY : Float = 0;
+	public var distanceLeft : Float = 0;
+	public var intersectingBoundary : Boundary = null;
+
+	public function new() : Void {
+	}
+
+	public function reset() : Void {
+		oldY = 0;
+		distanceLeft = 0;
+		intersectingBoundary = null;
+	}
+}
+
 class PlayState extends FlxState {
 	public static inline var FALL_PROBE_LENGTH : Float = 5000;
 
 	var mPlayer : Player = null;
 	var mActiveLevel : Level = null;
 	var mNutCoinGroup : FlxGroup = null;
+	var mCharacters : List<Character> = null;
+	var mCharacterFrameInfoMap : Map<Character, CharacterFrameInfo> = null;
+
 	var mInitializedFromEditor : Bool = false;
 
 	public function new(initedByEditor : Bool) {
@@ -21,8 +39,7 @@ class PlayState extends FlxState {
 		super();
 	}
 
-	override public function create():Void
-	{
+	override public function create() : Void {
 		// Set a background color
 		FlxG.bgColor = 0xFFFF00FF;
 
@@ -40,23 +57,28 @@ class PlayState extends FlxState {
 			mPlayer = new Player(0, 0);
 		}
 
-		add(mPlayer);
-
 		FlxG.camera.setBounds(0, 0, mActiveLevel.getWidth(), mActiveLevel.getHeight(), true);
 		
 		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
 
 		//mPlayer.setDebug(true, this);
 
-		//add(new NonPlayable("assets/baddies/b1.png",mPlayer.x + 100, mPlayer.y, 23, 23));
-
 		for(lvl in mActiveLevel.getInnerLevels()) {
 			lvl.setVisible(false);
 		}
+
+		mCharacters = new List();
+		mCharacters.add(mPlayer);
+		mCharacters.add(new NonPlayable("assets/baddies/b1.png",mPlayer.x + 100, mPlayer.y, 23, 23));
+
+		mCharacterFrameInfoMap = new Map();
+		for(character in mCharacters) {
+			add(character);
+			mCharacterFrameInfoMap.set(character, new CharacterFrameInfo());
+		}
 	}
 
-	override public function destroy():Void
-	{
+	override public function destroy() : Void {
 		super.destroy();
 	}
 
@@ -64,23 +86,25 @@ class PlayState extends FlxState {
 		cast(coin, CollectibleSprite).kill();
 	}
 
-	override public function update():Void
-	{
-		var oldy : Float = mPlayer.y;
-		var distanceleft : Float = 0;
-		var intersectingBoundary : Boundary = null;
+	override public function update() : Void {
+		for(character in mCharacters) {
+			var charframeinfo : CharacterFrameInfo = mCharacterFrameInfoMap[character];
 
-		// if the player is falling, check for platforms below
-		if(!mPlayer.isOnGround() && mPlayer.isFalling()) {
-			var feetx : Float = mPlayer.x + Player.WIDTH_HALF;
-			var feety : Float = mPlayer.y + Player.HEIGHT;
-			var result : IntersectionCheckResult = mActiveLevel.checkSurfaceCollision(
-				new Line(feetx, feety, feetx, FALL_PROBE_LENGTH) // this could be lvl.y + lvl.height
-			);
+			charframeinfo.reset();
+			charframeinfo.oldY = character.y;
 
-			if(result.intersectionPoint != null) {
-				distanceleft = result.intersectionPoint.y - mPlayer.y - mPlayer.height;
-				intersectingBoundary = result.intersectingBoundary;
+			// if the character is falling, check for platforms below
+			if(!character.isOnGround() && character.isFalling()) {
+				var feetx : Float = character.x + (character.width / 2);
+				var feety : Float = character.y + character.height;
+				var result : IntersectionCheckResult = mActiveLevel.checkSurfaceCollision(
+					new Line(feetx, feety, feetx, FALL_PROBE_LENGTH) // this could be lvl.y + lvl.height
+				);
+
+				if(result.intersectionPoint != null) {
+					charframeinfo.distanceLeft = result.intersectionPoint.y - character.y - character.height;
+					charframeinfo.intersectingBoundary = result.intersectingBoundary;
+				}
 			}
 		}
 
@@ -88,14 +112,18 @@ class PlayState extends FlxState {
 
 		super.update();
 
-		// if there is a platform below, and the y-distance traveled in this frame exceeds
-		// the y-distance that was left before the height was updated...
-		var distancetraveled : Float = (mPlayer.y - oldy);
-		if(intersectingBoundary != null && distanceleft - distancetraveled < 0.005) { //(include a little give)
-			// ... then plop the player on the ground.
-			mPlayer.y = oldy + distanceleft;
-			mPlayer.velocity.y = mPlayer.acceleration.y = 0;
-			mPlayer.setSurfaceBoundary(intersectingBoundary);
+		for(character in mCharacters) {
+			var charframeinfo : CharacterFrameInfo = mCharacterFrameInfoMap[character];
+
+			// if there is a platform below, and the y-distance traveled in this frame exceeds
+			// the y-distance that was left before the height was updated...
+			var distancetraveled : Float = character.y - charframeinfo.oldY;
+			if(charframeinfo.intersectingBoundary != null && charframeinfo.distanceLeft - distancetraveled < 0.005) { //(include a little give)
+				// ... then plop the player on the ground.
+				character.y = charframeinfo.oldY + charframeinfo.distanceLeft;
+				character.velocity.y = character.acceleration.y = 0;
+				character.setSurfaceBoundary(charframeinfo.intersectingBoundary);
+			}
 		}
 
 		if(FlxG.keys.justPressed("ESCAPE") && mInitializedFromEditor) {

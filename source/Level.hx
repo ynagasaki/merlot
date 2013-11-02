@@ -341,6 +341,7 @@ class Level {
 		for(boundary in mBoundariesGlobal) {
 			var s : Line = boundary.surface;
 
+			// todo: take connected segments into account
 			if(trajectory.p1.y > s.bottommostPoint.y) continue;
 			if(trajectory.p1.x > s.rightmostPoint.x) continue;
 			if(trajectory.p1.x < s.leftmostPoint.x) continue;
