@@ -13,6 +13,7 @@ class Level {
 	var mBackground : FlxSprite = null;
 	var mStartPoint : FlxPoint = null;
 
+	var mNonPlayables : List<NonPlayable> = null;
 	var mNutCoins : List<CollectibleSprite> = null;
 	var mInnerLevels : List<InnerLevel> = null;
 	var mPlatformSprites : List<PlatformSprite> = null;
@@ -21,6 +22,7 @@ class Level {
 
 	public function new(filename : String) {
 		mNutCoins = new List();
+		mNonPlayables = new List();
 		mPlatformSprites = new List();
 		mBoundariesGlobal = new List();
 		mCrossLevelGates = new List();
@@ -55,8 +57,17 @@ class Level {
 		return mInnerLevels;
 	}
 
+	public function getNonPlayables() : List<NonPlayable> {
+		return mNonPlayables;
+	}
+
 	public function addNutCoin(sprite : CollectibleSprite) : Void {
 		mNutCoins.add(sprite);
+		mGraphics.add(sprite);
+	}
+
+	public function addNonPlayable(sprite : NonPlayable) : Void {
+		mNonPlayables.add(sprite);
 		mGraphics.add(sprite);
 	}
 
@@ -136,6 +147,7 @@ class Level {
 			var nutcoins : Array<Dynamic> = mLevelJson.nutcoins;
 			var innerlvls : Array<Dynamic> = mLevelJson.innerlevels;
 			var gates : Array<Dynamic> = mLevelJson.gates;
+			var npcs : Array<Dynamic> = mLevelJson.npcs;
 
 			for(dyn in boundaries) {
 				addBoundary(Boundary.fromJson(dyn));
@@ -147,6 +159,10 @@ class Level {
 
 			for(dyn in nutcoins) {
 				addNutCoin(CollectibleSprite.fromJson(dyn));
+			}
+
+			for(dyn in npcs) {
+				addNonPlayable(NonPlayable.fromJson(dyn));
 			}
 
 			for(dyn in innerlvls) {
@@ -241,6 +257,7 @@ class Level {
 	}
 
 	public function applyChanges() : Void {
+		var npcs : Array<Dynamic> = new Array();
 		var gates : Array<Dynamic> = new Array();
 		var boundaries : Array<Dynamic> = new Array();
 		var platforms : Array<Dynamic> = new Array();
@@ -268,6 +285,10 @@ class Level {
 			nutcoins.push(nutcoin.toJson());
 		}
 
+		for(npc in mNonPlayables) {
+			npcs.push(npc.toJson());
+		}
+
 		for(gate in mCrossLevelGates) {
 			gates.push(gate.toJson());
 		}
@@ -283,6 +304,7 @@ class Level {
 		mLevelJson.boundaries = boundaries;
 		mLevelJson.platforms = platforms;
 		mLevelJson.innerlevels = innerlvls;
+		mLevelJson.npcs = npcs;
 		
 		if(mStartPoint != null) 
 			mLevelJson.startpt = [mStartPoint.x, mStartPoint.y];
@@ -332,7 +354,6 @@ class Level {
 	}
 
 	public function checkSurfaceCollision(trajectory : Line) : IntersectionCheckResult {
-		var checkedCount : Int = 0;
 		var intersectionPoint : FlxPoint = null;
 		var topmostIntersectionPoint : FlxPoint = null;
 		var intersectionBoundary : Boundary = null;
@@ -341,13 +362,11 @@ class Level {
 		for(boundary in mBoundariesGlobal) {
 			var s : Line = boundary.surface;
 
-			// todo: take connected segments into account
 			if(trajectory.p1.y > s.bottommostPoint.y) continue;
 			if(trajectory.p1.x > s.rightmostPoint.x) continue;
 			if(trajectory.p1.x < s.leftmostPoint.x) continue;
 
 			intersectionPoint = Utility.checkLineIntersection(trajectory, s);
-			checkedCount ++;
 
 			if(intersectionPoint != null) {
 				// we check if topmost > current-intersection b/c larger Y is visually lower
@@ -358,7 +377,9 @@ class Level {
 			}
 		}
 
-		//trace("checked: " + checkedCount);
+		//trace("checked: " + checkedCount + ((intersectionBoundary==null) ? "(miss)" : "(hit)"));
+
 		return new IntersectionCheckResult(topmostIntersectionPoint,  intersectionBoundary);
 	}
 }
+

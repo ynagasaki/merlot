@@ -10,16 +10,15 @@ import haxe.io.Input;
 
 class CharacterFrameInfo {
 	public var oldY : Float = 0;
-	public var distanceLeft : Float = 0;
-	public var intersectingBoundary : Boundary = null;
+	public var oldX : Float = 0;
+	public var checkIntersection : Bool = false;
 
 	public function new() : Void {
 	}
 
 	public function reset() : Void {
-		oldY = 0;
-		distanceLeft = 0;
-		intersectingBoundary = null;
+		oldX = oldY = 0;
+		checkIntersection = false;
 	}
 }
 
@@ -69,7 +68,10 @@ class PlayState extends FlxState {
 
 		mCharacters = new List();
 		mCharacters.add(mPlayer);
-		mCharacters.add(new NonPlayable("assets/baddies/b1.png",mPlayer.x + 100, mPlayer.y, 23, 23));
+
+		for(npc in mActiveLevel.getNonPlayables()) {
+			mCharacters.add(npc);
+		}
 
 		mCharacterFrameInfoMap = new Map();
 		for(character in mCharacters) {
@@ -91,20 +93,10 @@ class PlayState extends FlxState {
 			var charframeinfo : CharacterFrameInfo = mCharacterFrameInfoMap[character];
 
 			charframeinfo.reset();
-			charframeinfo.oldY = character.y;
 
-			// if the character is falling, check for platforms below
-			if(!character.isOnGround() && character.isFalling()) {
-				var feetx : Float = character.x + (character.width / 2);
-				var feety : Float = character.y + character.height;
-				var result : IntersectionCheckResult = mActiveLevel.checkSurfaceCollision(
-					new Line(feetx, feety, feetx, FALL_PROBE_LENGTH) // this could be lvl.y + lvl.height
-				);
-
-				if(result.intersectionPoint != null) {
-					charframeinfo.distanceLeft = result.intersectionPoint.y - character.y - character.height;
-					charframeinfo.intersectingBoundary = result.intersectingBoundary;
-				}
+			if(charframeinfo.checkIntersection = !character.isOnGround() && character.isFalling()) {
+				charframeinfo.oldX = character.x + (character.width / 2);
+				charframeinfo.oldY = character.y + character.height;
 			}
 		}
 
@@ -115,14 +107,23 @@ class PlayState extends FlxState {
 		for(character in mCharacters) {
 			var charframeinfo : CharacterFrameInfo = mCharacterFrameInfoMap[character];
 
-			// if there is a platform below, and the y-distance traveled in this frame exceeds
-			// the y-distance that was left before the height was updated...
-			var distancetraveled : Float = character.y - charframeinfo.oldY;
-			if(charframeinfo.intersectingBoundary != null && charframeinfo.distanceLeft - distancetraveled < 0.005) { //(include a little give)
-				// ... then plop the player on the ground.
-				character.y = charframeinfo.oldY + charframeinfo.distanceLeft;
-				character.velocity.y = character.acceleration.y = 0;
-				character.setSurfaceBoundary(charframeinfo.intersectingBoundary);
+			if(charframeinfo.checkIntersection) {
+				var feetx : Float = character.x + (character.width / 2);
+				var feety : Float = character.y + character.height;
+
+				var result : IntersectionCheckResult = mActiveLevel.checkSurfaceCollision(
+					new Line(charframeinfo.oldX, charframeinfo.oldY, feetx, feety)
+				);
+
+				if(result.intersectionPoint != null) {
+					character.x = result.intersectionPoint.x - (character.width / 2);
+					character.y = result.intersectionPoint.y - character.height;
+					if(character.isFalling()) {
+						character.acceleration.y = 0;
+						character.setSurfaceBoundary(result.intersectingBoundary);
+					}
+					character.velocity.y = 0;
+				}
 			}
 		}
 

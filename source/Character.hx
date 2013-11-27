@@ -5,6 +5,7 @@ import org.flixel.FlxSprite;
 
 class Character extends FlxSprite {
 	public static inline var GRAVITY : Float = 400;
+	public static inline var TERMINAL_VELOCITY : Float = 400;
 
 	var mSurfaceBoundary : Boundary = null;
 	var mDebugBoundarySprite : FlxSprite = null;
@@ -12,6 +13,8 @@ class Character extends FlxSprite {
 
 	public function new(X : Float, Y : Float) : Void {
 		super(X, Y);
+		acceleration.y = GRAVITY;
+		this.maxVelocity.y = TERMINAL_VELOCITY;
 	}
 
 	public function setDebug(on : Bool, state : FlxState) : Void {

@@ -36,34 +36,42 @@ class EditorState extends FlxState {
 		FlxG.mouse.show();
 		#end
 
+		// Load level
 		mLevel = new Level("assets/lvls/level-template.json");
-
 		add(mLevel.getLevelGraphics());
 
+		// Create graphical representation of gates
 		mGateSprites = new List();
 		for(g in mLevel.getCrossLevelGates()) {
 			addGateSprite(g);
 		}
 
+		// Create graphical representations of boundaries
 		mBoundarySprites = new List();
 		for(b in mLevel.getGlobalBoundariesList()) {
 			addBoundarySprite(b);
 		}
 
-		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
+		// Treat NPCs as editor objects
+		for(npc in mLevel.getNonPlayables()) {
+			npc.loadedByEditor = true;
+		}
 
-		mMenu = new EditorMenu(this);
-
-		mLastMousePos = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
-
+		// Note player starting point
 		var startpt : FlxPoint = mLevel.getStartPoint();
 		if(startpt != null) {
 			mStartPoint = new FlxSprite(startpt.x, startpt.y).makeGraphic(Player.WIDTH, Player.HEIGHT, 0xFF00FF00);
 			add(mStartPoint);
 		}
 
+		// Init camera according to level attributes
+		FlxG.camera.setBounds(0, 0, mLevel.getWidth(), mLevel.getHeight(), true);
+
+		// Add editor menu
+		mMenu = new EditorMenu(this);
 		add(mMenu);
 
+		// Create status text
 		mStatus = new FlxText(2, FlxG.height - 20, FlxG.width);
 		mStatus.shadow = 0xffffffff;
 		mStatus.useShadow = true;
@@ -71,6 +79,9 @@ class EditorState extends FlxState {
 		mStatus.scrollFactor = new FlxPoint(0,0);
 		setStatus("Super Merlot Editor 0.1.0");
 		add(mStatus);
+
+		// misc
+		mLastMousePos = new FlxPoint(FlxG.mouse.x, FlxG.mouse.y);
 
 		super.create();
 	}
@@ -237,6 +248,7 @@ class EditorState extends FlxState {
 		var plats : List<PlatformSprite> = activelvl().getPlatformSprites();
 		var coins : List<CollectibleSprite> = activelvl().getNutCoins();
 		var lvls : List<InnerLevel> = activelvl().getInnerLevels();
+		var npcs : List<NonPlayable> = activelvl().getNonPlayables();
 
 		// Because I suck, the order in which we check for picked items matters:
 		// Generally speaking, it's smallest --> largest
@@ -259,6 +271,14 @@ class EditorState extends FlxState {
 			if(Utility.isPointInSpriteBounds(x, y, g)) {
 				item = g;
 				break;
+			}
+		}
+
+		// check npcs
+		if(item == null) for(n in npcs) {
+			if(Utility.isPointInSpriteBounds(x, y, n)) { 
+				item = new SelectableSpriteWrapper(n);
+				break; 
 			}
 		}
 
@@ -427,6 +447,12 @@ class EditorState extends FlxState {
 		var sprite : PlatformSprite = new PlatformSprite(filename);
 		sprite.move(50, 200);
 		activelvl().addPlatformSprite(sprite);
+	}
+
+	public function createBaddieSprite(filename : String) : Void {
+		var sprite : NonPlayable = new NonPlayable(filename, 50, 200, 23, 23);
+		sprite.loadedByEditor = true;
+		activelvl().addNonPlayable(sprite);
 	}
 
 	public function createInnerLevel(filename : String) : Void {

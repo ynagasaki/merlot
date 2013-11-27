@@ -30,6 +30,8 @@ class EditorMenu extends FlxGroup {
 	var mInnerLevelMenu : Array<FlxButton> = null;
 	var mActiveLevelMenu : Array<FlxButton> = null;
 
+	var mInnerLevelButtonPosition : Int = -1;
+
 	public function new(editorHandle : EditorState) {
 		super();
 
@@ -43,15 +45,24 @@ class EditorMenu extends FlxGroup {
 			new EditorButton(5, 5, EditorCommand.LineMode.getName(), editorHandle.startMode),
 			new EditorButton(0, 0, EditorCommand.NutCoinMode.getName(), editorHandle.startMode),
 			new EditorButton(0, 0, "Platform", openFileSelector),
+			new EditorButton(0, 0, "Baddie", openFileSelector),
 			mInnerLevelButton,
 			new EditorButton(0, 0, EditorCommand.GateMode.getName(), editorHandle.startMode),
 			new FlxButton(0,0,"SaveLvl", editorHandle.saveLevel)
 		];
 
+		for(idx in 0...mOuterLevelMenu.length) {
+			if(mOuterLevelMenu[idx] == mInnerLevelButton) {
+				mInnerLevelButtonPosition = idx;
+				break;
+			}
+		}
+
 		mInnerLevelMenu = [
 			mOuterLevelMenu[0],
 			mOuterLevelMenu[1],
-			mOuterLevelMenu[2]
+			mOuterLevelMenu[2],
+			mOuterLevelMenu[3]
 		];
 
 		mActiveLevelMenu = mOuterLevelMenu;
@@ -78,7 +89,7 @@ class EditorMenu extends FlxGroup {
 		}
 
 		removeButtons(mActiveLevelMenu);
-		mActiveLevelMenu[3] = (show) ? mInnerEditButton : mInnerLevelButton;
+		mActiveLevelMenu[mInnerLevelButtonPosition] = (show) ? mInnerEditButton : mInnerLevelButton;
 		layoutTheButts(mActiveLevelMenu);
 	}
 
@@ -134,6 +145,7 @@ class EditorMenu extends FlxGroup {
 			var subdir : String = switch(button.label.text) {
 					case "Platform": "plats";
 					case "InnerLvl": "bgs";
+					case "Baddie": "baddies";
 					default: null;
 				};
 
@@ -180,6 +192,8 @@ class EditorMenu extends FlxGroup {
 			mEditorStateHandle.createPlatformSprite(filename);
 		} else if(mFileSelectorOpener.label.text == "InnerLvl") {
 			mEditorStateHandle.createInnerLevel(filename);
+		} else if(mFileSelectorOpener.label.text == "Baddie") {
+			mEditorStateHandle.createBaddieSprite(filename);
 		}
 		dismissFileSelector();
 	}

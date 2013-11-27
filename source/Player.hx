@@ -13,8 +13,6 @@ class Player extends Character {
 		super(X, Y);
 		loadGraphic("assets/pino-run.png", true, true, 40, 35);
 		maxVelocity.x = 100;			//walking speed
-		maxVelocity.y = 400;
-		acceleration.y = Character.GRAVITY;
 		drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
 		
 		//tweak the bounding box for better feel
