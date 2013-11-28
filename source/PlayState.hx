@@ -23,13 +23,12 @@ class CharacterFrameInfo {
 }
 
 class PlayState extends FlxState {
-	public static inline var FALL_PROBE_LENGTH : Float = 5000;
+	public static inline var CHAR_FRAME_INFO_KEY : String = "ExtraData:PlayState:CharacterFrameInfo";
 
 	var mPlayer : Player = null;
 	var mActiveLevel : Level = null;
 	var mNutCoinGroup : FlxGroup = null;
 	var mCharacters : List<Character> = null;
-	var mCharacterFrameInfoMap : Map<Character, CharacterFrameInfo> = null;
 
 	var mInitializedFromEditor : Bool = false;
 
@@ -46,18 +45,16 @@ class PlayState extends FlxState {
 
 		add(mActiveLevel.getLevelGraphics());
 
-		mNutCoinGroup = new FlxGroup();
-		prepareActiveLevelNutCoinGroup();
-
+		// set start point
 		var startpt : FlxPoint = mActiveLevel.getStartPoint();
 		if(startpt != null) {
 			mPlayer = new Player(startpt.x, startpt.y);
 		} else {
 			mPlayer = new Player(0, 0);
 		}
+		add(mPlayer);
 
 		FlxG.camera.setBounds(0, 0, mActiveLevel.getWidth(), mActiveLevel.getHeight(), true);
-		
 		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
 
 		//mPlayer.setDebug(true, this);
@@ -66,18 +63,11 @@ class PlayState extends FlxState {
 			lvl.setVisible(false);
 		}
 
+		mNutCoinGroup = new FlxGroup();
+		prepareActiveLevelNutCoinGroup();
+
 		mCharacters = new List();
-		mCharacters.add(mPlayer);
-
-		for(npc in mActiveLevel.getNonPlayables()) {
-			mCharacters.add(npc);
-		}
-
-		mCharacterFrameInfoMap = new Map();
-		for(character in mCharacters) {
-			add(character);
-			mCharacterFrameInfoMap.set(character, new CharacterFrameInfo());
-		}
+		prepareActiveLevelCharacters();
 	}
 
 	override public function destroy() : Void {
@@ -90,7 +80,7 @@ class PlayState extends FlxState {
 
 	override public function update() : Void {
 		for(character in mCharacters) {
-			var charframeinfo : CharacterFrameInfo = mCharacterFrameInfoMap[character];
+			var charframeinfo : CharacterFrameInfo = character.extraData.get(CHAR_FRAME_INFO_KEY);
 
 			charframeinfo.reset();
 
@@ -105,7 +95,7 @@ class PlayState extends FlxState {
 		super.update();
 
 		for(character in mCharacters) {
-			var charframeinfo : CharacterFrameInfo = mCharacterFrameInfoMap[character];
+			var charframeinfo : CharacterFrameInfo = character.extraData.get(CHAR_FRAME_INFO_KEY);
 
 			if(charframeinfo.checkIntersection) {
 				var feetx : Float = character.x + (character.width / 2);
@@ -141,9 +131,30 @@ class PlayState extends FlxState {
 
 	private function prepareActiveLevelNutCoinGroup() : Void {
 		var nutcoins : List<CollectibleSprite> = mActiveLevel.getNutCoins();
+		
+		mNutCoinGroup.clear();
+
 		for(nutcoin in nutcoins) {
 			if(nutcoin.alive)
 				mNutCoinGroup.add(nutcoin);
+		}
+	}
+
+	private function prepareActiveLevelCharacters() : Void {
+		mCharacters.clear();
+
+		var npcs : List<NonPlayable> = mActiveLevel.getNonPlayables();
+		for(npc in npcs) {
+			if(npc.alive)
+				mCharacters.add(npc);
+		}
+
+		mCharacters.add(mPlayer);
+
+		for(character in mCharacters) {
+			if(character.extraData.get(CHAR_FRAME_INFO_KEY) == null) {
+				character.extraData.set(CHAR_FRAME_INFO_KEY, new CharacterFrameInfo());
+			}
 		}
 	}
 
@@ -151,8 +162,9 @@ class PlayState extends FlxState {
 		mActiveLevel.setVisible(false);
 		target.setVisible(true);
 		mActiveLevel = target;
-		mNutCoinGroup.clear();
+
 		prepareActiveLevelNutCoinGroup();
+		prepareActiveLevelCharacters();
 
 		var otherLevelRelevantSurfaceBoundaries : List<Boundary> = gate.getLinkedBoundaries(target);
 		if(otherLevelRelevantSurfaceBoundaries.length > 0) {

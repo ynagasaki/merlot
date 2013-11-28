@@ -35,7 +35,7 @@ class NonPlayable extends Character {
 	}
 	
 	override public function update() : Void {
-		if(!loadedByEditor) {
+		if(!loadedByEditor && this.visible) {
 			facing = (velocity.x < 0) ? FlxObject.LEFT : FlxObject.RIGHT;
 			super.update();
 		}

@@ -7,6 +7,8 @@ class Character extends FlxSprite {
 	public static inline var GRAVITY : Float = 400;
 	public static inline var TERMINAL_VELOCITY : Float = 400;
 
+	public var extraData : Map<String, Dynamic> = null;
+
 	var mSurfaceBoundary : Boundary = null;
 	var mDebugBoundarySprite : FlxSprite = null;
 	var mDebugOn : Bool = false;
@@ -14,7 +16,8 @@ class Character extends FlxSprite {
 	public function new(X : Float, Y : Float) : Void {
 		super(X, Y);
 		acceleration.y = GRAVITY;
-		this.maxVelocity.y = TERMINAL_VELOCITY;
+		maxVelocity.y = TERMINAL_VELOCITY;
+		extraData = new Map<String, Dynamic>();
 	}
 
 	public function setDebug(on : Bool, state : FlxState) : Void {

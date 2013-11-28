@@ -57,6 +57,12 @@ class EditorState extends FlxState {
 			npc.loadedByEditor = true;
 		}
 
+		for(lvl in mLevel.getInnerLevels()) {
+			for(npc in lvl.getNonPlayables()) {
+				npc.loadedByEditor = true;
+			}
+		}
+
 		// Note player starting point
 		var startpt : FlxPoint = mLevel.getStartPoint();
 		if(startpt != null) {

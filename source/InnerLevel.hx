@@ -40,11 +40,17 @@ class InnerLevel extends Level {
 		
 		mLevelJson.gates = []; // we don't want to double-save gates
 
-		// save nutcoins in inner-level local-space
+		// save things in inner-level local-space
 		for(i in 0...mLevelJson.nutcoins.length) {
 			var nutcoin : Dynamic = mLevelJson.nutcoins[i];
 			nutcoin.p[0] -= this.x;
 			nutcoin.p[1] -= this.y;
+		}
+
+		for(i in 0...mLevelJson.npcs.length) {
+			var npc : Dynamic = mLevelJson.npcs[i];
+			npc.x -= this.x;
+			npc.y -= this.y;
 		}
 	}
 
@@ -59,6 +65,12 @@ class InnerLevel extends Level {
 			var xoffset : Float = c.x - this.x;
 			var yoffset : Float = c.y - this.y;
 			c.move(x + xoffset, y + yoffset);
+		}
+
+		for(n in mNonPlayables) {
+			var xoffset : Float = n.x - this.x;
+			var yoffset : Float = n.y - this.y;
+			n.move(x + xoffset, y + yoffset);
 		}
 
 		this.x = x;
