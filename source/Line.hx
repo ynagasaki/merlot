@@ -47,6 +47,6 @@ class Line {
 	}
 
 	public function toString() : String {
-		return "(" + p1.x + ", " + p1.y + ") (" + p2.x + ", " + p2.y + ")";
+		return "(" + p1.x + ", " + p1.y + ") (" + p2.x + ", " + p2.y + "); m=" + slope + ", b=" + yintercept;
 	}
 }

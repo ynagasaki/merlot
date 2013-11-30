@@ -358,15 +358,41 @@ class Level {
 		var topmostIntersectionPoint : FlxPoint = null;
 		var intersectionBoundary : Boundary = null;
 
+		//var checkedCount : Int = 0;
+
+		//trace("traj: " + trajectory.p1.x + ","+trajectory.p1.y + " ... " + trajectory.p2.x + "," + trajectory.p2.y);
+		
 		// maybe do like a BSP tree
 		for(boundary in mBoundariesGlobal) {
 			var s : Line = boundary.surface;
 
-			if(trajectory.p1.y > s.bottommostPoint.y) continue;
-			if(trajectory.p1.x > s.rightmostPoint.x) continue;
-			if(trajectory.p1.x < s.leftmostPoint.x) continue;
+			//trace("line: " + s);
+
+			if(trajectory.topmostPoint.y > s.bottommostPoint.y) { 
+				// trace("  A");
+				continue;
+			}
+
+			if(trajectory.leftmostPoint.x > s.rightmostPoint.x) { 
+				//trace("  B");
+				continue;
+			}
+			
+			if(trajectory.rightmostPoint.x < s.leftmostPoint.x) { 
+				//trace("  C");
+				continue;
+			}
 
 			intersectionPoint = Utility.checkLineIntersection(trajectory, s);
+
+/*
+			checkedCount += 1;
+			if(trajectory.p1.y > s.getY(trajectory.p1.x)) {
+				trace("line-y: " + s.getY(trajectory.p1.x));
+				trace("line: " + s);
+				freeze = true; return new IntersectionCheckResult(null, null);
+			}
+*/
 
 			if(intersectionPoint != null) {
 				// we check if topmost > current-intersection b/c larger Y is visually lower
@@ -378,8 +404,8 @@ class Level {
 		}
 
 		//trace("checked: " + checkedCount + ((intersectionBoundary==null) ? "(miss)" : "(hit)"));
-
 		return new IntersectionCheckResult(topmostIntersectionPoint,  intersectionBoundary);
 	}
+	//public var freeze : Bool = false;
 }
 

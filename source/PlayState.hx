@@ -68,6 +68,8 @@ class PlayState extends FlxState {
 
 		mCharacters = new List();
 		prepareActiveLevelCharacters();
+
+		//for(b in mActiveLevel.getGlobalBoundariesList()) add(new editor.BoundarySprite(b));
 	}
 
 	override public function destroy() : Void {
@@ -79,6 +81,7 @@ class PlayState extends FlxState {
 	}
 
 	override public function update() : Void {
+		//if(mActiveLevel.freeze) return;
 		for(character in mCharacters) {
 			var charframeinfo : CharacterFrameInfo = character.extraData.get(CHAR_FRAME_INFO_KEY);
 
