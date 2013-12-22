@@ -33,6 +33,16 @@ class Player extends Character {
 		addAnimation("jump",[1],0,false);
 	}
 
+	public function jump() : Void {
+		startNotBeingOnTheGround();
+		
+		velocity.y = -acceleration.y * 0.51;
+	}
+
+	public function isJumping() : Bool {
+		return velocity.y < 0; // this is < b/c the origin is top-left
+	}
+
 	override public function update() : Void {
 		//Smooth slidey walking controls
 		acceleration.x = 0;
@@ -55,8 +65,12 @@ class Player extends Character {
 			} else {
 				play("idle");
 			}
-		} else if(velocity.y < 0) {
+		} else if(isJumping()) {
 			play("jump");
+			if(FlxG.keys.justReleased("SPACE")) {
+				if(velocity.y < -acceleration.y * 0.25)
+				velocity.y = -acceleration.y * 0.25;
+			}
 		} else {
 			play("flail");
 		}

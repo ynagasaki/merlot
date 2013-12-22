@@ -2,6 +2,7 @@ package ;
 
 import org.flixel.FlxState;
 import org.flixel.FlxSprite;
+import org.flixel.FlxG;
 
 class Character extends FlxSprite {
 	public static inline var GRAVITY : Float = 400;
@@ -43,13 +44,6 @@ class Character extends FlxSprite {
 		return mSurfaceBoundary != null;
 	}
 
-	public function jump() : Void {
-		startNotBeingOnTheGround();
-		
-		velocity.y = -acceleration.y * 0.51;
-		play("jump");
-	}
-
 	public function isFalling() : Bool {
 		return velocity.y > 0;
 	}
@@ -89,6 +83,10 @@ class Character extends FlxSprite {
 			} else if(newx != oldx) {
 				this.y = surfaceline.getY(newx) - this.height;
 			}
+		}
+
+		if(this.y > FlxG.height + 100) {
+			this.kill();
 		}
 	}
 }
