@@ -3,7 +3,7 @@
 	<app title="merlot" file="merlot" main="Main" version="0.0.1" company="Zaphod" />
 	
 	<window width="640" height="480" fps="30" orientation="portrait" resizable="true" if="web" />
-	<window width="640" height="480" fps="30" orientation="landscape" fullscreen="false" hardware="true" vsync="true" unless="web" />
+	<window width="1024" height="576" fps="30" orientation="landscape" fullscreen="false" hardware="true" vsync="true" unless="web" />
  	
 	<set name="BUILD_DIR" value="export" />
 	
