@@ -1,8 +1,8 @@
 package ;
 
-import org.flixel.util.FlxPoint;
-import org.flixel.FlxSprite;
-import org.flixel.util.FlxRect;
+import flixel.util.FlxPoint;
+import flixel.FlxSprite;
+import flixel.util.FlxRect;
 
 class Utility {
 	public static inline var EPSILON : Float = 0.0001;

@@ -1,8 +1,8 @@
 
 package editor;
 
-import org.flixel.FlxGroup;
-import org.flixel.FlxBasic;
+import flixel.group.FlxGroup;
+import flixel.FlxBasic;
 
 class SelectableLevelWrapper implements SelectableItem
 {
@@ -20,7 +20,7 @@ class SelectableLevelWrapper implements SelectableItem
 		level.getBackground().color = 0xFFFFFFFF;
 	}
 	
-	public function move(x : Float, y : Float) : Void {
+	public function setPosition(x : Float = 0, y : Float = 0) : Void {
 		// go through all plats, nuts, etc and move em
 		level.setPosition(x, y);
 	}

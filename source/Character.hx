@@ -1,8 +1,8 @@
 package ;
 
-import org.flixel.FlxState;
-import org.flixel.FlxSprite;
-import org.flixel.FlxG;
+import flixel.FlxState;
+import flixel.FlxSprite;
+import flixel.FlxG;
 
 class Character extends FlxSprite {
 	public static inline var GRAVITY : Float = 400;

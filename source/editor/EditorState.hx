@@ -1,13 +1,14 @@
 package editor;
 
 import haxe.Json;
-import org.flixel.FlxG;
-import org.flixel.FlxSprite;
-import org.flixel.FlxState;
-import org.flixel.FlxBasic;
-import org.flixel.FlxButton;
-import org.flixel.util.FlxPoint;
-import org.flixel.FlxText;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.FlxState;
+import flixel.FlxBasic;
+import flixel.ui.FlxButton;
+import flixel.util.FlxPoint;
+import flixel.text.FlxText;
+import flixel.util.FlxSpriteUtil;
 
 class EditorState extends FlxState {
 	var mFirstPoint : FlxPoint = null;
@@ -30,7 +31,8 @@ class EditorState extends FlxState {
 
 	override public function create() : Void {
 		// Set a background color
-		FlxG.bgColor = 0xFFFF00FF;
+		this.bgColor = 0xFFFF00FF;
+		
 		// Show the mouse (in case it hasn't been disabled)
 		#if !FLX_NO_MOUSE
 		FlxG.mouse.show();
@@ -79,8 +81,6 @@ class EditorState extends FlxState {
 
 		// Create status text
 		mStatus = new FlxText(2, FlxG.height - 20, FlxG.width);
-		mStatus.shadow = 0xffffffff;
-		mStatus.useShadow = true;
 		mStatus.color = 0xff000000;
 		mStatus.scrollFactor = new FlxPoint(0,0);
 		setStatus("Super Merlot Editor 0.1.0");
@@ -120,7 +120,7 @@ class EditorState extends FlxState {
 	override public function update() : Void {
 		if(!mMenuActionIssued) {
 			if(mCommand != null) {
-				if(FlxG.keys.justPressed("ESCAPE")) {
+				if(FlxG.keys.justPressed.ESCAPE) {
 					if(mCommand == EditorCommand.InnerEditMode && mInnerCommand != null) {
 						setStatus("Exiting " + mInnerCommand);
 						mInnerCommand = null;
@@ -145,18 +145,18 @@ class EditorState extends FlxState {
 
 			if(activecmd() == null) {
 				// Editor is in normal mode
-				if(FlxG.mouse.justReleased()) {
+				if(FlxG.mouse.justReleased) {
 					pickSelectableItem();
 				}
 
-				if(FlxG.mouse.pressed() && !selectedItemIsNull()) {
+				if(FlxG.mouse.pressed && !selectedItemIsNull()) {
 					var offsetx : Float = mLastMousePos.x - mSelectedItem.getX();
 					var offsety : Float = mLastMousePos.y - mSelectedItem.getY();
 
-					mSelectedItem.move(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
+					mSelectedItem.setPosition(FlxG.mouse.x - offsetx, FlxG.mouse.y - offsety);
 				}
 
-				if(FlxG.keys.justReleased("ENTER") && FlxG.keys.pressed("SHIFT")) {
+				if(FlxG.keys.justReleased.ENTER && FlxG.keys.pressed.SHIFT) {
 					FlxG.switchState(new PlayState(true));
 				}
 			}
@@ -168,11 +168,11 @@ class EditorState extends FlxState {
 		}
 
 		// Allow camera movement regardless of mode
-		if(FlxG.keys.pressed("CONTROL")) {
+		if(FlxG.keys.pressed.CONTROL) {
 			FlxG.camera.focusOn(new FlxPoint(FlxG.mouse.x, FlxG.mouse.y));
 		}
 		// Allow selected sprite deletion regardless of mode
-		if(FlxG.keys.justReleased("DELETE") && !selectedItemIsNull()) {
+		if(FlxG.keys.justReleased.DELETE && !selectedItemIsNull()) {
 			deleteSelectedItem();
 		}
 
@@ -189,9 +189,9 @@ class EditorState extends FlxState {
 
 		for(gspr in mGateSprites) {
 			if(entering) {
-				gspr.fill(0x55FF0000);
+				FlxSpriteUtil.fill(gspr, 0x55FF0000);
 			} else {
-				gspr.fill(0xFFFF0000);
+				FlxSpriteUtil.fill(gspr, 0xFFFF0000);
 			}
 		}
 
@@ -308,7 +308,7 @@ class EditorState extends FlxState {
 	}
 
 	private function performGateMode() : Void {
-		if(FlxG.mouse.justReleased()) {
+		if(FlxG.mouse.justReleased) {
 			var gate : CrossLevelGate = new CrossLevelGate(FlxG.mouse.x, FlxG.mouse.y, mLevel, mActiveInnerLevel);
 			mLevel.addCrossLevelGate(gate);
 			addGateSprite(gate);
@@ -316,14 +316,14 @@ class EditorState extends FlxState {
 	}
 
 	private function placeNutCoins() : Void {
-		if(FlxG.mouse.justReleased()) {
+		if(FlxG.mouse.justReleased) {
 			activelvl().addNutCoin(new CollectibleSprite("assets/items/nut-coin.png", FlxG.mouse.x, FlxG.mouse.y));
 		}
 	}
 
 	private function performLineMode() : Void {
-		if(FlxG.mouse.justReleased()) {
-			if(!FlxG.keys.pressed("SHIFT")) {
+		if(FlxG.mouse.justReleased) {
+			if(!FlxG.keys.pressed.SHIFT) {
 				var selected : BoundarySprite = null;
 				for(bsprite in mBoundarySprites) {
 					if(Utility.isPointInSpriteBounds(FlxG.mouse.x, FlxG.mouse.y, bsprite)) {
@@ -357,7 +357,7 @@ class EditorState extends FlxState {
 				mFirstPoint = null;
 
 				// do "chaining"
-				if(FlxG.keys.pressed("C")) {
+				if(FlxG.keys.pressed.C) {
 					if(mLastBoundary != null) {
 						// "next" and "prev" only make sense for LTR segments
 						mLastBoundary.next = boundary;
@@ -451,7 +451,7 @@ class EditorState extends FlxState {
 
 	public function createPlatformSprite(filename : String) : Void {
 		var sprite : PlatformSprite = new PlatformSprite(filename);
-		sprite.move(50, 200);
+		sprite.setPosition(50, 200);
 		activelvl().addPlatformSprite(sprite);
 	}
 

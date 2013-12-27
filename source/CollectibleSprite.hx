@@ -1,7 +1,7 @@
 
 package ;
 
-import org.flixel.FlxSprite;
+import flixel.FlxSprite;
 
 class CollectibleSprite extends FlxSprite {
 	var mFilename : String = null;

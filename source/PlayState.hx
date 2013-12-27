@@ -1,11 +1,11 @@
 package ;
 
 import editor.EditorState;
-import org.flixel.FlxG;
-import org.flixel.FlxSprite;
-import org.flixel.FlxState;
-import org.flixel.util.FlxPoint;
-import org.flixel.FlxGroup;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.FlxState;
+import flixel.util.FlxPoint;
+import flixel.group.FlxGroup;
 import haxe.io.Input;
 
 class CharacterFrameInfo {
@@ -39,7 +39,7 @@ class PlayState extends FlxState {
 
 	override public function create() : Void {
 		// Set a background color
-		FlxG.bgColor = 0xFFFF00FF;
+		this.bgColor = 0xFFFF00FF;
 
 		mActiveLevel = new Level("assets/lvls/level-template.json");
 
@@ -55,7 +55,7 @@ class PlayState extends FlxState {
 		add(mPlayer);
 
 		FlxG.camera.setBounds(0, 0, mActiveLevel.getWidth(), mActiveLevel.getHeight(), true);
-		FlxG.camera.follow(mPlayer, org.flixel.FlxCamera.STYLE_PLATFORMER);
+		FlxG.camera.follow(mPlayer, flixel.FlxCamera.STYLE_PLATFORMER);
 
 		//mPlayer.setDebug(true, this);
 
@@ -120,11 +120,11 @@ class PlayState extends FlxState {
 			}
 		}
 
-		if(FlxG.keys.justPressed("ESCAPE") && mInitializedFromEditor) {
+		if(FlxG.keys.justPressed.ESCAPE && mInitializedFromEditor) {
 			FlxG.switchState(new EditorState());
 		}
 
-		if(FlxG.keys.justPressed("UP")) {
+		if(FlxG.keys.justPressed.UP) {
 			var gate : CrossLevelGate = mActiveLevel.checkCrossLevelGateEntry(mPlayer);
 			if(gate != null) {
 				switchLevel(gate, gate.getDestinationLevelRelativeTo(mActiveLevel));

@@ -1,7 +1,8 @@
 
 package editor;
 
-import org.flixel.FlxSprite;
+import flixel.FlxSprite;
+import flixel.util.FlxSpriteUtil;
 
 class BoundarySprite extends FlxSprite implements SelectableItem {
 	public var boundary : Boundary = null;
@@ -32,8 +33,9 @@ class BoundarySprite extends FlxSprite implements SelectableItem {
 	public function isInnerLevel() : Bool { return false; }
 
 	public function select() : Void {
-		fill(0x00FFFFFF);
-		drawLine(
+		FlxSpriteUtil.fill(this, 0x00FFFFFF);
+		FlxSpriteUtil.drawLine(
+			this,
 			boundary.surface.p1.x - this.x, 
 			boundary.surface.p1.y - this.y, 
 			boundary.surface.p2.x - this.x, 
@@ -44,8 +46,9 @@ class BoundarySprite extends FlxSprite implements SelectableItem {
 	}
 
 	public function deselect() : Void {
-		fill(0x00FFFFFF);
-		drawLine(
+		FlxSpriteUtil.fill(this, 0x00FFFFFF);
+		FlxSpriteUtil.drawLine(
+			this,
 			boundary.surface.p1.x - this.x, 
 			boundary.surface.p1.y - this.y, 
 			boundary.surface.p2.x - this.x, 

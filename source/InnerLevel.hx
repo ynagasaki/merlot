@@ -58,19 +58,19 @@ class InnerLevel extends Level {
 		for(p in mPlatformSprites) {
 			var xoffset : Float = p.x - this.x;
 			var yoffset : Float = p.y - this.y;
-			p.move(x + xoffset, y + yoffset);
+			p.setPosition(x + xoffset, y + yoffset);
 		}
 
 		for(c in mNutCoins) {
 			var xoffset : Float = c.x - this.x;
 			var yoffset : Float = c.y - this.y;
-			c.move(x + xoffset, y + yoffset);
+			c.setPosition(x + xoffset, y + yoffset);
 		}
 
 		for(n in mNonPlayables) {
 			var xoffset : Float = n.x - this.x;
 			var yoffset : Float = n.y - this.y;
-			n.move(x + xoffset, y + yoffset);
+			n.setPosition(x + xoffset, y + yoffset);
 		}
 
 		this.x = x;

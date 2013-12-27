@@ -2,7 +2,7 @@ package ;
 
 import editor.EditorState;
 import flash.Lib;
-import org.flixel.FlxGame;
+import flixel.FlxGame;
 	
 class Merlot extends FlxGame
 {	

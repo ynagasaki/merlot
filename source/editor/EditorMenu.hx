@@ -1,9 +1,9 @@
 package editor;
 
-import org.flixel.FlxG;
-import org.flixel.util.FlxPoint;
-import org.flixel.FlxGroup;
-import org.flixel.FlxButton;
+import flixel.FlxG;
+import flixel.util.FlxPoint;
+import flixel.group.FlxGroup;
+import flixel.ui.FlxButton;
 
 class EditorButton extends FlxButton {
 	var mCallback : (FlxButton -> Void) = null;
@@ -93,7 +93,7 @@ class EditorMenu extends FlxGroup {
 		layoutTheButts(mActiveLevelMenu);
 	}
 
-	public function addFixed(item : org.flixel.FlxObject) : Void {
+	public function addFixed(item : flixel.FlxObject) : Void {
 		item.scrollFactor = new FlxPoint(0, 0);
 		add(item);
 	}

@@ -1,10 +1,10 @@
 package ;
 
 import sys.io.File;
-import org.flixel.FlxSprite;
-import org.flixel.util.FlxPoint;
-import org.flixel.util.FlxRect;
-import org.flixel.FlxGroup;
+import flixel.FlxSprite;
+import flixel.util.FlxPoint;
+import flixel.util.FlxRect;
+import flixel.group.FlxGroup;
 
 class Level {
 	var mFilename : String = null;

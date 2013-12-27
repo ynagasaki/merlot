@@ -1,6 +1,6 @@
 package ;
 
-import org.flixel.util.FlxPoint;
+import flixel.util.FlxPoint;
 
 class IntersectionCheckResult 
 {

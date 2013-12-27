@@ -1,7 +1,7 @@
 
 package editor;
 
-import org.flixel.FlxSprite;
+import flixel.FlxSprite;
 
 class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
 	public var gate : CrossLevelGate = null;
@@ -55,11 +55,11 @@ class CrossLevelGateSprite  extends FlxSprite implements SelectableItem {
 		}
 	}
 
-	override public function move(x : Float, y : Float) : Void {
+	override public function setPosition(x : Float = 0, y : Float = 0) : Void {
 		var deltax : Float = this.x;
 		var deltay : Float = this.y;
 
-		super.move(x, y);
+		super.setPosition(x, y);
 		
 		deltax = this.x - deltax;
 		deltay = this.y - deltay;

@@ -1,8 +1,8 @@
 
 package editor;
 
-import org.flixel.FlxBasic;
-import org.flixel.FlxSprite;
+import flixel.FlxBasic;
+import flixel.FlxSprite;
 
 class SelectableSpriteWrapper implements SelectableItem {
 	public var sprite : FlxSprite = null;
@@ -19,8 +19,8 @@ class SelectableSpriteWrapper implements SelectableItem {
 		sprite.color = 0xFFFFFFFF;
 	}
 
-	public function move(x : Float, y : Float) : Void {
-		sprite.move(x, y);
+	public function setPosition(x : Float = 0, y : Float = 0) : Void {
+		sprite.setPosition(x, y);
 	}
 
 	public function getItem() : Dynamic { return sprite; }

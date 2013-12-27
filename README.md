@@ -1,11 +1,16 @@
 merlot
 ======
 a game
-ver: 0.1.0 (http://semver.org)
+ver: 0.2.0 (http://semver.org)
+
+change log
+----------
+0.1.0 to 0.2.0
+ - Upgraded from HaxeFlixel 2.x to 3.0.3
 
 setup
 -----
-Follow this: http://www.haxeflixel.com/wiki/getting-started
+Follow this: http://haxeflixel.com/documentation/install-haxe/
 
 using sublime text 2
 --------------------

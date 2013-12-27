@@ -1,7 +1,7 @@
 
 package ;
 
-import org.flixel.util.FlxPoint;
+import flixel.util.FlxPoint;
 
 class CrossLevelGate {
 	public static inline var WIDTH : Float = Player.WIDTH + 10;

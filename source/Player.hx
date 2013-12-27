@@ -1,8 +1,8 @@
 package ;
 
-import org.flixel.FlxG;
-import org.flixel.FlxObject;
-import org.flixel.FlxSprite;
+import flixel.FlxG;
+import flixel.FlxObject;
+import flixel.FlxSprite;
 
 class Player extends Character {
 	public static inline var WIDTH : Float = 40;//14;
@@ -31,11 +31,11 @@ class Player extends Character {
 		addAnimation("walk_back",[1,2,3,4],10,true);
 		addAnimation("flail",[0],18,false);
 		addAnimation("jump",[1],0,false);*/
-		addAnimation("idle",[0],0,false);
-		addAnimation("walk",[0,1,2,3,4,5,6,7,8,9],14,true);
-		addAnimation("walk_back",[0,1,2,3,4,5,6,7,8,9],14,true);
-		addAnimation("flail",[0],18,false);
-		addAnimation("jump",[0],0,false);
+		this.animation.add("idle",[0],0,false);
+		this.animation.add("walk",[0,1,2,3,4,5,6,7,8,9],14,true);
+		this.animation.add("walk_back",[0,1,2,3,4,5,6,7,8,9],14,true);
+		this.animation.add("flail",[0],18,false);
+		this.animation.add("jump",[0],0,false);
 	}
 
 	public function jump() : Void {
@@ -52,32 +52,32 @@ class Player extends Character {
 		//Smooth slidey walking controls
 		acceleration.x = 0;
 
-		if(FlxG.keys.LEFT)
+		if(FlxG.keys.pressed.LEFT)
 			acceleration.x -= drag.x;
-		if(FlxG.keys.RIGHT)
+		if(FlxG.keys.pressed.RIGHT)
 			acceleration.x += drag.x;
 		
 		if(isOnGround()) {
 			//Jump controls
-			if(FlxG.keys.justPressed("SPACE")) {
+			if(FlxG.keys.justPressed.SPACE) {
 				jump();
 			} else if(velocity.x > 0) {
-				play("walk");
+				this.animation.play("walk");
 				facing = FlxObject.RIGHT;
 			} else if(velocity.x < 0) {
-				play("walk_back");
+				this.animation.play("walk_back");
 				facing = FlxObject.LEFT;
 			} else {
-				play("idle");
+				this.animation.play("idle");
 			}
 		} else if(isJumping()) {
-			play("jump");
-			if(FlxG.keys.justReleased("SPACE")) {
+			this.animation.play("jump");
+			if(FlxG.keys.justReleased.SPACE) {
 				if(velocity.y < -acceleration.y * 0.25)
 				velocity.y = -acceleration.y * 0.25;
 			}
 		} else {
-			play("flail");
+			this.animation.play("flail");
 		}
 
 		super.update();

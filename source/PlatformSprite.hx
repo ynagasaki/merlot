@@ -1,7 +1,7 @@
 package ;
 
-import org.flixel.FlxSprite;
-import org.flixel.util.FlxColor;
+import flixel.FlxSprite;
+import flixel.util.FlxColor;
 
 class PlatformSprite extends FlxSprite {
 	private var mBoundaries : List<Boundary> = null;
@@ -16,13 +16,13 @@ class PlatformSprite extends FlxSprite {
 		mBoundaries = new List();
 	}
 
-	override public function move(X : Float, Y : Float) : Void {
+	override public function setPosition(X : Float = 0, Y : Float = 0) : Void {
 		if(X == x && Y == y) return;
 
 		var deltax : Float = this.x;
 		var deltay : Float = this.y;
 
-		super.move(X, Y);
+		super.setPosition(X, Y);
 
 		deltax = this.x - deltax;
 		deltay = this.y - deltay;

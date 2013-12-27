@@ -1,8 +1,8 @@
 package ;
 
-import org.flixel.FlxG;
-import org.flixel.FlxObject;
-import org.flixel.FlxSprite;
+import flixel.FlxG;
+import flixel.FlxObject;
+import flixel.FlxSprite;
 
 class NonPlayable extends Character {
 	public var loadedByEditor : Bool = false;
@@ -30,8 +30,8 @@ class NonPlayable extends Character {
 		frameHeight = w;
 		frameWidth = h;
 		
-		addAnimation("idle",[0],0,false);
-		addAnimation("walk",[0,1],20,true);
+		this.animation.add("idle",[0],0,false);
+		this.animation.add("walk",[0,1],20,true);
 	}
 	
 	override public function update() : Void {
