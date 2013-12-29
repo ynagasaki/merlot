@@ -1,6 +1,5 @@
 package editor;
 
-import haxe.Json;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;

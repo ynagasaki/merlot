@@ -1,9 +1,6 @@
 
 package editor;
 
-import flixel.group.FlxGroup;
-import flixel.FlxBasic;
-
 class SelectableLevelWrapper implements SelectableItem
 {
 	public var level : InnerLevel = null;

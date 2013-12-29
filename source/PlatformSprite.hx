@@ -1,7 +1,6 @@
 package ;
 
 import flixel.FlxSprite;
-import flixel.util.FlxColor;
 
 class PlatformSprite extends FlxSprite {
 	private var mBoundaries : List<Boundary> = null;

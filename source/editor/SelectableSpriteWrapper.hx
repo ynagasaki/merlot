@@ -1,7 +1,6 @@
 
 package editor;
 
-import flixel.FlxBasic;
 import flixel.FlxSprite;
 
 class SelectableSpriteWrapper implements SelectableItem {
