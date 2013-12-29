@@ -2,11 +2,9 @@ package ;
 
 import editor.EditorState;
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.util.FlxPoint;
 import flixel.group.FlxGroup;
-import haxe.io.Input;
 
 class CharacterFrameInfo {
 	public var oldY : Float = 0;
@@ -35,6 +33,8 @@ class PlayState extends FlxState {
 	public function new(initedByEditor : Bool) {
 		mInitializedFromEditor = initedByEditor;
 		super();
+
+		FlxG.log.redirectTraces = false;
 	}
 
 	override public function create() : Void {
@@ -57,7 +57,7 @@ class PlayState extends FlxState {
 		FlxG.camera.setBounds(0, 0, mActiveLevel.getWidth(), mActiveLevel.getHeight(), true);
 		FlxG.camera.follow(mPlayer, flixel.FlxCamera.STYLE_PLATFORMER);
 
-		//mPlayer.setDebug(true, this);
+		mPlayer.setDebug(true, this);
 
 		for(lvl in mActiveLevel.getInnerLevels()) {
 			lvl.setVisible(false);
@@ -86,8 +86,9 @@ class PlayState extends FlxState {
 			var charframeinfo : CharacterFrameInfo = character.extraData.get(CHAR_FRAME_INFO_KEY);
 
 			charframeinfo.reset();
+			charframeinfo.checkIntersection = character.alive && !character.isOnGround() && character.isFalling();
 
-			if(charframeinfo.checkIntersection = !character.isOnGround() && character.isFalling()) {
+			if(charframeinfo.checkIntersection) {
 				charframeinfo.oldX = character.x + (character.width / 2);
 				charframeinfo.oldY = character.y + character.height;
 			}
@@ -127,8 +128,19 @@ class PlayState extends FlxState {
 		if(FlxG.keys.justPressed.UP) {
 			var gate : CrossLevelGate = mActiveLevel.checkCrossLevelGateEntry(mPlayer);
 			if(gate != null) {
+				// make the player drop anything s/he is carrying
+				mPlayer.drop();
 				switchLevel(gate, gate.getDestinationLevelRelativeTo(mActiveLevel));
 			}
+		} else if(FlxG.keys.justPressed.C) {
+			for(npc in mActiveLevel.getNonPlayables()) {
+				if(mPlayer.overlaps(npc) && mPlayer.isFacing(npc)) {
+					mPlayer.pickUp(npc);
+					break;
+				}
+			}
+		} else if(FlxG.keys.justReleased.C) {
+			mPlayer.drop();
 		}
 	}
 

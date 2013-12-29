@@ -253,7 +253,9 @@ class Level {
 	}
 
 	public function setVisible(visible : Bool) : Void {
-
+		for(npc in mNonPlayables) {
+			npc.visible = visible;
+		}
 	}
 
 	public function applyChanges() : Void {

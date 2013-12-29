@@ -3,6 +3,7 @@ package ;
 import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.FlxG;
+import flixel.FlxObject;
 
 class Character extends FlxSprite {
 	public static inline var GRAVITY : Float = 400;
@@ -19,6 +20,11 @@ class Character extends FlxSprite {
 		acceleration.y = GRAVITY;
 		maxVelocity.y = TERMINAL_VELOCITY;
 		extraData = new Map<String, Dynamic>();
+	}
+
+	public function isFacing(obj : FlxSprite) : Bool {
+		var xdiff : Float = obj.getMidpoint().x - this.getMidpoint().x;
+		return (xdiff > 0 && this.facing == FlxObject.RIGHT) || (xdiff < 0 && this.facing == FlxObject.LEFT);
 	}
 
 	public function setDebug(on : Bool, state : FlxState) : Void {

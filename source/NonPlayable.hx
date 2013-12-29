@@ -1,13 +1,12 @@
 package ;
 
-import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.FlxSprite;
 
-class NonPlayable extends Character {
+class NonPlayable extends Character implements ICarryable {
 	public var loadedByEditor : Bool = false;
 
 	var mFilename : String = null;
+	var mBeingCarried : Bool = false;
 
 	public static function fromJson(dyn : Dynamic) : NonPlayable {
 		return new NonPlayable(dyn.f, dyn.x, dyn.y, dyn.w, dyn.h);
@@ -34,8 +33,25 @@ class NonPlayable extends Character {
 		this.animation.add("walk",[0,1],20,true);
 	}
 	
+	public function onPickedUp() : Void {
+		mBeingCarried = true;
+		//this.startNotBeingOnTheGround();
+		//this.acceleration.y = this.velocity.y = 0; // not falling
+	}
+
+	public function onDropped() : Void {
+		mBeingCarried = false;
+		this.startNotBeingOnTheGround();
+	}
+
+	public function onBeingCarried(held_x : Float, held_y : Float, facing : Int) : Void {
+		this.y = held_y;
+		this.x = (facing == FlxObject.RIGHT) ? held_x : held_x - this.width;
+		this.facing = facing;
+	}
+
 	override public function update() : Void {
-		if(!loadedByEditor && this.visible) {
+		if(!loadedByEditor && this.visible && !mBeingCarried) {
 			facing = (velocity.x < 0) ? FlxObject.LEFT : FlxObject.RIGHT;
 			super.update();
 		}

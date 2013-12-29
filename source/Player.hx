@@ -2,12 +2,14 @@ package ;
 
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.FlxSprite;
 
 class Player extends Character {
 	public static inline var WIDTH : Float = 40;//14;
 	public static inline var WIDTH_HALF : Float = WIDTH / 2;
 	public static inline var HEIGHT : Float = 75;//29;
+	public static inline var HEIGHT_HALF : Float = HEIGHT / 2;
+
+	var mCarryTarget : ICarryable = null;
 
 	public function new(X:Float, Y:Float) : Void {
 		super(X, Y);
@@ -34,8 +36,21 @@ class Player extends Character {
 		this.animation.add("idle",[0],0,false);
 		this.animation.add("walk",[0,1,2,3,4,5,6,7,8,9],14,true);
 		this.animation.add("walk_back",[0,1,2,3,4,5,6,7,8,9],14,true);
-		this.animation.add("flail",[0],18,false);
-		this.animation.add("jump",[0],0,false);
+		this.animation.add("flail",[3],18,false);
+		this.animation.add("jump",[1],0,false);
+	}
+
+	public function pickUp(thing : ICarryable) : Void {
+		if(this.mCarryTarget != null) this.drop();
+		this.mCarryTarget = thing;
+		this.mCarryTarget.onPickedUp();
+	}
+
+	public function drop() : Void {
+		if(this.mCarryTarget != null) {
+			this.mCarryTarget.onDropped();
+			this.mCarryTarget = null;
+		}
 	}
 
 	public function jump() : Void {
@@ -81,5 +96,13 @@ class Player extends Character {
 		}
 
 		super.update();
+
+		if(mCarryTarget != null) {
+			mCarryTarget.onBeingCarried(
+				this.x + ((this.facing == FlxObject.RIGHT) ? this.width : 0), 
+				this.y + HEIGHT_HALF,
+				this.facing
+			);
+		}
 	}
 }
