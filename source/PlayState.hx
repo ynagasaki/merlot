@@ -132,14 +132,14 @@ class PlayState extends FlxState {
 				mPlayer.drop();
 				switchLevel(gate, gate.getDestinationLevelRelativeTo(mActiveLevel));
 			}
-		} else if(FlxG.keys.justPressed.C) {
+		} else if(FlxG.keys.pressed.C && !mPlayer.isCarryingSomething()) {
 			for(npc in mActiveLevel.getNonPlayables()) {
 				if(mPlayer.overlaps(npc) && mPlayer.isFacing(npc)) {
 					mPlayer.pickUp(npc);
 					break;
 				}
 			}
-		} else if(FlxG.keys.justReleased.C) {
+		} else if(FlxG.keys.justReleased.C && mPlayer.isCarryingSomething()) {
 			mPlayer.drop();
 		}
 	}

@@ -40,6 +40,10 @@ class Player extends Character {
 		this.animation.add("jump",[1],0,false);
 	}
 
+	public function isCarryingSomething() : Bool {
+		return this.mCarryTarget != null;
+	}
+
 	public function pickUp(thing : ICarryable) : Void {
 		if(this.mCarryTarget != null) this.drop();
 		this.mCarryTarget = thing;
