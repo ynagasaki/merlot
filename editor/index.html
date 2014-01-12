@@ -1,81 +1,20 @@
 <html>
 <head>
 	<title>merlot editor</title>
-	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css" />
+	
+	<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css" />
+	<link rel="stylesheet" type="text/css" href="meditr.css" />
+
 	<script src="http://yui.yahooapis.com/3.14.1/build/yui/yui-min.js"></script>
 	<script type="text/javascript" src="processing-1.4.1.js"></script>
-	<script type="text/javascript">
-		var MEDITR = {};
-		MEDITR.WEB_PATH = "http://0.0.0.0:8000/";
-		MEDITR.ASSETS_LVLS = MEDITR.WEB_PATH + "assets/lvls/";
-		MEDITR.ASSETS_BGS = MEDITR.WEB_PATH + "assets/bgs/";
-		MEDITR._pjs = null;
-		MEDITR._bg = null;
-
-MEDITR.init = function(canvas_id) {
-	var pjs = new Processing(document.getElementById(canvas_id));
-
-	pjs.setup = function() {
-	};
-
-	pjs.draw = function() {
-		pjs.background(255);
-		if(MEDITR._bg) pjs.image(MEDITR._bg, 0, 0);
-	};
-
-	/*pjs.mouseMoved = function() {
-		value = ( pjs.mouseY-100);
-	};*/
-
-	pjs.setup();
-	this._pjs = pjs;
-};
-
-MEDITR.play = function(pause) {
-	if(pause === true) {
-		this._pjs.noloop();
-	} else {
-		this._pjs.loop();
-	}
-}
-
-MEDITR.load = function(json) {
-	//alert(this.WEB_PATH + json.background);
-	this._bg = this._pjs.loadImage(this.WEB_PATH + "assets/bgs/bg1", "png");
-	this._pjs.size(parseInt(json.width), parseInt(json.height));
-};
-	</script>
-	<style>
-		#sidebar, #content, #select_file_container, #save_file_container {
-			display: inline-block;
-			vertical-align: top;
-		}
-		#sidebar {
-			padding: 0px 10px 10px 10px;
-			width: 200px;
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			left: 0;
-		}
-		#content {
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			right: 0;
-			left: 200px;
-			overflow: scroll;
-		}
-		h1,h2,h3,h4,h5 {
-			margin: 5px 0px 5px 0px;
-		}
-	</style>
+	<script type="text/javascript" src="mutil.js"></script>
+	<script type="text/javascript" src="meditr.js"></script>
 </head>
 <body>
 
 <div id="sidebar">
-	<h1>meditr</h1>
+	<h1><span style="color:#1f8dd6;">m</span>editr</h1>
 	<div id="file_buttons_container">
 		<div id="select_file_container"></div>
 		<div id="save_file_container">
@@ -86,9 +25,10 @@ MEDITR.load = function(json) {
 
 <div id="content">
 	<canvas id="glibcanvas"></canvas>
-	<script type="text/javascript">MEDITR.init('glibcanvas');MEDITR.play();</script>
+	<script type="text/javascript">Meditr.init('glibcanvas');Meditr.play();</script>
 </div>
 
+<!-- file uploader script -->
 <script type="text/javascript">
 YUI({filter:"raw"}).use("uploader", "json-parse", "io-base", function(Y) {
 	if(Y.Uploader.TYPE != "html5") {
@@ -99,7 +39,7 @@ YUI({filter:"raw"}).use("uploader", "json-parse", "io-base", function(Y) {
 			height: "32px",
 			multipleFiles: false,
 			swfURL: null,
-			uploadURL: "http://0.0.0.0:8000/editor",
+			uploadURL: Meditr.APP_PATH,
 			withCredentials: false,
 			selectButtonLabel: "open"
 		});
@@ -109,17 +49,17 @@ YUI({filter:"raw"}).use("uploader", "json-parse", "io-base", function(Y) {
 		uploader.after("fileselect", function (event) {
 			var fileList = event.fileList;
 			var fileInstance = fileList[0];
-			var uri = MEDITR.ASSETS_LVLS + fileInstance.get("name");
+			var uri = Meditr.ASSETS_LVLS + fileInstance.get("name");
 
 			// Define a function to handle the response data.
 			function complete(id, o, args) {
 				var data = Y.JSON.parse(o.responseText);
-				MEDITR.load(data);
+				Meditr.load(data);
 			};
 
 			Y.on('io:complete', complete, Y, null);
 
-			var request = Y.io(uri);
+			var request = Y.io(uri + "?r=" + Math.random());
 		});
 
 		uploader.on("uploadstart", function (event) {
