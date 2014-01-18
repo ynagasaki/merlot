@@ -5,8 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Color;
 import java.io.IOException;
-import java.util.List;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class MerlotLevel extends MerlotSprite {
 
@@ -14,7 +14,7 @@ public class MerlotLevel extends MerlotSprite {
 
 	Point startPoint = null;
 
-	List<MerlotSprite> sprites = new LinkedList<MerlotSprite>();
+	Deque<MerlotSprite> sprites = new ArrayDeque<MerlotSprite>();
 
 	public MerlotLevel(MerlotJsonObject leveljson) throws IOException {
 		super(leveljson);
