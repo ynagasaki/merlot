@@ -1,36 +1,60 @@
-import org.json.simple.JSONArray;
+
 import org.json.simple.JSONObject;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Color;
 import java.io.IOException;
+import java.util.List;
+import java.util.LinkedList;
 
-public class MerlotLevel {
+public class MerlotLevel extends MerlotSprite {
 
 	int width, height;
 
 	Point startPoint = null;
 
-	BufferedImage backgroundImage = null;
+	List<MerlotSprite> sprites = new LinkedList<MerlotSprite>();
 
-	JSONObject levelJson = null;
+	public MerlotLevel(MerlotJsonObject leveljson) throws IOException {
+		super(leveljson);
 
-	public MerlotLevel(JSONObject leveljson) throws IOException {
-		this.levelJson = leveljson;
+		this.width = leveljson.getInt("width");
+		this.height = leveljson.getInt("height");
 
-		this.backgroundImage = ImageIO.read(new File(Meditor.APP_ROOT + (String) leveljson.get("background")));
+		MerlotJsonArray startpt = leveljson.getArray("startpt");
+		this.startPoint = new Point(startpt.getInt(0), startpt.getInt(1));
 
-		this.width = Mutil.getIntValueFromJson(leveljson, "width", 0);
-		this.height = Mutil.getIntValueFromJson(leveljson, "height", 0);
+		/* load sprites */
+		MerlotJsonArray.eachfunc<JSONObject> loadsprite = new MerlotJsonArray.eachfunc<JSONObject>() {
+			@Override
+			public boolean process(JSONObject item) {
+				MerlotJsonObject sprobj = new MerlotJsonObject(item);
+				try {
+					sprites.add(new MerlotSprite(sprobj));
+				} catch(IOException ex) {
+					System.out.println("*Error loading sprite: " + sprobj.getStr("f"));
+					ex.printStackTrace();
+					return false;
+				}
+				return true;
+			}
+		};
 
-		JSONArray startpt = (JSONArray) leveljson.get("startpt");
-		this.startPoint = new Point(Mutil.getIntValueFromJson(startpt, 0, 0), Mutil.getIntValueFromJson(startpt, 1, 0));
+		MerlotJsonArray.each(leveljson.getArray("nutcoins"), loadsprite);
+		MerlotJsonArray.each(leveljson.getArray("platforms"), loadsprite);
+		MerlotJsonArray.each(leveljson.getArray("npcs"), loadsprite);
 	}
 
+	@Override
 	public void draw(Graphics2D g2d) {
-		g2d.drawImage(this.backgroundImage, 0, 0, null);
-		g2d.drawRect(this.startPoint.x, this.startPoint.y, Meditor.PLAYER_WIDTH, Meditor.PLAYER_HEIGHT);
+		super.draw(g2d);
+
+		for(MerlotSprite spr : sprites) {
+			spr.draw(g2d);
+		}
+
+		g2d.setColor(Color.GREEN);
+		g2d.fillRect(this.startPoint.x, this.startPoint.y, Meditor.PLAYER_WIDTH, Meditor.PLAYER_HEIGHT);
 	}
 }

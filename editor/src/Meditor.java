@@ -28,13 +28,18 @@ public class Meditor {
 
 		Meditor app = new Meditor();
 
+		//Panel toolpanel = new Panel();
+		//toolpanel.setPreferredSize(new Dimension(200, 600));
+
 		final ScrollPane scrollpane = new ScrollPane(ScrollPane.SCROLLBARS_ALWAYS);
 		scrollpane.add(app.getCanvas());
 		scrollpane.setPreferredSize(new Dimension(800, 600));
 
 		Frame frame = new Frame("Meditor v.0.1.0");
 		frame.setSize(800, 600);
-		frame.add(scrollpane);
+		frame.setLayout(new BorderLayout());
+		//frame.add("West", toolpanel);
+		frame.add("Center", scrollpane);
 		frame.setVisible(true);
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -81,7 +86,7 @@ public class Meditor {
 		MerlotLevel lvl = null;
 
 		try {
-			lvl = new MerlotLevel(tld);
+			lvl = new MerlotLevel(new MerlotJsonObject(tld));
 		} catch(IOException ex) {
 			System.out.println("* Error: load level file failed: " + filename);
 			ex.printStackTrace();
@@ -122,6 +127,6 @@ class MeditorCanvas extends Component {
 			g2d.drawOval(width/2 - PINO_HEAD_WIDTH/2, height/2 - PINO_HEAD_HEIGHT/2, PINO_HEAD_WIDTH, PINO_HEAD_HEIGHT);
 		}
 		
-		g2d.finalize();
+		//g2d.finalize();
 	}
 }

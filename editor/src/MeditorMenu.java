@@ -1,4 +1,8 @@
-import java.awt.*;
+import java.awt.Frame;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -15,10 +19,11 @@ public class MeditorMenu implements ActionListener {
 
 	// Gui jank
 	private Frame parentFrame = null;
-	private Menu menu = new Menu("File");
-	private MenuBar bar = new MenuBar();
 
 	public MeditorMenu(Meditor app, Frame parentFrame) {
+		Menu menu = new Menu("File");
+		MenuBar bar = new MenuBar();
+
 		MenuItem openMenuItem = new MenuItem(MENUITEM_OPEN);
 		openMenuItem.addActionListener(this);
 		menu.add(openMenuItem);
@@ -26,7 +31,7 @@ public class MeditorMenu implements ActionListener {
 
 		this.parentApp = app;
 		this.parentFrame = parentFrame;
-		this.parentFrame.setMenuBar(this.bar);
+		this.parentFrame.setMenuBar(bar);
 	}
 
 	@Override
@@ -36,7 +41,7 @@ public class MeditorMenu implements ActionListener {
 			MenuItem source = (MenuItem) e.getSource();
 			label = source.getLabel();
 		}
-		if(label.equalsIgnoreCase(MENUITEM_OPEN)) {
+		if(label != null && label.equalsIgnoreCase(MENUITEM_OPEN)) {
 			FileDialog fd = new FileDialog(this.parentFrame, "Open level JSON", FileDialog.LOAD);
 
 			fd.setDirectory(Meditor.APP_ROOT);
