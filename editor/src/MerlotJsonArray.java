@@ -3,8 +3,12 @@ import org.json.simple.JSONArray;
 import java.util.Iterator;
 
 public class MerlotJsonArray {
-	public static interface eachfunc<T> {
-		boolean process(T item);
+	public static abstract class eachfunc<T1, T2> {
+		protected T2 arg;
+		void setarg(T2 arg) {
+			this.arg = arg;
+		}
+		abstract boolean process(T1 item);
 	}
 
 	public static void each(MerlotJsonArray array, eachfunc f) {
@@ -16,6 +20,10 @@ public class MerlotJsonArray {
 
 	public MerlotJsonArray(JSONArray array) {
 		this.array = array;
+	}
+
+	public int size() {
+		return this.array.size();
 	}
 
 	public Integer getInt(int idx) {

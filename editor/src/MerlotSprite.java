@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class MerlotSprite {
+public class MerlotSprite implements Selectable {
 	public static final Color SELECTED_COLOR = Color.BLUE; //new Color(0, 0, 255, 200);
 
 	int x, y;
@@ -62,11 +62,43 @@ public class MerlotSprite {
 		}
 	}
 
-	public boolean containsPoint(int cx, int cy) {
+	@Override
+	public boolean shouldSelect(int cx, int cy) {
 		int ix = cx - x; // canvasx, canvasy
 		int iy = cy - y;
 		int iw = img.getWidth();
 		int ih = img.getHeight();
 		return ix >= 0 && ix < iw && iy >= 0 && iy < ih;
+	}
+
+	@Override
+	public void select(boolean on) {
+		this.selected = on;
+	}
+
+	@Override
+	public void translate(int dx, int dy) {
+		this.x += dx;
+		this.y += dy;
+	}
+
+	@Override
+	public int getX() {
+		return x;
+	}
+
+	@Override
+	public int getY() {
+		return y;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public int getHeight() {
+		return height;
 	}
 }

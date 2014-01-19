@@ -26,12 +26,16 @@ public class MerlotLevel extends MerlotSprite {
 		this.startPoint = new Point(startpt.getInt(0), startpt.getInt(1));
 
 		/* load sprites */
-		MerlotJsonArray.eachfunc<JSONObject> loadsprite = new MerlotJsonArray.eachfunc<JSONObject>() {
+		MerlotJsonArray.eachfunc<JSONObject, String> loadsprite = new MerlotJsonArray.eachfunc<JSONObject, String>() {
 			@Override
 			public boolean process(JSONObject item) {
 				MerlotJsonObject sprobj = new MerlotJsonObject(item);
 				try {
-					sprites.add(new MerlotSprite(sprobj));
+					if(arg != null && arg.equalsIgnoreCase("platforms")) {
+						sprites.add(new MerlotPlatform(sprobj));
+					} else {
+						sprites.add(new MerlotSprite(sprobj));
+					}
 				} catch(IOException ex) {
 					System.out.println("*Error loading sprite: " + sprobj.getStr("f"));
 					ex.printStackTrace();
@@ -41,9 +45,11 @@ public class MerlotLevel extends MerlotSprite {
 			}
 		};
 
-		MerlotJsonArray.each(leveljson.getArray("nutcoins"), loadsprite);
-		MerlotJsonArray.each(leveljson.getArray("platforms"), loadsprite);
-		MerlotJsonArray.each(leveljson.getArray("npcs"), loadsprite);
+		String [] keys = new String[] {"nutcoins", "platforms", "npcs"};
+		for(String key : keys) {
+			loadsprite.setarg(key);
+			MerlotJsonArray.each(leveljson.getArray(key), loadsprite);
+		}
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.List;
 
 public class Meditor {
@@ -26,25 +25,25 @@ public class Meditor {
 			if(!APP_ROOT.endsWith("/")) APP_ROOT += "/";
 		}
 
+		// Setup window
+		Frame frame = new Frame("Meditor v.0.1.0");
+		frame.setIgnoreRepaint(true);
+		frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		frame.setLayout(new BorderLayout());
+
+		// Create new app
 		final Meditor app = new Meditor();
+
+		new MeditorMenu(app, frame);
+		MeditorCanvas canvas = app.getCanvas();
 
 		// setup scroll pane (main editor area)
 		final ScrollPane scrollpane = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);
-		scrollpane.add(app.getCanvas());
+		scrollpane.add(canvas);
 		scrollpane.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
-		// setup app window
-		Frame frame = new Frame("Meditor v.0.1.0");
-		frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		frame.setLayout(new BorderLayout());
 		frame.add("Center", scrollpane);
 		frame.setVisible(true);
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		});
 		frame.addWindowStateListener(new WindowStateListener() {
 			@Override
 			public void windowStateChanged(WindowEvent e) {
@@ -53,40 +52,54 @@ public class Meditor {
 				scrollpane.revalidate();
 			}
 		});
-
-		// setup app menu bar
-		new MeditorMenu(app, frame);
+		frame.addWindowListener(new WindowListener() {
+			@Override
+			public void windowOpened(WindowEvent e) {
+			}
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+			@Override
+			public void windowClosed(WindowEvent e) {
+			}
+			@Override
+			public void windowIconified(WindowEvent e) {
+			}
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+			}
+			@Override
+			public void windowActivated(WindowEvent e) {
+			}
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+			}
+		});
+		frame.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				app.getCanvas().dispatchEvent(e);
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				app.getCanvas().dispatchEvent(e);
+			}
+		});
 	}
 
 	private MeditorCanvas canvas = null;
 	private MerlotLevel level = null;
-	private MerlotSprite selected = null;
 
 	public Meditor() {
-		this.canvas = new MeditorCanvas(this);
+		this.canvas = new MeditorCanvas();
 	}
 
 	public MeditorCanvas getCanvas() {
 		return this.canvas;
-	}
-
-	public void onClick(int x, int y) {
-		if(level != null) {
-			Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
-			while(iter.hasNext()) {
-				MerlotSprite spr = iter.next();
-
-				if(spr.containsPoint(x, y)) {
-					if(selected != null) {
-						selected.selected = false;
-					}
-					selected = spr;
-					selected.selected = true;
-					canvas.repaint();
-					break;
-				}
-			}
-		}
 	}
 
 	public void LoadLevelJson(String filename) {
@@ -114,73 +127,5 @@ public class Meditor {
 		if(level != null) {
 			this.canvas.setLevel(level);
 		}
-	}
-}
-
-class MeditorCanvas extends Component {
-	private static final int PINO_HEAD_WIDTH = 280;
-	private static final int PINO_HEAD_HEIGHT = 200;
-
-	private static final int GRID_RESOLUTION = 10;
-	private static final Color GRID_COLOR = new Color(0,0,0,30);
-	private static final Stroke GRID_STROKE = new BasicStroke(
-			1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 1f, new float[] { 1f, 1f, 1f, 1f }, 0f
-		);
-
-	private MerlotLevel level = null;
-
-	public MeditorCanvas(final Meditor app) {
-		this.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				app.onClick(e.getX(), e.getY());
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-		});
-	}
-
-	public void setLevel(MerlotLevel level) {
-		this.level = level;
-		this.setPreferredSize(new Dimension(level.width, level.height));
-		this.getParent().setPreferredSize(new Dimension(level.width, level.height));
-		this.getParent().revalidate();
-	}
-
-	public void paint(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
-
-		int width = getSize().width - 1;
-		int height = getSize().height - 1;
-
-		if(this.level != null) {
-			this.level.draw(g2d);
-
-			g2d.setStroke(GRID_STROKE);
-			g2d.setColor(GRID_COLOR);
-			for(int x = 0; x <= width; x += GRID_RESOLUTION) g2d.drawLine(x,0,x,height);
-			for(int y = 0; y <= height; y += GRID_RESOLUTION) g2d.drawLine(0,y,width,y);
-		} else {
-			g2d.setColor(Color.WHITE);
-			g2d.fillOval(width/2 - PINO_HEAD_WIDTH/2, height/2 - PINO_HEAD_HEIGHT/2, PINO_HEAD_WIDTH, PINO_HEAD_HEIGHT);
-			g2d.setColor(Color.BLACK);
-			g2d.drawOval(width/2 - PINO_HEAD_WIDTH/2, height/2 - PINO_HEAD_HEIGHT/2, PINO_HEAD_WIDTH, PINO_HEAD_HEIGHT);
-		}
-		
-		//g2d.finalize();
 	}
 }
