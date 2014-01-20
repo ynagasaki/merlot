@@ -36,6 +36,7 @@ public class Meditor {
 
 		new MeditorMenu(app, frame);
 		MeditorCanvas canvas = app.getCanvas();
+		frame.add("West", new MeditorToolPanel(app));
 
 		// setup scroll pane (main editor area)
 		final ScrollPane scrollpane = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED);

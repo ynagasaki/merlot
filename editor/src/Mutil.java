@@ -1,6 +1,6 @@
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 public class Mutil {
-
+	public static int floor(int num, int resolution) {
+		return num / resolution * resolution;
+	}
 }
