@@ -22,9 +22,10 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == editBoundariesButton) {
-			Selectable selected = app.getCanvas().getSelectedItem();
+			MeditorCanvas canvas = app.getCanvas();
+			Selectable selected = canvas.getSelectedItem();
 			if(selected instanceof MerlotPlatform) {
-				System.out.println("Do it");
+				canvas.pushState(new BoundaryEditState(canvas));
 			}
 		}
 	}

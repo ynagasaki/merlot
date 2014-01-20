@@ -42,6 +42,11 @@ public class MeditorCanvas extends Canvas {
 			this.removeMouseListener(state);
 			this.removeMouseMotionListener(state);
 			this.removeKeyListener(state);
+
+			state = stateStack.peekFirst();
+			this.addMouseListener(state);
+			this.addMouseMotionListener(state);
+			this.addKeyListener(state);
 		}
 	}
 
