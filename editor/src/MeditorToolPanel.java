@@ -25,7 +25,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 			MeditorCanvas canvas = app.getCanvas();
 			Selectable selected = canvas.getSelectedItem();
 			if(selected instanceof MerlotPlatform) {
-				canvas.pushState(new BoundaryEditState(canvas));
+				canvas.pushState(new BoundaryEditState(canvas, (MerlotPlatform) selected));
 			}
 		}
 	}
