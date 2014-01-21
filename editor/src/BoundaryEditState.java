@@ -13,13 +13,36 @@ public class BoundaryEditState extends MeditorState {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		boolean selectionMade = false;
+		for(MerlotBoundary boundary : this.platform.boundaries) {
+			if(boundary.shouldSelect(e.getX(), e.getY())) {
+				if(selectedItem != null) {
+					selectedItem.select(false);
+				}
+				selectedItem = boundary;
+				boundary.select(true);
+				selectionMade = true;
+				break;
+			}
+		}
+
+		if(!selectionMade && selectedItem != null) {
+			selectedItem.select(false);
+			selectedItem = null;
+		}
+
+		parentCanvas.repaint();
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			if(selectedItem != null) {
+				selectedItem.select(false);
+			}
 			parentCanvas.popState();
 		}
+		super.keyPressed(e);
 	}
 
 	@Override
