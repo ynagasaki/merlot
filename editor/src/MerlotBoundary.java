@@ -12,8 +12,8 @@ public class MerlotBoundary implements Selectable {
 
 	Point b1 = new Point(0, 0);
 	Point b2 = new Point(0, 0);
-	Point n1 = new Point(0, 0);
-	Point n2 = new Point(0, 0);
+	//Point n1 = new Point(0, 0);
+	//Point n2 = new Point(0, 0);
 
 	Point topmost, leftmost, rightmost, bottommost;
 
@@ -27,8 +27,8 @@ public class MerlotBoundary implements Selectable {
 		b1.setLocation(b.getInt(0), b.getInt(1));
 		b2.setLocation(b.getInt(2), b.getInt(3));
 
-		n1.setLocation(n.getInt(0), n.getInt(1));
-		n2.setLocation(n.getInt(2), n.getInt(3));
+		//n1.setLocation(n.getInt(0), n.getInt(1));
+		//n2.setLocation(n.getInt(2), n.getInt(3));
 
 		calculateBoundaryAttributes();
 	}
@@ -46,8 +46,6 @@ public class MerlotBoundary implements Selectable {
 	@Override
 	public boolean shouldSelect(int cx, int cy) {
 		double dist = Math.abs(((double) cy - slope * (double) cx - intercept) / Math.sqrt(slope * slope + 1.0));
-
-		System.out.println("dist: " + dist);
 		return dist < 10.0 && cx > leftmost.x - 10 && cx < rightmost.x + 10 && cy > topmost.y - 10 && cy < bottommost.y + 10;
 	}
 
@@ -60,9 +58,8 @@ public class MerlotBoundary implements Selectable {
 	public void translate(int dx, int dy) {
 		b1.translate(dx, dy);
 		b2.translate(dx, dy);
-		n1.translate(dx, dy);
-		n2.translate(dx, dy);
-
+		//n1.translate(dx, dy);
+		//n2.translate(dx, dy);
 		calculateBoundaryAttributes();
 	}
 
@@ -86,7 +83,7 @@ public class MerlotBoundary implements Selectable {
 		return topmost.y - bottommost.y;
 	}
 
-	private void calculateBoundaryAttributes() {
+	public void calculateBoundaryAttributes() {
 		rightmost = b1.x > b2.x ? b1 : b2;
 		leftmost = b1.x > b2.x ? b2 : b1;
 		topmost = b1.y > b2.y ? b2 : b1;
