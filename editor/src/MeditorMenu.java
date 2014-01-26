@@ -13,6 +13,7 @@ import java.io.FilenameFilter;
  */
 public class MeditorMenu implements ActionListener {
 	public static final String MENUITEM_OPEN = "Open";
+	public static final String MENUITEM_SAVE = "Save";
 
 	// Logic jank
 	private Meditor parentApp = null;
@@ -24,9 +25,12 @@ public class MeditorMenu implements ActionListener {
 		Menu menu = new Menu("File");
 		MenuBar bar = new MenuBar();
 
-		MenuItem openMenuItem = new MenuItem(MENUITEM_OPEN);
-		openMenuItem.addActionListener(this);
-		menu.add(openMenuItem);
+		for(String item : new String [] { MENUITEM_OPEN, MENUITEM_SAVE }) {
+			MenuItem mitem = new MenuItem(item);
+			mitem.addActionListener(this);
+			menu.add(mitem);
+		}
+
 		bar.add(menu);
 
 		this.parentApp = app;
@@ -52,8 +56,11 @@ public class MeditorMenu implements ActionListener {
 			String file = fd.getFile();
 
 			if(dir != null && file != null) {
-				this.parentApp.LoadLevelJson(dir + file);
+				this.parentApp.loadLevelJson(dir + file);
 			}
+		}
+		if(label != null && label.equalsIgnoreCase(MENUITEM_SAVE)) {
+			this.parentApp.saveLevelJson(null);
 		}
 	}
 }

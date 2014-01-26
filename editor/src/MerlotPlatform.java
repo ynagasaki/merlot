@@ -1,3 +1,4 @@
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.awt.Graphics2D;
@@ -43,5 +44,22 @@ public class MerlotPlatform extends MerlotSprite {
 		for(MerlotBoundary b : boundaries) {
 			b.translate(dx, dy);
 		}
+	}
+
+	public JSONObject toJson() {
+		JSONObject json = new JSONObject();
+
+		json.put("f", imgfilename);
+		json.put("p", Mutil.makeJsonArray(x, y));
+
+		JSONArray bs = new JSONArray();
+
+		for(MerlotBoundary boundary : boundaries) {
+			bs.add(boundary.toJson());
+		}
+
+		json.put("b", bs);
+
+		return json;
 	}
 }

@@ -1,9 +1,11 @@
 
+import org.json.simple.JSONObject;
+
 import java.awt.*;
 
 public class MerlotBoundary implements Selectable {
 	public static final String BOUNDARY_KEY = "s";
-	public static final String NORMAL_KEY = "n";
+	//public static final String NORMAL_KEY = "n";
 
 	public static final BasicStroke DESELECTED_LINE = new BasicStroke(1f);
 	public static final BasicStroke SELECTED_LINE = new BasicStroke(2f);
@@ -22,7 +24,7 @@ public class MerlotBoundary implements Selectable {
 
 	public MerlotBoundary(MerlotJsonObject json) {
 		MerlotJsonArray b = json.getArray(BOUNDARY_KEY);
-		MerlotJsonArray n = json.getArray(NORMAL_KEY);
+		//MerlotJsonArray n = json.getArray(NORMAL_KEY);
 
 		b1.setLocation(b.getInt(0), b.getInt(1));
 		b2.setLocation(b.getInt(2), b.getInt(3));
@@ -96,5 +98,12 @@ public class MerlotBoundary implements Selectable {
 		if(slope != null) {
 			intercept = (double) b1.y - slope * (double) b1.x;
 		}
+	}
+
+	public JSONObject toJson() {
+		JSONObject b = new JSONObject();
+		b.put("s", Mutil.makeJsonArray(b1.x, b1.y, b2.x, b2.y));
+		//b.put("n", Mutil.makeJsonArray())
+		return b;
 	}
 }

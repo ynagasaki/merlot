@@ -1,8 +1,8 @@
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -12,7 +12,7 @@ public class MerlotLevel extends MerlotSprite {
 
 	int width, height;
 
-	Point startPoint = null;
+	ColoredRectSprite startPointSprite = new ColoredRectSprite();
 
 	Deque<MerlotSprite> sprites = new ArrayDeque<MerlotSprite>();
 
@@ -23,7 +23,7 @@ public class MerlotLevel extends MerlotSprite {
 		this.height = leveljson.getInt("height");
 
 		MerlotJsonArray startpt = leveljson.getArray("startpt");
-		this.startPoint = new Point(startpt.getInt(0), startpt.getInt(1));
+		this.startPointSprite.set(Color.GREEN, startpt.getInt(0), startpt.getInt(1), Meditor.PLAYER_WIDTH, Meditor.PLAYER_HEIGHT);
 
 		/* load sprites */
 		MerlotJsonArray.eachfunc<JSONObject, String> loadsprite = new MerlotJsonArray.eachfunc<JSONObject, String>() {
@@ -45,11 +45,15 @@ public class MerlotLevel extends MerlotSprite {
 			}
 		};
 
+		this.sprites.clear();
+
 		String [] keys = new String[] {"nutcoins", "platforms", "npcs"};
 		for(String key : keys) {
 			loadsprite.setarg(key);
 			MerlotJsonArray.each(leveljson.getArray(key), loadsprite);
 		}
+
+		sprites.add(startPointSprite);
 	}
 
 	@Override
@@ -60,7 +64,56 @@ public class MerlotLevel extends MerlotSprite {
 			spr.draw(g2d);
 		}
 
-		g2d.setColor(Color.GREEN);
-		g2d.fillRect(this.startPoint.x, this.startPoint.y, Meditor.PLAYER_WIDTH, Meditor.PLAYER_HEIGHT);
+		startPointSprite.draw(g2d);
+	}
+
+	public String getFilename() {
+		return Meditor.APP_ROOT + this.json.getStr("id");
+	}
+
+	public JSONObject toJson() {
+		JSONObject json = new JSONObject();
+
+		json.put("id", this.json.getStr("id"));
+		json.put("width", width);
+		json.put("height", height);
+		json.put("background", imgfilename);
+
+		json.put("startpt", Mutil.makeJsonArray(startPointSprite.getX(), startPointSprite.getY()));
+
+		JSONArray nutcoins = new JSONArray();
+		JSONArray platforms = new JSONArray();
+		JSONArray npcs = new JSONArray();
+
+		for(MerlotSprite spr : sprites) {
+			if(spr instanceof ColoredRectSprite) {
+				continue;
+			} else if(spr instanceof  MerlotPlatform) {
+				platforms.add(((MerlotPlatform) spr).toJson());
+			} else if(spr.imgfilename.contains("coin")) {
+				JSONObject nc = new JSONObject();
+				nc.put("f", spr.imgfilename);
+				nc.put("p", Mutil.makeJsonArray(spr.getX(), spr.getY()));
+				nutcoins.add(nc);
+			} else if(spr.imgfilename.contains("baddies")) {
+				JSONObject b = new JSONObject();
+				b.put("f", spr.imgfilename);
+				b.put("x", spr.getX());
+				b.put("y", spr.getY());
+				b.put("w", spr.getWidth());
+				b.put("h", spr.getHeight());
+				npcs.add(b);
+			}
+		}
+
+		json.put("nutcoins", nutcoins);
+		json.put("npcs", npcs);
+		json.put("platforms", platforms);
+
+		json.put("gates", new JSONArray());
+		json.put("boundaries", new JSONArray());
+		json.put("innerlevels", new JSONArray());
+
+		return json;
 	}
 }

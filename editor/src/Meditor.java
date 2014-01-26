@@ -3,7 +3,7 @@ import org.json.simple.JSONValue;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class Meditor {
+	public static String APP_TITLE = "Meditor v0.1.0";
 	public static String APP_ROOT = System.getProperty("user.dir");
 
 	public static final int PLAYER_WIDTH = 40, PLAYER_HEIGHT = 75;
@@ -26,13 +27,13 @@ public class Meditor {
 		}
 
 		// Setup window
-		Frame frame = new Frame("Meditor v.0.1.0");
+		Frame frame = new Frame(APP_TITLE);
 		frame.setIgnoreRepaint(true);
 		frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		frame.setLayout(new BorderLayout());
 
 		// Create new app
-		final Meditor app = new Meditor();
+		final Meditor app = new Meditor(frame);
 
 		new MeditorMenu(app, frame);
 		MeditorCanvas canvas = app.getCanvas();
@@ -76,8 +77,10 @@ public class Meditor {
 
 	private MeditorCanvas canvas = null;
 	private MerlotLevel level = null;
+	private Frame window = null;
 
-	public Meditor() {
+	public Meditor(Frame frame) {
+		this.window = frame;
 		this.canvas = new MeditorCanvas();
 	}
 
@@ -85,7 +88,7 @@ public class Meditor {
 		return this.canvas;
 	}
 
-	public void LoadLevelJson(String filename) {
+	public void loadLevelJson(String filename) {
 		List<String> lines;
 		StringBuilder content = new StringBuilder();
 
@@ -108,7 +111,49 @@ public class Meditor {
 		}
 
 		if(level != null) {
+			this.window.setTitle(APP_TITLE + " - " + filename);
 			this.canvas.setLevel(level);
+		}
+	}
+
+	public void saveLevelJson(String filename) {
+		FileOutputStream fouts;
+		String data = level.toJson().toString();
+
+		if(filename == null) {
+			filename = level.getFilename();
+		}
+
+		try {
+			fouts = new FileOutputStream(filename, false);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			return;
+		}
+
+		Writer out;
+		try {
+			out = new OutputStreamWriter(fouts, "UTF-8");
+		} catch(Exception ex) {
+			try {
+				fouts.close();
+			} catch(Exception ex2) {
+				ex2.addSuppressed(ex);
+				ex2.printStackTrace();
+			}
+			return;
+		}
+
+		try {
+			out.write(data);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				out.close();
+			} catch(Exception ex2) {
+				ex2.printStackTrace();
+			}
 		}
 	}
 }

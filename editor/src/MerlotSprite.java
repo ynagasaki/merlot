@@ -12,14 +12,17 @@ public class MerlotSprite implements Selectable {
 	boolean selected = false;
 	boolean hasFrames = false;
 
-	String filename;
+	String imgfilename;
 	MerlotJsonObject json = null;
 	BufferedImage img = null;
+
+	public MerlotSprite() {
+	}
 
 	public MerlotSprite(MerlotJsonObject json) throws IOException {
 		this.json = json;
 
-		filename = json.getStr(getImageKey());
+		imgfilename = json.getStr(getImageKey());
 
 		if(json.hasKey("p")) {
 			MerlotJsonArray p = json.getArray("p");
@@ -32,7 +35,7 @@ public class MerlotSprite implements Selectable {
 			x = y = 0;
 		}
 
-		img = ImageIO.read(new File(Meditor.APP_ROOT + filename));
+		img = ImageIO.read(new File(Meditor.APP_ROOT + imgfilename));
 
 		if(json.hasKey("h") && json.hasKey("w")) {
 			width = json.getInt("w");
@@ -66,9 +69,7 @@ public class MerlotSprite implements Selectable {
 	public boolean shouldSelect(int cx, int cy) {
 		int ix = cx - x; // canvasx, canvasy
 		int iy = cy - y;
-		int iw = img.getWidth();
-		int ih = img.getHeight();
-		return ix >= 0 && ix < iw && iy >= 0 && iy < ih;
+		return ix >= 0 && ix < width && iy >= 0 && iy < height;
 	}
 
 	@Override
