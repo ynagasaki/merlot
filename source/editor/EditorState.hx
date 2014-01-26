@@ -342,7 +342,7 @@ class EditorState extends FlxState {
 				var boundary : Boundary = new Boundary();
 
 				boundary.surface = new Line(mFirstPoint.x, mFirstPoint.y, FlxG.mouse.x, FlxG.mouse.y);
-				boundary.normal = calculateNormal(boundary.surface);
+				//boundary.normal = calculateNormal(boundary.surface);
 
 				if(!selectedItemIsNull() && mSelectedItem.isPlatformSprite()) {
 					cast(mSelectedItem.getItem(), PlatformSprite).addBoundary(boundary);

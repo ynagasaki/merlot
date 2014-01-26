@@ -57,7 +57,7 @@ class PlayState extends FlxState {
 		FlxG.camera.setBounds(0, 0, mActiveLevel.getWidth(), mActiveLevel.getHeight(), true);
 		FlxG.camera.follow(mPlayer, flixel.FlxCamera.STYLE_PLATFORMER);
 
-		mPlayer.setDebug(true, this);
+		//mPlayer.setDebug(false, this);
 
 		for(lvl in mActiveLevel.getInnerLevels()) {
 			lvl.setVisible(false);
@@ -77,6 +77,7 @@ class PlayState extends FlxState {
 	}
 
 	private function nutCoinCallback(player : Dynamic, coin : Dynamic) : Void {
+		var spr : flixel.FlxSprite = cast(coin, CollectibleSprite);
 		cast(coin, CollectibleSprite).kill();
 	}
 

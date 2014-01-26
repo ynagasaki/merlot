@@ -33,10 +33,10 @@ class PlatformSprite extends FlxSprite {
 			boundary.surface.p2.x += deltax;
 			boundary.surface.p2.y += deltay;
 
-			boundary.normal.p1.x += deltax;
+			/*boundary.normal.p1.x += deltax;
 			boundary.normal.p1.y += deltay;
 			boundary.normal.p2.x += deltax;
-			boundary.normal.p2.y += deltay;
+			boundary.normal.p2.y += deltay;*/
 		}
 	}
 
