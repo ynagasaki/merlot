@@ -19,6 +19,17 @@ public class MerlotSprite implements Selectable {
 	public MerlotSprite() {
 	}
 
+	public MerlotSprite(String filename) throws IOException {
+		imgfilename = filename;
+
+		x = y = 0;
+
+		img = ImageIO.read(new File(Meditor.APP_ROOT, imgfilename));
+
+		width = img.getWidth();
+		height = img.getHeight();
+	}
+
 	public MerlotSprite(MerlotJsonObject json) throws IOException {
 		this.json = json;
 
@@ -35,7 +46,7 @@ public class MerlotSprite implements Selectable {
 			x = y = 0;
 		}
 
-		img = ImageIO.read(new File(Meditor.APP_ROOT + imgfilename));
+		img = ImageIO.read(new File(Meditor.APP_ROOT, imgfilename));
 
 		if(json.hasKey("h") && json.hasKey("w")) {
 			width = json.getInt("w");

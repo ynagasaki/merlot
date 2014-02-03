@@ -1,8 +1,10 @@
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -88,6 +90,18 @@ public class Meditor {
 		return this.canvas;
 	}
 
+	public void saveCanvasRender(final String filename) {
+		BufferedImage result = canvas.requestCanvasRender();
+		if(result != null) {
+			File outputfile = new File(filename + ".png");
+			try {
+				ImageIO.write(result, "png", outputfile);
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
 	public void loadLevelJson(String filename) {
 		List<String> lines;
 		StringBuilder content = new StringBuilder();
@@ -155,5 +169,25 @@ public class Meditor {
 				ex2.printStackTrace();
 			}
 		}
+	}
+
+	public String openLoadFileDialog(final String extension) {
+		FileDialog fd = new FileDialog(this.window, "Load a " + extension + " file", FileDialog.LOAD);
+
+		fd.setDirectory(Meditor.APP_ROOT);
+
+		fd.setFilenameFilter(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().trim().endsWith(extension);
+			}
+		});
+
+		fd.setVisible(true);
+
+		String dir = fd.getDirectory();
+		String file = fd.getFile();
+
+		return dir + file;
 	}
 }

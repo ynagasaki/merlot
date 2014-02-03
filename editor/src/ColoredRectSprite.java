@@ -15,5 +15,9 @@ public class ColoredRectSprite extends MerlotSprite {
 	public void draw(Graphics2D g2d) {
 		g2d.setColor(color);
 		g2d.fillRect(x, y, width, height);
+		if(selected) {
+			g2d.setColor(SELECTED_COLOR);
+			g2d.drawRect(x, y, width, height);
+		}
 	}
 }

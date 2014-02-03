@@ -1,19 +1,17 @@
-import java.awt.Frame;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.FileDialog;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FilenameFilter;
 
 /**
  * The main menu bar for the Meditor.
  */
 public class MeditorMenu implements ActionListener {
-	public static final String MENUITEM_OPEN = "Open";
-	public static final String MENUITEM_SAVE = "Save";
+
+	public static final String[] MENUITEM_NEW = new String[] {"New...", "N"};
+	public static final String[] MENUITEM_OPEN = new String[] {"Open...", "O"};
+	public static final String[] MENUITEM_SAVE = new String[] {"Save", "S"};
+	public static final String[] MENUITEM_SEP = new String[] { "-", null };
+	public static final String[] MENUITEM_RENDER = new String[] {"Render to File...", "R"};
 
 	// Logic jank
 	private Meditor parentApp = null;
@@ -24,9 +22,19 @@ public class MeditorMenu implements ActionListener {
 	public MeditorMenu(Meditor app, Frame parentFrame) {
 		Menu menu = new Menu("File");
 		MenuBar bar = new MenuBar();
+		String [][] menuitems = new String [][] {
+			MENUITEM_NEW,
+			MENUITEM_OPEN,
+			MENUITEM_SAVE,
+			MENUITEM_SEP,
+			MENUITEM_RENDER
+		};
 
-		for(String item : new String [] { MENUITEM_OPEN, MENUITEM_SAVE }) {
-			MenuItem mitem = new MenuItem(item);
+		for(String[] item : menuitems) {
+			MenuItem mitem = new MenuItem(item[0]);
+			if(item[1] != null) {
+				mitem.setShortcut(new MenuShortcut(item[1].charAt(0)));
+			}
 			mitem.addActionListener(this);
 			menu.add(mitem);
 		}
@@ -45,29 +53,35 @@ public class MeditorMenu implements ActionListener {
 			MenuItem source = (MenuItem) e.getSource();
 			label = source.getLabel();
 		}
-		if(label != null && label.equalsIgnoreCase(MENUITEM_OPEN)) {
-			FileDialog fd = new FileDialog(this.parentFrame, "Open level JSON", FileDialog.LOAD);
-
-			fd.setDirectory(Meditor.APP_ROOT);
-			fd.setFilenameFilter(new JSONFilenameFilter());
-			fd.setVisible(true);
-
-			String dir = fd.getDirectory();
-			String file = fd.getFile();
-
-			if(dir != null && file != null) {
-				this.parentApp.loadLevelJson(dir + file);
-			}
-		}
-		if(label != null && label.equalsIgnoreCase(MENUITEM_SAVE)) {
+		if(label == null) return;
+		if(label.equalsIgnoreCase(MENUITEM_OPEN[0])) {
+			String path = this.parentApp.openLoadFileDialog("json");
+			this.parentApp.loadLevelJson(path);
+		} else if(label.equalsIgnoreCase(MENUITEM_SAVE[0])) {
 			this.parentApp.saveLevelJson(null);
-		}
-	}
-}
+		} else if(label.equalsIgnoreCase(MENUITEM_RENDER[0])) {
+			if(this.parentApp.getCanvas().getLevel() != null) {
+				FileDialog fd = new FileDialog(parentFrame, "Save rendering", FileDialog.SAVE);
 
-class JSONFilenameFilter implements FilenameFilter {
-	@Override
-	public boolean accept(File dir, String name) {
-		return name.toLowerCase().trim().endsWith(".json");
+				fd.setDirectory(Meditor.APP_ROOT);
+				fd.setVisible(true);
+
+				String dir = fd.getDirectory();
+				String file = fd.getFile();
+				int extidx = file.lastIndexOf('.');
+
+				if(extidx >= 0) {
+					file = file.substring(0, extidx);
+				}
+
+				if(file.length() > 0) {
+					this.parentApp.saveCanvasRender(dir + file);
+				} else {
+					System.out.println("*Error: filename is empty; canceling render.");
+				}
+			}
+		} else if(label.equalsIgnoreCase(MENUITEM_NEW[0])) {
+			System.out.println("All I'm hearing is... I'm too fat.");
+		}
 	}
 }

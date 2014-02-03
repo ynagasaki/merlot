@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 
 public class MeditorState extends MouseAdapter implements MouseMotionListener, KeyListener {
@@ -60,13 +61,6 @@ public class MeditorState extends MouseAdapter implements MouseMotionListener, K
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if(selectedItem != null) {
-			selectedItemUnsnappedPosition.setLocation(selectedItem.getX(), selectedItem.getY());
-		}
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
 		MerlotLevel level = parentCanvas.getLevel();
 		if(level != null) {
 			Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
@@ -84,6 +78,13 @@ public class MeditorState extends MouseAdapter implements MouseMotionListener, K
 				}
 			}
 		}
+		if(selectedItem != null) {
+			selectedItemUnsnappedPosition.setLocation(selectedItem.getX(), selectedItem.getY());
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
 	}
 
 	@Override
@@ -95,6 +96,7 @@ public class MeditorState extends MouseAdapter implements MouseMotionListener, K
 		if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
 			parentCanvas.gridOn(true);
 			if(selectedItem != null) {
+				parentCanvas.setGridExtents(selectedItem.getX(), selectedItem.getY(), selectedItem.getWidth(), selectedItem.getHeight());
 				selectedItemUnsnappedPosition.setLocation(selectedItem.getX(), selectedItem.getY());
 			}
 		}

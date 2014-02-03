@@ -7,7 +7,13 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class MerlotPlatform extends MerlotSprite {
-	Deque<MerlotBoundary> boundaries = null;
+	Deque<MerlotBoundary> boundaries = new ArrayDeque<MerlotBoundary>();
+
+	public MerlotPlatform(String filename) throws IOException {
+		super(filename);
+
+		hasFrames = false;
+	}
 
 	public MerlotPlatform(MerlotJsonObject json) throws IOException {
 		super(json);
@@ -15,8 +21,6 @@ public class MerlotPlatform extends MerlotSprite {
 		MerlotJsonArray b = json.getArray("b");
 
 		if(b.size() > 0) {
-			boundaries = new ArrayDeque<MerlotBoundary>();
-
 			MerlotJsonArray.each(b, new MerlotJsonArray.eachfunc<JSONObject, Object>() {
 				@Override
 				public boolean process(JSONObject item) {

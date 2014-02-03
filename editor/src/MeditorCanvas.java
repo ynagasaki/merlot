@@ -1,11 +1,11 @@
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 
 public class MeditorCanvas extends Canvas {
-
 	private boolean gridIsOn = false;
 	private MeditorGrid grid;
 	private MerlotLevel level = null;
@@ -78,6 +78,16 @@ public class MeditorCanvas extends Canvas {
 	public void setGridExtents(int x, int y, int width, int height) {
 		grid.setExtents(x, y, width, height);
 		repaint();
+	}
+
+	public BufferedImage requestCanvasRender() {
+		if(level != null) {
+			BufferedImage result = new BufferedImage(level.width, level.height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = result.createGraphics();
+			this.paint(g2d);
+			return result;
+		}
+		return null;
 	}
 
 	@Override
