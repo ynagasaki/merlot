@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.util.Iterator;
 
 public class MeditorState extends MouseAdapter implements MouseMotionListener, KeyListener {

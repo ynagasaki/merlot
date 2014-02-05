@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Deque;
 
 public class MerlotLevel extends MerlotSprite {

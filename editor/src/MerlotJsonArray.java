@@ -36,6 +36,6 @@ public class MerlotJsonArray {
 	}
 
 	public Double getDouble(int idx) {
-		return ((Double) this.array.get(idx)).doubleValue();
+		return (Double) this.array.get(idx);
 	}
 }

@@ -2,6 +2,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -10,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.List;
 
 public class Meditor {
@@ -75,15 +77,67 @@ public class Meditor {
 				app.getCanvas().dispatchEvent(e);
 			}
 		});
+
+		app.syncGui();
 	}
 
+	private MeditorToolPanel toolpanel = null;
 	private MeditorCanvas canvas = null;
 	private MerlotLevel level = null;
 	private Frame window = null;
 
 	public Meditor(Frame frame) {
 		this.window = frame;
-		this.canvas = new MeditorCanvas();
+		this.canvas = new MeditorCanvas(this);
+	}
+
+	private MeditorToolPanel getToolPanel() {
+		if(toolpanel == null) {
+			for(Component c : window.getComponents()) {
+				if(c instanceof MeditorToolPanel) {
+					toolpanel = (MeditorToolPanel) c;
+					break;
+				}
+			}
+		}
+		return toolpanel;
+	}
+
+	public void syncGui() {
+		MerlotLevel level = this.canvas.getLevel();
+		MeditorToolPanel tp = getToolPanel();
+
+		if(level != null) {
+			tp.setEnabled(true);
+
+			DefaultListModel<String> model = new DefaultListModel<String>();
+
+			tp.spriteList.setModel(model);
+
+			Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
+
+			MerlotSprite selected = null;
+
+			int idx = 0, selectedidx = -1;
+			while(iter.hasNext()) {
+				MerlotSprite spr = iter.next();
+				String imgname = spr.imgfilename;
+				if(imgname == null) continue; // these are not sprites... they're like... start pos, gates, etc.
+				imgname = imgname.substring(imgname.lastIndexOf('/') + 1, imgname.lastIndexOf('.'));
+				model.addElement(String.format("%d,%d (%s)", spr.getX(), spr.getY(), imgname));
+				if(spr.selected) {
+					selectedidx = idx;
+				}
+				idx ++;
+			}
+
+			if(selectedidx >= 0) {
+				tp.spriteList.setSelectedIndex(selectedidx);
+				tp.spriteList.ensureIndexIsVisible(selectedidx);
+			}
+		} else {
+			tp.setEnabled(false);
+		}
 	}
 
 	public MeditorCanvas getCanvas() {
@@ -128,6 +182,8 @@ public class Meditor {
 			this.window.setTitle(APP_TITLE + " - " + filename);
 			this.canvas.setLevel(level);
 		}
+
+		this.syncGui();
 	}
 
 	public void saveLevelJson(String filename) {
@@ -188,6 +244,6 @@ public class Meditor {
 		String dir = fd.getDirectory();
 		String file = fd.getFile();
 
-		return dir + file;
+		return (file != null && dir != null) ? dir + file : null;
 	}
 }

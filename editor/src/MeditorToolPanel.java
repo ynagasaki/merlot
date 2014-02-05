@@ -1,7 +1,11 @@
 
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 public class MeditorToolPanel extends Panel implements ActionListener {
@@ -10,6 +14,8 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 	private Button editBoundariesButton = new Button("Edit Boundaries");
 	private Button addInnerLevelButton = new Button("Add Inner Level");
 	private Button addPlatformButton = new Button("Add Platform");
+
+	JList spriteList = new JList();
 
 	public MeditorToolPanel(Meditor app) {
 		this.parentApp = app;
@@ -27,6 +33,35 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 			button.addActionListener(this);
 			add(button);
 		}
+
+		spriteList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		spriteList.setLayoutOrientation(JList.VERTICAL);
+		spriteList.setVisibleRowCount(-1);
+		spriteList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				String val = spriteList.getSelectedValue().toString();
+				String [] xy = val.split(" ")[0].split(",");
+				parentApp.getCanvas().currentState().mousePressed(
+						new MouseEvent(
+								spriteList,
+								-1,
+								System.currentTimeMillis(),
+								0,
+								Integer.parseInt(xy[0]),
+								Integer.parseInt(xy[1]),
+								1,
+								false
+						)
+				);
+			}
+		});
+
+		ScrollPane listScroller = new ScrollPane();
+		listScroller.add(spriteList);
+		listScroller.setPreferredSize(new Dimension(200, 500));
+
+		add(listScroller);
 	}
 
 	@Override
@@ -47,6 +82,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 		} else if(source == addPlatformButton) {
 			if(this.parentApp.getCanvas().getLevel() != null) {
 				String path = this.parentApp.openLoadFileDialog("png");
+				if(path == null) return;
 				if(path.startsWith(Meditor.APP_ROOT)) {
 					path = path.substring(Meditor.APP_ROOT.length());
 				}

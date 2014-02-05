@@ -56,7 +56,9 @@ public class MeditorMenu implements ActionListener {
 		if(label == null) return;
 		if(label.equalsIgnoreCase(MENUITEM_OPEN[0])) {
 			String path = this.parentApp.openLoadFileDialog("json");
-			this.parentApp.loadLevelJson(path);
+			if(path != null) {
+				this.parentApp.loadLevelJson(path);
+			}
 		} else if(label.equalsIgnoreCase(MENUITEM_SAVE[0])) {
 			this.parentApp.saveLevelJson(null);
 		} else if(label.equalsIgnoreCase(MENUITEM_RENDER[0])) {

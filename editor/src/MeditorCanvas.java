@@ -10,10 +10,19 @@ public class MeditorCanvas extends Canvas {
 	private MeditorGrid grid;
 	private MerlotLevel level = null;
 	private Deque<MeditorState> stateStack = new ArrayDeque<MeditorState>(4);
+	private Meditor parentApp;
 
-	public MeditorCanvas() {
+	public MeditorCanvas(Meditor app) {
+		parentApp = app;
 		grid = new MeditorGrid();
 		pushState(new MeditorState(this));
+	}
+
+	public MeditorState currentState() {
+		if(stateStack.size() > 0) {
+			return stateStack.peekLast();
+		}
+		return null;
 	}
 
 	public void pushState(MeditorState state) {
@@ -102,6 +111,8 @@ public class MeditorCanvas extends Canvas {
 			if(gridIsOn) {
 				grid.paint(g2d, level.getWidth(), level.getHeight());
 			}
+
+			parentApp.syncGui();
 		} else {
 			g2d.setColor(Color.DARK_GRAY);
 			g2d.drawString("Hello, fart face. Load a friggin level.", 20, 20);
