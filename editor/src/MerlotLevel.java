@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Deque;
 
 public class MerlotLevel extends MerlotSprite {
@@ -15,7 +14,7 @@ public class MerlotLevel extends MerlotSprite {
 
 	ColoredRectSprite startPointSprite = new ColoredRectSprite();
 
-	Deque<MerlotSprite> sprites = new ArrayDeque<MerlotSprite>();
+	Deque<MerlotSprite> sprites = new ArrayDeque<>();
 
 	public MerlotLevel(MerlotJsonObject leveljson) throws IOException {
 		super(leveljson);
@@ -33,9 +32,9 @@ public class MerlotLevel extends MerlotSprite {
 				MerlotJsonObject sprobj = new MerlotJsonObject(item);
 				try {
 					if(arg != null && arg.equalsIgnoreCase("platforms")) {
-						sprites.add(new MerlotPlatform(sprobj));
+						sprites.addLast(new MerlotPlatform(sprobj));
 					} else {
-						sprites.add(new MerlotSprite(sprobj));
+						sprites.addLast(new MerlotSprite(sprobj));
 					}
 				} catch(IOException ex) {
 					System.out.println("*Error loading sprite: " + sprobj.getStr("f"));
@@ -48,7 +47,7 @@ public class MerlotLevel extends MerlotSprite {
 
 		this.sprites.clear();
 
-		String [] keys = new String[] {"nutcoins", "platforms", "npcs"};
+		String [] keys = new String[] {"platforms", "nutcoins", "npcs"};
 		for(String key : keys) {
 			loadsprite.setarg(key);
 			MerlotJsonArray.each(leveljson.getArray(key), loadsprite);

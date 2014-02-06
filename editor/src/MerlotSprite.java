@@ -113,4 +113,12 @@ public class MerlotSprite implements Selectable {
 	public int getHeight() {
 		return height;
 	}
+
+	@Override
+	public String toString() {
+		String imgname = imgfilename;
+		if(imgname != null)
+			imgname = imgname.substring(imgname.lastIndexOf('/') + 1, imgname.lastIndexOf('.'));
+		return String.format("%d,%d %s", x, y, imgname == null ? getClass().getSimpleName() : imgname);
+	}
 }

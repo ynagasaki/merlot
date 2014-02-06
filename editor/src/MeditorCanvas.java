@@ -9,7 +9,7 @@ public class MeditorCanvas extends Canvas {
 	private boolean gridIsOn = false;
 	private MeditorGrid grid;
 	private MerlotLevel level = null;
-	private Deque<MeditorState> stateStack = new ArrayDeque<MeditorState>(4);
+	private Deque<MeditorState> stateStack = new ArrayDeque<>(4);
 	private Meditor parentApp;
 
 	public MeditorCanvas(Meditor app) {
@@ -124,5 +124,55 @@ public class MeditorCanvas extends Canvas {
 			paintInOrder(g2d, stateStackIter.next(), stateStackIter);
 		}
 		currState.paint(g2d);
+	}
+
+	public void reorderSpriteForward(MerlotSprite spr) {
+		if(level.sprites.peekLast() == spr) return;
+
+		int size = level.sprites.size();
+		Deque<MerlotSprite> temp = new ArrayDeque<>(size);
+		Iterator<MerlotSprite> iter = level.sprites.iterator();
+
+		boolean doit = false;
+		while(size -- > 0) {
+			MerlotSprite curr = iter.next();
+			if(curr == spr) {
+				doit = true;
+			} else if(doit) {
+				temp.addLast(curr);
+				temp.addLast(spr);
+				doit = false;
+			} else {
+				temp.addLast(curr);
+			}
+		}
+
+		level.sprites = temp;
+		repaint();
+	}
+
+	public void reorderSpriteBack(MerlotSprite spr) {
+		if(level.sprites.peekFirst() == spr) return;
+
+		int size = level.sprites.size();
+		Deque<MerlotSprite> temp = new ArrayDeque<>(size);
+		Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
+
+		boolean doit = false;
+		while(size -- > 0) {
+			MerlotSprite curr = iter.next();
+			if(curr == spr) {
+				doit = true;
+			} else if(doit) {
+				temp.addFirst(curr);
+				temp.addFirst(spr);
+				doit = false;
+			} else {
+				temp.addFirst(curr);
+			}
+		}
+
+		level.sprites = temp;
+		repaint();
 	}
 }

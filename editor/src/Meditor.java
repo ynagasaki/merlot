@@ -110,21 +110,17 @@ public class Meditor {
 		if(level != null) {
 			tp.setEnabled(true);
 
-			DefaultListModel<String> model = new DefaultListModel<String>();
+			DefaultListModel<MerlotSprite> model = new DefaultListModel<>();
 
 			tp.spriteList.setModel(model);
 
 			Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
 
-			MerlotSprite selected = null;
-
 			int idx = 0, selectedidx = -1;
 			while(iter.hasNext()) {
 				MerlotSprite spr = iter.next();
-				String imgname = spr.imgfilename;
-				if(imgname == null) continue; // these are not sprites... they're like... start pos, gates, etc.
-				imgname = imgname.substring(imgname.lastIndexOf('/') + 1, imgname.lastIndexOf('.'));
-				model.addElement(String.format("%d,%d (%s)", spr.getX(), spr.getY(), imgname));
+				if(spr.imgfilename == null) continue; // these are not sprites... they're like... start pos, gates, etc.
+				model.addElement(spr);
 				if(spr.selected) {
 					selectedidx = idx;
 				}

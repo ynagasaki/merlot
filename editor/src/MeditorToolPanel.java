@@ -1,11 +1,7 @@
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
 public class MeditorToolPanel extends Panel implements ActionListener {
@@ -14,8 +10,10 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 	private Button editBoundariesButton = new Button("Edit Boundaries");
 	private Button addInnerLevelButton = new Button("Add Inner Level");
 	private Button addPlatformButton = new Button("Add Platform");
+	private Button plusZButton = new Button("+z");
+	private Button minusZButton = new Button("-z");
 
-	JList spriteList = new JList();
+	JList<MerlotSprite> spriteList = new JList<>();
 
 	public MeditorToolPanel(Meditor app) {
 		this.parentApp = app;
@@ -26,7 +24,9 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 		Button [] buttons = {
 			editBoundariesButton,
 			addPlatformButton,
-			addInnerLevelButton
+			addInnerLevelButton,
+			plusZButton,
+			minusZButton
 		};
 
 		for(Button button : buttons) {
@@ -40,16 +40,15 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 		spriteList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				String val = spriteList.getSelectedValue().toString();
-				String [] xy = val.split(" ")[0].split(",");
+				MerlotSprite val = spriteList.getSelectedValue();
 				parentApp.getCanvas().currentState().mousePressed(
 						new MouseEvent(
 								spriteList,
 								-1,
 								System.currentTimeMillis(),
 								0,
-								Integer.parseInt(xy[0]),
-								Integer.parseInt(xy[1]),
+								val.getX(),
+								val.getY(),
 								1,
 								false
 						)
@@ -59,7 +58,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 
 		ScrollPane listScroller = new ScrollPane();
 		listScroller.add(spriteList);
-		listScroller.setPreferredSize(new Dimension(200, 500));
+		listScroller.setPreferredSize(new Dimension(200, 350));
 
 		add(listScroller);
 	}
@@ -93,6 +92,20 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 				} catch(IOException ex) {
 					System.out.println("*Error: failed to add platform: " + path);
 					ex.printStackTrace();
+				}
+			}
+		} else if(source == plusZButton) {
+			if(spriteList.getSelectedIndex() > 0) {
+				MerlotSprite spr = spriteList.getSelectedValue();
+				if(spr != null) {
+					parentApp.getCanvas().reorderSpriteForward(spr);
+				}
+			}
+		} else if(source == minusZButton) {
+			if(spriteList.getSelectedIndex() < spriteList.getModel().getSize() - 1) {
+				MerlotSprite spr = spriteList.getSelectedValue();
+				if(spr != null) {
+					parentApp.getCanvas().reorderSpriteBack(spr);
 				}
 			}
 		}
