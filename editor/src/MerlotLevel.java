@@ -16,6 +16,10 @@ public class MerlotLevel extends MerlotSprite {
 
 	Deque<MerlotSprite> sprites = new ArrayDeque<>();
 
+	public MerlotLevel(String bgfilename) throws IOException {
+		super(bgfilename);
+	}
+
 	public MerlotLevel(MerlotJsonObject leveljson) throws IOException {
 		super(leveljson);
 
@@ -71,6 +75,7 @@ public class MerlotLevel extends MerlotSprite {
 		return Meditor.APP_ROOT + this.json.getStr("id");
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONObject toJson() {
 		JSONObject json = new JSONObject();
 
@@ -88,7 +93,9 @@ public class MerlotLevel extends MerlotSprite {
 		for(MerlotSprite spr : sprites) {
 			if(spr instanceof ColoredRectSprite) {
 				continue;
-			} else if(spr instanceof  MerlotPlatform) {
+			}
+
+			if(spr instanceof  MerlotPlatform) {
 				platforms.add(((MerlotPlatform) spr).toJson());
 			} else if(spr.imgfilename.contains("coin")) {
 				JSONObject nc = new JSONObject();

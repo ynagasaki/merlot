@@ -76,7 +76,27 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 			MeditorCanvas canvas = parentApp.getCanvas();
 			Selectable selected = canvas.getSelectedItem();
 			if(selected instanceof MerlotPlatform) {
-				System.out.println("poop");
+				MerlotPlatform plat = (MerlotPlatform) selected;
+
+				if(plat.getAssociatedInnerLevel() == null) {
+					String path = this.parentApp.openLoadFileDialog("png");
+					if(path == null) return;
+					if(path.startsWith(Meditor.APP_ROOT)) {
+						path = path.substring(Meditor.APP_ROOT.length());
+					}
+
+					// create a new level
+					try {
+						MerlotLevel innerlevel = new MerlotLevel(path);
+						plat.setAssociatedInnerLevel(innerlevel);
+					} catch(Exception ex) {
+						System.out.println("*Error: failed to create inner level.");
+						ex.printStackTrace();
+						return;
+					}
+				}
+
+				canvas.pushState(new InnerLevelEditState(canvas, (MerlotPlatform) selected));
 			}
 		} else if(source == addPlatformButton) {
 			if(this.parentApp.getCanvas().getLevel() != null) {

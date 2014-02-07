@@ -7,12 +7,22 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class MerlotPlatform extends MerlotSprite {
-	Deque<MerlotBoundary> boundaries = new ArrayDeque<MerlotBoundary>();
+	Deque<MerlotBoundary> boundaries = new ArrayDeque<>();
+
+	MerlotLevel innerLevel;
 
 	public MerlotPlatform(String filename) throws IOException {
 		super(filename);
 
 		hasFrames = false;
+	}
+
+	public MerlotLevel getAssociatedInnerLevel() {
+		return innerLevel;
+	}
+
+	public void setAssociatedInnerLevel(MerlotLevel level) {
+		innerLevel = level;
 	}
 
 	public MerlotPlatform(MerlotJsonObject json) throws IOException {
@@ -50,6 +60,7 @@ public class MerlotPlatform extends MerlotSprite {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONObject toJson() {
 		JSONObject json = new JSONObject();
 
