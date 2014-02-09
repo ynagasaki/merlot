@@ -10,6 +10,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 	private Button editBoundariesButton = new Button("Edit Boundaries");
 	private Button addEditInnerLevelButton = new Button("Add/Edit Inner Level");
 	private Button addPlatformButton = new Button("Add Platform");
+	private Button addGateButton = new Button("Add Gate");
 	private Button plusZButton = new Button("+z");
 	private Button minusZButton = new Button("-z");
 
@@ -25,6 +26,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 				addPlatformButton,
 				editBoundariesButton,
 				addEditInnerLevelButton,
+				addGateButton,
 				plusZButton,
 				minusZButton
 		};
@@ -71,11 +73,16 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 
 		this.editBoundariesButton.setEnabled(selectedIsPlatform);
 		this.addEditInnerLevelButton.setEnabled(selectedIsPlatform);
+		this.addGateButton.setEnabled(false);
 
 		if(selectedIsPlatform) {
 			this.addEditInnerLevelButton.setLabel(
 					selectedPlatformHasInnerLevel ? "Edit Inner Level" : "Add Inner Level"
 			);
+
+			if(selectedPlatformHasInnerLevel) {
+				this.addGateButton.setEnabled(selectedPlatformHasInnerLevel);
+			}
 		}
 	}
 
@@ -144,6 +151,20 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 				if(spr != null) {
 					parentApp.getCanvas().reorderSpriteBack(spr);
 				}
+			}
+		} else if(source == addGateButton) {
+			MerlotLevel parentLevel = parentApp.getCanvas().currentLevel();
+			MerlotLevel innerLevel = null;
+
+			if(spriteList.getSelectedValue() instanceof MerlotPlatform) {
+				MerlotPlatform p = (MerlotPlatform) spriteList.getSelectedValue();
+				innerLevel = p.getAssociatedInnerLevel();
+			}
+
+			if(innerLevel != null) {
+				MerlotLevelGate gate = new MerlotLevelGate(parentLevel, innerLevel);
+				parentLevel.sprites.add(gate);
+				parentApp.getCanvas().repaint();
 			}
 		}
 	}

@@ -52,6 +52,8 @@ public class MerlotLevel extends MerlotSprite {
 				try {
 					if(arg != null && arg.equalsIgnoreCase("platforms")) {
 						sprites.addLast(new MerlotPlatform(sprobj));
+					} else if(arg != null && arg.equalsIgnoreCase("gates")) {
+						sprites.addLast(new MerlotLevelGate(sprobj));
 					} else {
 						sprites.addLast(new MerlotSprite(sprobj));
 					}
@@ -66,7 +68,7 @@ public class MerlotLevel extends MerlotSprite {
 
 		this.sprites.clear();
 
-		String [] keys = new String[] {"platforms", "nutcoins", "npcs"};
+		String [] keys = new String[] {"platforms", "gates", "nutcoins", "npcs"};
 		for(String key : keys) {
 			loadsprite.setarg(key);
 			MerlotJsonArray.each(leveljson.getArray(key), loadsprite);
@@ -132,10 +134,14 @@ public class MerlotLevel extends MerlotSprite {
 		JSONArray nutcoins = new JSONArray();
 		JSONArray platforms = new JSONArray();
 		JSONArray npcs = new JSONArray();
+		JSONArray gates = new JSONArray();
 		JSONArray innerlevels = new JSONArray();
 
 		for(MerlotSprite spr : sprites) {
-			if(spr instanceof ColoredRectSprite) {
+			if(spr instanceof MerlotLevelGate) {
+				gates.add(((MerlotLevelGate) spr).toJson());
+				continue;
+			} else if(spr instanceof ColoredRectSprite) {
 				continue;
 			}
 
@@ -172,7 +178,7 @@ public class MerlotLevel extends MerlotSprite {
 		json.put("npcs", npcs);
 		json.put("platforms", platforms);
 
-		json.put("gates", new JSONArray());
+		json.put("gates", gates);
 		json.put("boundaries", new JSONArray());
 		json.put("innerlevels", innerlevels);
 
