@@ -8,21 +8,42 @@ import java.util.Iterator;
 public class MeditorCanvas extends Canvas {
 	private boolean gridIsOn = false;
 	private MeditorGrid grid;
-	private MerlotLevel level = null;
 	private Deque<MeditorState> stateStack = new ArrayDeque<>(4);
 	private Meditor parentApp;
 
 	public MeditorCanvas(Meditor app) {
 		parentApp = app;
 		grid = new MeditorGrid();
-		pushState(new MeditorState(this));
 	}
 
 	public MeditorState currentState() {
 		if(stateStack.size() > 0) {
-			return stateStack.peekLast();
+			return stateStack.peekFirst();
 		}
 		return null;
+	}
+
+	public MerlotLevel currentLevel() {
+		if(currentState() == null) return null;
+		return currentState().getLevel();
+	}
+
+	public MerlotLevel topmostLevel() {
+		Iterator<MeditorState> iter = stateStack.iterator();
+		while(iter.hasNext()) {
+			MerlotLevel lvl = iter.next().getLevel();
+			if(lvl != null) return lvl;
+		}
+		return null;
+	}
+
+	public void rejiggerTheCurrentLevelCanvasDimensions() {
+		MerlotLevel level = currentLevel();
+		Dimension dim = new Dimension(level.getWidth(), level.getHeight());
+
+		this.setPreferredSize(dim);
+		this.getParent().setPreferredSize(dim);
+		this.getParent().revalidate();
 	}
 
 	public void pushState(MeditorState state) {
@@ -33,7 +54,7 @@ public class MeditorCanvas extends Canvas {
 			this.removeKeyListener(curr);
 		}
 
-		stateStack.push(state);
+		stateStack.addFirst(state);
 		this.addMouseListener(state);
 		this.addMouseMotionListener(state);
 		this.addKeyListener(state);
@@ -58,21 +79,7 @@ public class MeditorCanvas extends Canvas {
 	}
 
 	public Selectable getSelectedItem() {
-		return stateStack.peekFirst().selectedItem;
-	}
-
-	public MerlotLevel getLevel() {
-		return level;
-	}
-
-	public void setLevel(MerlotLevel lvl) {
-		this.level = lvl;
-		this.setPreferredSize(new Dimension(level.width, level.height));
-		this.setGridExtents(0, 0, level.width, level.height);
-
-		this.getParent().setPreferredSize(new Dimension(level.width, level.height));
-		this.getParent().revalidate();
-		this.repaint();
+		return currentState().selectedItem;
 	}
 
 	public void gridOn(boolean on) {
@@ -90,6 +97,7 @@ public class MeditorCanvas extends Canvas {
 	}
 
 	public BufferedImage requestCanvasRender() {
+		MerlotLevel level = currentState().getLevel();
 		if(level != null) {
 			BufferedImage result = new BufferedImage(level.width, level.height, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g2d = result.createGraphics();
@@ -103,13 +111,14 @@ public class MeditorCanvas extends Canvas {
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 
-		if(this.level != null) {
+		if(stateStack.size() > 0) {
 			Iterator<MeditorState> iter = stateStack.iterator();
 
 			paintInOrder(g2d, iter.next(), iter);
 
 			if(gridIsOn) {
-				grid.paint(g2d, level.getWidth(), level.getHeight());
+				MerlotLevel topmost = topmostLevel();
+				grid.paint(g2d, topmost.getX(), topmost.getY(), topmost.getWidth(), topmost.getHeight());
 			}
 
 			parentApp.syncGui();
@@ -127,7 +136,9 @@ public class MeditorCanvas extends Canvas {
 	}
 
 	public void reorderSpriteForward(MerlotSprite spr) {
-		if(level.sprites.peekLast() == spr) return;
+		MerlotLevel level = currentLevel();
+
+		if(level == null || level.sprites.peekLast() == spr) return;
 
 		int size = level.sprites.size();
 		Deque<MerlotSprite> temp = new ArrayDeque<>(size);
@@ -152,7 +163,9 @@ public class MeditorCanvas extends Canvas {
 	}
 
 	public void reorderSpriteBack(MerlotSprite spr) {
-		if(level.sprites.peekFirst() == spr) return;
+		MerlotLevel level = currentLevel();
+
+		if(level == null || level.sprites.peekFirst() == spr) return;
 
 		int size = level.sprites.size();
 		Deque<MerlotSprite> temp = new ArrayDeque<>(size);

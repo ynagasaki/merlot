@@ -1,18 +1,19 @@
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class InnerLevelEditState extends MeditorState {
-	private MerlotPlatform parentPlatform;
-	public InnerLevelEditState(MeditorCanvas canvas, MerlotPlatform platform) {
-		super(canvas);
-		parentPlatform = platform;
+	private MerlotPlatform platform;
+	public InnerLevelEditState(MeditorCanvas canvas, MerlotPlatform p) {
+		super(canvas, p.innerLevel);
+		platform = p;
 
-		parentPlatform.innerLevel.x = parentPlatform.getX();
-		parentPlatform.innerLevel.y = parentPlatform.getY();
+		platform.innerLevel.x = platform.getX();
+		platform.innerLevel.y = platform.getY();
 	}
 
 	@Override
 	public void paint(Graphics2D g2d) {
-		parentPlatform.innerLevel.draw(g2d);
+		this.platform.innerLevel.draw(g2d);
 	}
 
 	@Override
@@ -20,4 +21,11 @@ public class InnerLevelEditState extends MeditorState {
 		return true;
 	}
 
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			parentCanvas.popState();
+		}
+		super.keyPressed(e);
+	}
 }

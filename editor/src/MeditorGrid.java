@@ -24,14 +24,14 @@ public class MeditorGrid {
 		gridextents.setBounds(x, y, width, height);
 	}
 
-	public void paint(Graphics2D g2d, int areaWidth, int areaHeight) {
+	public void paint(Graphics2D g2d, int startx, int starty, int areaWidth, int areaHeight) {
 		g2d.setStroke(GRID_STROKE);
 		g2d.setColor(GRID_COLOR);
 		for(int x = 0; x <= gridextents.width; x += GRID_RESOLUTION) {
-			g2d.drawLine(gridextents.x + x, 0, gridextents.x + x, areaHeight);
+			g2d.drawLine(gridextents.x + x, starty, gridextents.x + x, starty + areaHeight);
 		}
 		for(int y = 0; y <= gridextents.height; y += GRID_RESOLUTION) {
-			g2d.drawLine(0, gridextents.y + y, areaWidth, gridextents.y + y);
+			g2d.drawLine(startx, gridextents.y + y, startx + areaWidth, gridextents.y + y);
 		}
 	}
 }

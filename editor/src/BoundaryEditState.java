@@ -50,7 +50,7 @@ public class BoundaryEditState extends MeditorState {
 	BoundaryNub nub2;
 
 	public BoundaryEditState(MeditorCanvas canvas, MerlotPlatform target) {
-		super(canvas);
+		super(canvas, null);
 		platform = target;
 	}
 

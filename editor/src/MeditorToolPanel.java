@@ -8,7 +8,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 	private Meditor parentApp;
 
 	private Button editBoundariesButton = new Button("Edit Boundaries");
-	private Button addInnerLevelButton = new Button("Add Inner Level");
+	private Button addInnerLevelButton = new Button("Add/Edit Inner Level");
 	private Button addPlatformButton = new Button("Add Platform");
 	private Button plusZButton = new Button("+z");
 	private Button minusZButton = new Button("-z");
@@ -96,10 +96,10 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 					}
 				}
 
-				canvas.pushState(new InnerLevelEditState(canvas, (MerlotPlatform) selected));
+				canvas.pushState(new InnerLevelEditState(canvas, plat));
 			}
 		} else if(source == addPlatformButton) {
-			if(this.parentApp.getCanvas().getLevel() != null) {
+			if(this.parentApp.getCanvas().currentState().getLevel() != null) {
 				String path = this.parentApp.openLoadFileDialog("png");
 				if(path == null) return;
 				if(path.startsWith(Meditor.APP_ROOT)) {
@@ -107,7 +107,7 @@ public class MeditorToolPanel extends Panel implements ActionListener {
 				}
 				try {
 					MerlotPlatform platform = new MerlotPlatform(path);
-					this.parentApp.getCanvas().getLevel().sprites.add(platform);
+					this.parentApp.getCanvas().currentState().getLevel().sprites.add(platform);
 					this.parentApp.getCanvas().repaint();
 				} catch(IOException ex) {
 					System.out.println("*Error: failed to add platform: " + path);

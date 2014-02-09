@@ -62,7 +62,7 @@ public class MeditorMenu implements ActionListener {
 		} else if(label.equalsIgnoreCase(MENUITEM_SAVE[0])) {
 			this.parentApp.saveLevelJson(null);
 		} else if(label.equalsIgnoreCase(MENUITEM_RENDER[0])) {
-			if(this.parentApp.getCanvas().getLevel() != null) {
+			if(this.parentApp.getCanvas().currentState().getLevel() != null) {
 				FileDialog fd = new FileDialog(parentFrame, "Save rendering", FileDialog.SAVE);
 
 				fd.setDirectory(Meditor.APP_ROOT);

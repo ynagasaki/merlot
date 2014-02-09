@@ -9,9 +9,15 @@ public class MeditorState extends MouseAdapter implements MouseMotionListener, K
 	protected Point selectedItemUnsnappedPosition = new Point(0, 0);
 	protected MeditorCanvas parentCanvas;
 	protected Selectable selectedItem = null;
+	protected MerlotLevel parentLevel = null;
 
-	public MeditorState(MeditorCanvas canvas) {
-		this.parentCanvas = canvas;
+	public MeditorState(MeditorCanvas canvas, MerlotLevel level) {
+		parentCanvas = canvas;
+		parentLevel = level;
+	}
+
+	public MerlotLevel getLevel() {
+		return parentLevel;
 	}
 
 	@Override
@@ -60,9 +66,8 @@ public class MeditorState extends MouseAdapter implements MouseMotionListener, K
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		MerlotLevel level = parentCanvas.getLevel();
-		if(level != null) {
-			Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
+		if(parentLevel != null) {
+			Iterator<MerlotSprite> iter = parentLevel.sprites.descendingIterator();
 			while(iter.hasNext()) {
 				MerlotSprite spr = iter.next();
 
@@ -109,8 +114,9 @@ public class MeditorState extends MouseAdapter implements MouseMotionListener, K
 	}
 
 	public void paint(Graphics2D g2d) {
-		MerlotLevel level = parentCanvas.getLevel();
-		level.draw(g2d);
+		if(parentLevel != null) {
+			parentLevel.draw(g2d);
+		}
 	}
 
 	public boolean paintStateBelow() {

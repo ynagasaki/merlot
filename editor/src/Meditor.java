@@ -104,35 +104,36 @@ public class Meditor {
 	}
 
 	public void syncGui() {
-		MerlotLevel level = this.canvas.getLevel();
+		MerlotLevel level = canvas.currentLevel();
 		MeditorToolPanel tp = getToolPanel();
 
-		if(level != null) {
-			tp.setEnabled(true);
-
-			DefaultListModel<MerlotSprite> model = new DefaultListModel<>();
-
-			tp.spriteList.setModel(model);
-
-			Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
-
-			int idx = 0, selectedidx = -1;
-			while(iter.hasNext()) {
-				MerlotSprite spr = iter.next();
-				if(spr.imgfilename == null) continue; // these are not sprites... they're like... start pos, gates, etc.
-				model.addElement(spr);
-				if(spr.selected) {
-					selectedidx = idx;
-				}
-				idx ++;
-			}
-
-			if(selectedidx >= 0) {
-				tp.spriteList.setSelectedIndex(selectedidx);
-				tp.spriteList.ensureIndexIsVisible(selectedidx);
-			}
-		} else {
+		if(level == null) {
 			tp.setEnabled(false);
+			return;
+		}
+
+		tp.setEnabled(true);
+
+		DefaultListModel<MerlotSprite> model = new DefaultListModel<>();
+
+		tp.spriteList.setModel(model);
+
+		Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
+
+		int idx = 0, selectedidx = -1;
+		while(iter.hasNext()) {
+			MerlotSprite spr = iter.next();
+			if(spr.imgfilename == null) continue; // these are not sprites... they're like... start pos, gates, etc.
+			model.addElement(spr);
+			if(spr.selected) {
+				selectedidx = idx;
+			}
+			idx ++;
+		}
+
+		if(selectedidx >= 0) {
+			tp.spriteList.setSelectedIndex(selectedidx);
+			tp.spriteList.ensureIndexIsVisible(selectedidx);
 		}
 	}
 
@@ -175,8 +176,9 @@ public class Meditor {
 		}
 
 		if(level != null) {
-			this.window.setTitle(APP_TITLE + " - " + filename);
-			this.canvas.setLevel(level);
+			window.setTitle(APP_TITLE + " - " + filename);
+			canvas.pushState(new MeditorState(canvas, level));
+			canvas.rejiggerTheCurrentLevelCanvasDimensions();
 		}
 
 		this.syncGui();

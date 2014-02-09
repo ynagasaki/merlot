@@ -1,7 +1,7 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -49,6 +49,11 @@ public class MerlotPlatform extends MerlotSprite {
 			for(MerlotBoundary b : boundaries) {
 				b.draw(g2d);
 			}
+		}
+
+		if(innerLevel != null) {
+			g2d.setColor(Color.YELLOW);
+			g2d.drawRect(x + 1, y + 1, width - 2, height - 2);
 		}
 	}
 
