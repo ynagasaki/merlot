@@ -46,13 +46,14 @@ public class MerlotPlatform extends MerlotSprite {
 		super.draw(g2d);
 
 		if(boundaries != null) {
+			g2d.setColor(Color.GRAY);
 			for(MerlotBoundary b : boundaries) {
 				b.draw(g2d);
 			}
 		}
 
 		if(innerLevel != null) {
-			g2d.setColor(Color.YELLOW);
+			g2d.setColor(Color.PINK);
 			g2d.drawRect(x + 1, y + 1, width - 2, height - 2);
 		}
 	}

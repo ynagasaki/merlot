@@ -121,12 +121,14 @@ public class Meditor {
 		Iterator<MerlotSprite> iter = level.sprites.descendingIterator();
 
 		int idx = 0, selectedidx = -1;
+		Selectable selectedItem = null;
 		while(iter.hasNext()) {
 			MerlotSprite spr = iter.next();
 			if(spr.imgfilename == null) continue; // these are not sprites... they're like... start pos, gates, etc.
 			model.addElement(spr);
 			if(spr.selected) {
 				selectedidx = idx;
+				selectedItem = spr;
 			}
 			idx ++;
 		}
@@ -135,6 +137,8 @@ public class Meditor {
 			tp.spriteList.setSelectedIndex(selectedidx);
 			tp.spriteList.ensureIndexIsVisible(selectedidx);
 		}
+
+		tp.enableButtons(selectedItem);
 	}
 
 	public MeditorCanvas getCanvas() {
@@ -189,7 +193,7 @@ public class Meditor {
 		String data = level.toJson().toString();
 
 		if(filename == null) {
-			filename = level.getFilename();
+			filename = Meditor.APP_ROOT + level.getId();
 		}
 
 		try {

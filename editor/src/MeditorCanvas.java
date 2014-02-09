@@ -29,9 +29,8 @@ public class MeditorCanvas extends Canvas {
 	}
 
 	public MerlotLevel topmostLevel() {
-		Iterator<MeditorState> iter = stateStack.iterator();
-		while(iter.hasNext()) {
-			MerlotLevel lvl = iter.next().getLevel();
+		for(MeditorState state : stateStack) {
+			MerlotLevel lvl = state.getLevel();
 			if(lvl != null) return lvl;
 		}
 		return null;

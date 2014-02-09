@@ -10,24 +10,39 @@ import java.util.Deque;
 
 public class MerlotLevel extends MerlotSprite {
 
-	int width, height;
+	String id;
 
-	ColoredRectSprite startPointSprite = new ColoredRectSprite();
+	ColoredRectSprite startPointSprite = null;
 
 	Deque<MerlotSprite> sprites = new ArrayDeque<>();
+	Integer innerLevelCount = 0;
 
-	public MerlotLevel(String bgfilename) throws IOException {
+	public MerlotLevel(String id, String bgfilename) throws IOException {
 		super(bgfilename);
+		this.id = id;
 	}
 
 	public MerlotLevel(MerlotJsonObject leveljson) throws IOException {
 		super(leveljson);
 
+		this.id = this.json.getStr("id");
 		this.width = leveljson.getInt("width");
 		this.height = leveljson.getInt("height");
 
-		MerlotJsonArray startpt = leveljson.getArray("startpt");
-		this.startPointSprite.set(Color.GREEN, startpt.getInt(0), startpt.getInt(1), Meditor.PLAYER_WIDTH, Meditor.PLAYER_HEIGHT);
+		if(leveljson.hasKey("x")) this.x = leveljson.getInt("x");
+		if(leveljson.hasKey("y")) this.y = leveljson.getInt("y");
+
+		if(leveljson.hasKey("startpt")) {
+			startPointSprite = new ColoredRectSprite();
+			MerlotJsonArray startpt = leveljson.getArray("startpt");
+			this.startPointSprite.set(
+					Color.GREEN,
+					startpt.getInt(0),
+					startpt.getInt(1),
+					Meditor.PLAYER_WIDTH,
+					Meditor.PLAYER_HEIGHT
+			);
+		}
 
 		/* load sprites */
 		MerlotJsonArray.eachfunc<JSONObject, String> loadsprite = new MerlotJsonArray.eachfunc<JSONObject, String>() {
@@ -57,7 +72,33 @@ public class MerlotLevel extends MerlotSprite {
 			MerlotJsonArray.each(leveljson.getArray(key), loadsprite);
 		}
 
-		sprites.add(startPointSprite);
+		if(startPointSprite != null) sprites.add(startPointSprite);
+
+		/* load inner levels and associate them with plats */
+		MerlotJsonArray innerlevels = leveljson.getArray("innerlevels");
+		MerlotJsonArray.each(innerlevels, new MerlotJsonArray.eachfunc<JSONObject, String>() {
+			@Override
+			boolean process(JSONObject item) {
+				try {
+					MerlotJsonObject jsonobj = new MerlotJsonObject(item);
+					MerlotLevel lvl = new MerlotLevel(jsonobj);
+
+					// Figure out which platform this level belongs to
+					for(MerlotSprite pspr : sprites) {
+						if(pspr instanceof MerlotPlatform && pspr.shouldSelect(pspr.getX(), pspr.getY())) {
+							((MerlotPlatform) pspr).setAssociatedInnerLevel(lvl);
+							innerLevelCount += 1;
+							break;
+						}
+					}
+				} catch (IOException e) {
+					System.out.println("*Error: failed to load inner level.");
+					e.printStackTrace();
+					return false;
+				}
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -68,27 +109,30 @@ public class MerlotLevel extends MerlotSprite {
 			spr.draw(g2d);
 		}
 
-		startPointSprite.draw(g2d);
+		if(startPointSprite != null) startPointSprite.draw(g2d);
 	}
 
-	public String getFilename() {
-		return Meditor.APP_ROOT + this.json.getStr("id");
+	public String getId() {
+		return this.id;
 	}
 
 	@SuppressWarnings("unchecked")
 	public JSONObject toJson() {
 		JSONObject json = new JSONObject();
 
-		json.put("id", this.json.getStr("id"));
+		json.put("id", id);
 		json.put("width", width);
 		json.put("height", height);
 		json.put("background", imgfilename);
 
-		json.put("startpt", Mutil.makeJsonArray(startPointSprite.getX(), startPointSprite.getY()));
+		if(startPointSprite != null) {
+			json.put("startpt", Mutil.makeJsonArray(startPointSprite.getX(), startPointSprite.getY()));
+		}
 
 		JSONArray nutcoins = new JSONArray();
 		JSONArray platforms = new JSONArray();
 		JSONArray npcs = new JSONArray();
+		JSONArray innerlevels = new JSONArray();
 
 		for(MerlotSprite spr : sprites) {
 			if(spr instanceof ColoredRectSprite) {
@@ -96,7 +140,18 @@ public class MerlotLevel extends MerlotSprite {
 			}
 
 			if(spr instanceof  MerlotPlatform) {
-				platforms.add(((MerlotPlatform) spr).toJson());
+				MerlotPlatform plat = (MerlotPlatform) spr;
+				MerlotLevel innerlvl = plat.getAssociatedInnerLevel();
+
+				platforms.add(plat.toJson());
+
+				if(innerlvl != null) {
+					JSONObject iljson = innerlvl.toJson();
+					iljson.remove("startpt");
+					iljson.put("x", innerlvl.getX());
+					iljson.put("y", innerlvl.getY());
+					innerlevels.add(iljson);
+				}
 			} else if(spr.imgfilename.contains("coin")) {
 				JSONObject nc = new JSONObject();
 				nc.put("f", spr.imgfilename);
@@ -119,7 +174,7 @@ public class MerlotLevel extends MerlotSprite {
 
 		json.put("gates", new JSONArray());
 		json.put("boundaries", new JSONArray());
-		json.put("innerlevels", new JSONArray());
+		json.put("innerlevels", innerlevels);
 
 		return json;
 	}

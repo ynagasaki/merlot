@@ -7,8 +7,8 @@ import java.io.IOException;
 public class MerlotSprite implements Selectable {
 	public static final Color SELECTED_COLOR = Color.BLUE; //new Color(0, 0, 255, 200);
 
-	int x, y;
-	int width, height;
+	protected int x, y;
+	protected int width, height;
 	boolean selected = false;
 	boolean hasFrames = false;
 
